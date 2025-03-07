@@ -1,4 +1,6 @@
 import random
+from Card import Card
+
 allies_loc1,allies_loc2, allies_loc3 = [], [], []
 enemies_loc1,enemies_loc2, enemies_loc3 = [], [], []
 exit = False
@@ -6,6 +8,9 @@ turnAlly = False
 allyenergy, enemyenergy =1,1
 turncounter = 1
 maxturns = 6
+allypower1,allypower2,allypower3 = 0,0,0
+enemypower1,enemypower2,enemypower3 = 0,0,0
+
 def addTolocation(location, unit):
     if(len(location)<4):
         location.append(unit)
@@ -13,6 +18,7 @@ def addTolocation(location, unit):
     else:
         print("Location full")
         return False
+
 def checkWinner():
     alliesWin = 0
     enemiesWin = 0
@@ -29,16 +35,18 @@ def checkWinner():
         return "enemy"
     else:
         return "tie"
+
 def locationWon(ally,enemy,counterally,counterenemy):
     if ally > enemy:
         counterally+=1
     elif enemy > ally:
         counterenemy+=1
     return counterally, counterenemy
+
 def countPower(location):
     power = 0
     for unit in location:
-        power += unit
+        power += unit.power
     return power
 
 def addUnit(unit):
@@ -63,9 +71,14 @@ def addUnit(unit):
                 return addTolocation(enemies_loc3, unit)
 
 def boardStatus():
-    print("Location 1:",allies_loc1, " vs ", enemies_loc1)
-    print("Location 2:",allies_loc2, " vs ", enemies_loc2)
-    print("Location 3:",allies_loc3, " vs ", enemies_loc3)
+    str1 = "Location 1:" + str(allies_loc1) + " vs " +str(enemies_loc1)+ """
+"""
+    str2 = "Location 2:" + str(allies_loc2) + " vs " +str(enemies_loc2)+ """
+"""
+    str3 = "Location 3:" + str(allies_loc3) + " vs " +str(enemies_loc3)+ """
+"""
+    return str1+str2+str3
+
 def draw(hand,deck,num):
     i=0
     while i<num:
@@ -73,7 +86,25 @@ def draw(hand,deck,num):
         del deck[-1]
         i+=1
 
-def playerTurn(hand, maxenergy):
+def gameStart():
+    allydeck, enemydeck = [],[]
+    for i in range (1,20,1):
+        randomcost = random.randint(0,6)
+        randompower = random.randint(1,10)
+        cardname = "Number" + str(i)
+        curCard = Card(randomcost,randompower, cardname)
+        allydeck.append(curCard)
+        enemydeck.append(curCard)
+    #allydeck = [[2,1],[3,2],[4,3],[6,4],[8,5],[9,6],[2,1],[3,2],[4,3],[6,4],[8,5],[9,6]]
+    #enemydeck = [[2,1],[3,2],[4,3],[6,4],[8,5],[9,6],[2,1],[3,2],[4,3],[6,4],[8,5],[9,6]]
+    allyhand,enemyhand = [],[]
+    random.shuffle(allydeck)
+    random.shuffle(enemydeck)
+    draw(allyhand,allydeck,3)
+    draw(enemyhand,enemydeck,3)
+    return allyhand,enemyhand, allydeck, enemydeck
+
+def playerTurn(hand, maxenergy, currentBoard):
     playerpass = False
     turnenergy = maxenergy
     while not playerpass:
@@ -89,51 +120,50 @@ def playerTurn(hand, maxenergy):
                 print("Which unit would you like to add")
                 i=1
                 for unit in hand:
-                    print(i,": Power:", unit[0]," Cost: ", unit[1] )
+                    print(i,": ",unit.name, "Power:", unit.power," Cost: ", unit.cost )
                     i+=1
                 inputUnit = int(input()) -1
                 try:
-                    if turnenergy<hand[inputUnit][1]:
+                    if turnenergy<hand[inputUnit].cost:
                         print("Not enough energy")
                     else:
-                        addUnit(hand[inputUnit][0])
-                        turnenergy-=hand[inputUnit][1]
+                        addUnit(hand[inputUnit])
+                        turnenergy-=hand[inputUnit].cost
                         del hand[inputUnit]
                 except:
                     print("Input error")
             case 3:
                 playerpass = True
             case 4:
-                boardStatus()
+                print(currentBoard)
             case _:
                 print("Input error")
+def endGame():
+    print(boardStatus())
+    winner = checkWinner()
+    match winner:
+        case "ally":
+            print("Allies have won")
+        case "enemy":
+            print("Enemies have won")
+        case "tie":
+            print("Tie!") 
 
-allydeck = [[2,1],[3,2],[4,3],[6,4],[8,5],[9,6],[2,1],[3,2],[4,3],[6,4],[8,5],[9,6]]
-enemydeck = [[2,1],[3,2],[4,3],[6,4],[8,5],[9,6],[2,1],[3,2],[4,3],[6,4],[8,5],[9,6]]
-allyhand,enemyhand = [],[]
-random.shuffle(allydeck)
-random.shuffle(enemydeck)
-draw(allyhand,allydeck,3)
-draw(enemyhand,enemydeck,3)
+allyhand,enemyhand,allydeck, enemydeck = gameStart()
 while turncounter<=maxturns:
     draw(allyhand,allydeck,1)
     draw(enemyhand,enemydeck,1)
+    tempBoard = boardStatus()
     print("Turn ", turncounter,", player turn")
     print("")
     turnAlly = not turnAlly
-    playerTurn(allyhand, allyenergy)
+    playerTurn(allyhand, allyenergy, tempBoard)
     print("Turn ", turncounter,", enemy turn")
     turnAlly = not turnAlly
-    playerTurn(enemyhand, enemyenergy)
+    playerTurn(enemyhand, enemyenergy, tempBoard)
     turncounter +=1
     allyenergy+=1
     enemyenergy+=1
-winner = checkWinner()
-match winner:
-    case "ally":
-        print("Allies have won")
-    case "enemy":
-        print("Enemies have won")
-    case "tie":
-        print("Tie!")    
+endGame()
+ 
     
