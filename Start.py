@@ -70,7 +70,7 @@ def addUnit(unit):
             else:
                 return addTolocation(enemies_loc3, unit)
 
-def boardStatus():
+def boardStatus(): #ritorna una stringa che definisce lo stato di ogni location 
     str1 = "Location 1:" + str(allies_loc1) + " vs " +str(enemies_loc1)+ """
 """
     str2 = "Location 2:" + str(allies_loc2) + " vs " +str(enemies_loc2)+ """
@@ -79,14 +79,14 @@ def boardStatus():
 """
     return str1+str2+str3
 
-def draw(hand,deck,num):
+def draw(hand,deck,num): #pesca un numero di carte dal deck 
     i=0
     while i<num:
         hand.append(deck[-1])
         del deck[-1]
         i+=1
 
-def gameStart():
+def gameStart(): #genera deck casuali uguali per ogni player per ora e li mischia 
     allydeck, enemydeck = [],[]
     for i in range (1,20,1):
         randomcost = random.randint(0,6)
@@ -95,8 +95,6 @@ def gameStart():
         curCard = Card(randomcost,randompower, cardname)
         allydeck.append(curCard)
         enemydeck.append(curCard)
-    #allydeck = [[2,1],[3,2],[4,3],[6,4],[8,5],[9,6],[2,1],[3,2],[4,3],[6,4],[8,5],[9,6]]
-    #enemydeck = [[2,1],[3,2],[4,3],[6,4],[8,5],[9,6],[2,1],[3,2],[4,3],[6,4],[8,5],[9,6]]
     allyhand,enemyhand = [],[]
     random.shuffle(allydeck)
     random.shuffle(enemydeck)
@@ -104,7 +102,8 @@ def gameStart():
     draw(enemyhand,enemydeck,3)
     return allyhand,enemyhand, allydeck, enemydeck
 
-def playerTurn(hand, maxenergy, currentBoard):
+def playerTurn(hand, deck, maxenergy, currentBoard):
+    draw(hand,deck,1)
     playerpass = False
     turnenergy = maxenergy
     while not playerpass:
@@ -151,16 +150,14 @@ def endGame():
 
 allyhand,enemyhand,allydeck, enemydeck = gameStart()
 while turncounter<=maxturns:
-    draw(allyhand,allydeck,1)
-    draw(enemyhand,enemydeck,1)
     tempBoard = boardStatus()
     print("Turn ", turncounter,", player turn")
     print("")
     turnAlly = not turnAlly
-    playerTurn(allyhand, allyenergy, tempBoard)
+    playerTurn(allyhand, allydeck, allyenergy, tempBoard)
     print("Turn ", turncounter,", enemy turn")
     turnAlly = not turnAlly
-    playerTurn(enemyhand, enemyenergy, tempBoard)
+    playerTurn(enemyhand, enemydeck, enemyenergy, tempBoard)
     turncounter +=1
     allyenergy+=1
     enemyenergy+=1
