@@ -1,15 +1,14 @@
 import random
 from Card import Card
-
-allies_loc1,allies_loc2, allies_loc3 = [], [], []
-enemies_loc1,enemies_loc2, enemies_loc3 = [], [], []
+from Location import Location
+location1 = Location(1)
+location2= Location(2)
+location3= Location(3)
 exit = False
 turnAlly = False
 allyenergy, enemyenergy =1,1
 turncounter = 1
 maxturns = 6
-allypower1,allypower2,allypower3 = 0,0,0
-enemypower1,enemypower2,enemypower3 = 0,0,0
 
 def addTolocation(location, unit):
     if(len(location)<4):
@@ -22,8 +21,8 @@ def addTolocation(location, unit):
 def checkWinner():
     alliesWin = 0
     enemiesWin = 0
-    allypower1, allypower2, allypower3 = countPower(allies_loc1), countPower(allies_loc2), countPower(allies_loc3)
-    enemypower1, enemypower2, enemypower3 = countPower(enemies_loc1), countPower(enemies_loc2), countPower(enemies_loc3)
+    allypower1, allypower2, allypower3 = location1.alliesPower, location2.alliesPower, location3.alliesPower
+    enemypower1, enemypower2, enemypower3 = location1.enemiesPower, location2.enemiesPower, location3.enemiesPower
     alliesWin, enemiesWin = locationWon(allypower1,enemypower1, alliesWin, enemiesWin)
     alliesWin, enemiesWin = locationWon(allypower2,enemypower2, alliesWin, enemiesWin)
     alliesWin, enemiesWin = locationWon(allypower3,enemypower3, alliesWin, enemiesWin)
@@ -43,11 +42,6 @@ def locationWon(ally,enemy,counterally,counterenemy):
         counterenemy+=1
     return counterally, counterenemy
 
-def countPower(location):
-    power = 0
-    for unit in location:
-        power += unit.power
-    return power
 
 def addUnit(unit):
     loc_num = 0
@@ -56,27 +50,30 @@ def addUnit(unit):
     match loc_num:
         case 1:
             if(turnAlly):
-                return addTolocation(allies_loc1, unit)
+                location1.addToAllies(unit)
             else:
-                return addTolocation(enemies_loc1, unit)
+                location1.addToEnemies(unit)
         case 2:
             if(turnAlly):
-                return addTolocation(allies_loc2, unit)
+                location2.addToAllies(unit)
             else:
-                return addTolocation(enemies_loc2, unit)
+                location2.addToEnemies(unit)
         case 3:
             if(turnAlly):
-                return addTolocation(allies_loc3, unit)
+                location3.addToAllies(unit)
             else:
-                return addTolocation(enemies_loc3, unit)
+                location3.addToEnemies(unit)
+def undoActions(turnAlly, hand):
+    loc1temp =location1.undoActions(turnAlly)
+    loc2temp =location2.undoActions(turnAlly)
+    loc3temp =location3.undoActions(turnAlly)
+    print("temps:", loc1temp, loc2temp, loc3temp)
+    hand += loc1temp + loc2temp + loc3temp
 
 def boardStatus(): #ritorna una stringa che definisce lo stato di ogni location 
-    str1 = "Location 1:" + str(allies_loc1) + " vs " +str(enemies_loc1)+ """
-"""
-    str2 = "Location 2:" + str(allies_loc2) + " vs " +str(enemies_loc2)+ """
-"""
-    str3 = "Location 3:" + str(allies_loc3) + " vs " +str(enemies_loc3)+ """
-"""
+    str1 = "Location 1: " + location1.locationStatus(),""
+    str2 = "Location 2:" + location2.locationStatus(),""
+    str3 = "Location 3:", location3.locationStatus(),""
     return str1+str2+str3
 
 def draw(hand,deck,num): #pesca un numero di carte dal deck 
@@ -91,7 +88,7 @@ def gameStart(): #genera deck casuali uguali per ogni player per ora e li mischi
     for i in range (1,20,1):
         randomcost = random.randint(0,6)
         randompower = random.randint(1,10)
-        cardname = "Number" + str(i)
+        cardname = "Number " + str(i)
         curCard = Card(randomcost,randompower, cardname)
         allydeck.append(curCard)
         enemydeck.append(curCard)
@@ -108,7 +105,7 @@ def playerTurn(hand, deck, maxenergy, currentBoard):
     turnenergy = maxenergy
     while not playerpass:
         print()
-        print("Press 1 to check hand and current energy, 2 to add an unit to the board, 3 to pass, 4 to check board status")
+        print("Press 1 to check hand and current energy, 2 to add an unit to the board, 3 to pass, 4 to check board status, 5 to undo your actions")
         userInput = int(input("What do you want to do? "))
         match userInput:
             case 1:
@@ -135,6 +132,8 @@ def playerTurn(hand, deck, maxenergy, currentBoard):
                 playerpass = True
             case 4:
                 print(currentBoard)
+            case 5:
+                undoActions(turnAlly, hand)
             case _:
                 print("Input error")
 def endGame():
@@ -158,6 +157,7 @@ while turncounter<=maxturns:
     print("Turn ", turncounter,", enemy turn")
     turnAlly = not turnAlly
     playerTurn(enemyhand, enemydeck, enemyenergy, tempBoard)
+    location1.revealCards(True), location2.revealCards(True), location3.revealCards(True)
     turncounter +=1
     allyenergy+=1
     enemyenergy+=1
