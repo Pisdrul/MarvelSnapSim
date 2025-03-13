@@ -34,11 +34,11 @@ class Location:
     def countPower(self):
         power = 0
         for unit in self.allies:
-            power += unit.power
+            power += unit.cur_power
         self.alliesPower = power
         power =0
         for unit in self.enemies:
-            power += unit.power
+            power += unit.cur_power
         self.enemiesPower = power
 
     def activateOnReveals(self,unitList):
@@ -50,19 +50,21 @@ class Location:
             if len(self.preRevealAllies)>0:
                 print("Allies are revealing on location ",self.locationNum,":", self.preRevealAllies)
                 self.activateOnReveals(self.preRevealAllies)
+                self.allies = self.allies +self.preRevealAllies
             if len(self.preRevealEnemies)>0:
                 print("Enemies are revealing on location ",self.locationNum,":", self.preRevealEnemies)
                 self.activateOnReveals(self.preRevealEnemies)
+                self.enemies = self.enemies + self.preRevealEnemies
             
         else:
             if len(self.preRevealEnemies)>0:
                 print("Enemies are revealing: on location ",self.locationNum,":", self.preRevealEnemies)
                 self.activateOnReveals(self.preRevealEnemies)
+                self.enemies = self.enemies + self.preRevealEnemies
             if len(self.preRevealAllies)>0:
                 print("Allies are revealing on location ",self.locationNum,":", self.preRevealAllies)
                 self.activateOnReveals(self.preRevealAllies)
-        self.allies = self.allies +self.preRevealAllies
-        self.enemies = self.enemies + self.preRevealEnemies
+                self.allies = self.allies +self.preRevealAllies
         self.countPower()
         self.preRevealAllies, self.preRevealEnemies = [],[]
 
@@ -74,8 +76,41 @@ class Location:
         tempArray =[]
         if(allyTurn):
             tempArray = self.preRevealAllies
-            self.preRevealAllies = []
+            
         else:
             tempArray = self.preRevealEnemies
-            self.preRevealEnemies = []
         return tempArray
+    
+    def endOfTurn(self):
+        print("End of turn of cards in location ", self.locationNum)
+        self.activateEndOfTurns(self.allies)
+        self.activateEndOfTurns(self.enemies)
+        self.updateStatus()
+        self.countPower()
+
+    def updateStatus(self):
+        for unit in self.allies:
+            self.checkOngoingBuffPower(unit)
+        for unit in self.enemies:
+            self.checkOngoingBuffPower(unit)    
+
+    def activateEndOfTurns(self,unitList):
+        print(unitList)
+        for unit in unitList:
+            unit.endOfTurn()
+    
+    def removeCard(self, card):
+        if card.ally:
+            self.allies.remove(card)
+        else:
+            self.enemies.remove(card)
+    
+    def checkOngoingBuffPower(self,card):
+        tempPower = card.power
+        print(tempPower)
+        if card.ally:
+            for unit in self.allies:
+                print("Here for ", unit)
+                if unit.has_ongoing:
+                    tempPower= unit.ongoing(tempPower)
+        card.setCurPower(tempPower)

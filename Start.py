@@ -1,5 +1,5 @@
 import random
-from Card import Card
+from Cards.Card import *
 from Location import Location
 location1 = Location(1)
 location2= Location(2)
@@ -51,18 +51,25 @@ def addUnit(unit):
         case 1:
             if(turnAlly):
                 location1.addToAllies(unit)
+                unit.playCard(location1)
             else:
                 location1.addToEnemies(unit)
+                unit.playCard(location1)
         case 2:
             if(turnAlly):
                 location2.addToAllies(unit)
+                unit.playCard(location2)
             else:
                 location2.addToEnemies(unit)
+                unit.playCard(location2)
         case 3:
             if(turnAlly):
                 location3.addToAllies(unit)
+                unit.playCard(location3)
             else:
                 location3.addToEnemies(unit)
+                unit.playCard(location3)
+    
 def undoActions(turnAlly, hand):
     loc1temp =location1.undoActions(turnAlly)
     loc2temp =location2.undoActions(turnAlly)
@@ -71,10 +78,9 @@ def undoActions(turnAlly, hand):
     hand += loc1temp + loc2temp + loc3temp
 
 def boardStatus(): #ritorna una stringa che definisce lo stato di ogni location 
-    str1 = "Location 1: " + location1.locationStatus(),""
-    str2 = "Location 2:" + location2.locationStatus(),""
-    str3 = "Location 3:", location3.locationStatus(),""
-    return str1+str2+str3
+    print("Location 1: ",location1.locationStatus(),"")
+    print("Location 2: ",location2.locationStatus(),"")
+    print("Location 3: ", location3.locationStatus(),"")
 
 def draw(hand,deck,num): #pesca un numero di carte dal deck 
     i=0
@@ -84,13 +90,14 @@ def draw(hand,deck,num): #pesca un numero di carte dal deck
         i+=1
 
 def gameStart(): #genera deck casuali uguali per ogni player per ora e li mischia 
-    allydeck, enemydeck = [],[]
-    for i in range (1,20,1):
+    allydeck, enemydeck = [OngoingTest(1,1,"Test Ongoing", True),EndOfTurnTest(1,0,"Test End of turn",True)],[TestCard(1,1,"Testcardenemies", False),EndOfTurnTest(1,0,"Test End of turn",False)]
+    for i in range (1,8,1):
         randomcost = random.randint(0,6)
         randompower = random.randint(1,10)
         cardname = "Number " + str(i)
-        curCard = Card(randomcost,randompower, cardname)
+        curCard = Card(randomcost,randompower, cardname, True)
         allydeck.append(curCard)
+        curCard = Card(randomcost,randompower, cardname, False)
         enemydeck.append(curCard)
     allyhand,enemyhand = [],[]
     random.shuffle(allydeck)
@@ -99,14 +106,20 @@ def gameStart(): #genera deck casuali uguali per ogni player per ora e li mischi
     draw(enemyhand,enemydeck,3)
     return allyhand,enemyhand, allydeck, enemydeck
 
-def playerTurn(hand, deck, maxenergy, currentBoard):
+def playerTurn(hand, deck, maxenergy):
     draw(hand,deck,1)
     playerpass = False
     turnenergy = maxenergy
     while not playerpass:
         print()
         print("Press 1 to check hand and current energy, 2 to add an unit to the board, 3 to pass, 4 to check board status, 5 to undo your actions")
-        userInput = int(input("What do you want to do? "))
+        check = True
+        while check:
+            try:
+                userInput = int(input("What do you want to do? "))
+                check= False
+            except:
+                print("InputError")
         match userInput:
             case 1:
                 print("Energy left: ", turnenergy)
@@ -131,13 +144,19 @@ def playerTurn(hand, deck, maxenergy, currentBoard):
             case 3:
                 playerpass = True
             case 4:
-                print(currentBoard)
+                boardStatus()
             case 5:
                 undoActions(turnAlly, hand)
             case _:
                 print("Input error")
+def endOfTurn():
+    location1.revealCards(True), location2.revealCards(True), location3.revealCards(True)
+    print("End of turn!")
+    location1.endOfTurn(), location2.endOfTurn(), location3.endOfTurn()
+
+
 def endGame():
-    print(boardStatus())
+    boardStatus()
     winner = checkWinner()
     match winner:
         case "ally":
@@ -149,15 +168,15 @@ def endGame():
 
 allyhand,enemyhand,allydeck, enemydeck = gameStart()
 while turncounter<=maxturns:
-    tempBoard = boardStatus()
+    boardStatus()
     print("Turn ", turncounter,", player turn")
     print("")
     turnAlly = not turnAlly
-    playerTurn(allyhand, allydeck, allyenergy, tempBoard)
+    playerTurn(allyhand, allydeck, allyenergy)
     print("Turn ", turncounter,", enemy turn")
     turnAlly = not turnAlly
-    playerTurn(enemyhand, enemydeck, enemyenergy, tempBoard)
-    location1.revealCards(True), location2.revealCards(True), location3.revealCards(True)
+    playerTurn(enemyhand, enemydeck, enemyenergy)
+    endOfTurn()
     turncounter +=1
     allyenergy+=1
     enemyenergy+=1
