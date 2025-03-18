@@ -1,5 +1,5 @@
 class Location:
-    def __init__(self,number):
+    def __init__(self,number, status,locationlist):
         self.allies = []
         self.enemies = []
         self.preRevealAllies = []
@@ -7,6 +7,10 @@ class Location:
         self.alliesPower = 0
         self.enemiesPower = 0
         self.locationNum = number
+        self.status = status
+        self.locationlist = locationlist
+        self.name = "Location " + str(self.locationNum)
+        
 
     def __repr__(self):
         return f"Location {self.locationNum}"
@@ -41,30 +45,32 @@ class Location:
             power += unit.cur_power
         self.enemiesPower = power
 
-    def activateOnReveals(self,unitList):
+    def handleReveals(self,unitList):
         for unit in unitList:
-            unit.onReveal()
+            unit.onReveal(self.locationlist)
+            if(unit.ally):
+                self.allies.append(unit)
+            else:
+                self.enemies.append(unit)
+            self.onPlayEffect(unit)
 
     def revealCards(self, allyPrio): #bisogna fare in modo che vengano rivelate prima tutte le carte del player con prio invece che location per location
         if(allyPrio):
             if len(self.preRevealAllies)>0:
                 print("Allies are revealing on location ",self.locationNum,":", self.preRevealAllies)
-                self.activateOnReveals(self.preRevealAllies)
-                self.allies = self.allies +self.preRevealAllies
+                self.handleReveals(self.preRevealAllies)
+
             if len(self.preRevealEnemies)>0:
                 print("Enemies are revealing on location ",self.locationNum,":", self.preRevealEnemies)
-                self.activateOnReveals(self.preRevealEnemies)
-                self.enemies = self.enemies + self.preRevealEnemies
+                self.handleReveals(self.preRevealEnemies)
             
         else:
             if len(self.preRevealEnemies)>0:
                 print("Enemies are revealing: on location ",self.locationNum,":", self.preRevealEnemies)
-                self.activateOnReveals(self.preRevealEnemies)
-                self.enemies = self.enemies + self.preRevealEnemies
+                self.handleReveals(self.preRevealEnemies)
             if len(self.preRevealAllies)>0:
                 print("Allies are revealing on location ",self.locationNum,":", self.preRevealAllies)
-                self.activateOnReveals(self.preRevealAllies)
-                self.allies = self.allies +self.preRevealAllies
+                self.handleReveals(self.preRevealAllies)
         self.countPower()
         self.preRevealAllies, self.preRevealEnemies = [],[]
 
@@ -82,6 +88,7 @@ class Location:
         return tempArray
     
     def endOfTurn(self):
+        print("End of turn ", self.status["turncounter"])
         print("End of turn of cards in location ", self.locationNum)
         self.activateEndOfTurns(self.allies)
         self.activateEndOfTurns(self.enemies)
@@ -114,3 +121,61 @@ class Location:
                 if unit.has_ongoing:
                     tempPower= unit.ongoing(tempPower)
         card.setCurPower(tempPower)
+    
+    def onPlayEffect(self,card):
+        print("Activated on play effect of location!")
+    
+    def onRevealLocation(self):
+        print("Revealed location")
+    
+    def changeLocation(self, newLocation):
+        newLocation.allies, newLocation.preRevealAllies = self.allies, self.preRevealAllies
+        newLocation.enemies, newLocation.preRevealEnemies = self.enemies, self.preRevealEnemies
+        newLocation.locationNum = self.locationNum
+        temp = "location" + str(self.locationNum)
+        self.locationlist[temp] = newLocation
+        newLocation.onRevealLocation()
+
+class TestLocationEffects(Location):
+    def __init__(self,number, status,locationlist):
+        super().__init__(number,status,locationlist)
+        self.counter = 0
+        self.name = "On play effect test"
+    
+    def onPlayEffect(self, card):
+        self.counter += 1
+        if self.counter == 3:
+            print("Destroyed ", card.name)
+            self.removeCard(card)
+            self.counter =0
+
+class onRevealActivatesTwice(Location):
+    def __init__(self, number, status, locationlist):
+        super().__init__(number, status, locationlist)
+        self.name = "Double on reveals"
+    def handleReveals(self, unitList):
+         for unit in unitList:
+            print("Activating ", unit.name, " twice!")
+            unit.onReveal(self.locationlist)
+            unit.onReveal(self.locationlist)
+            if(unit.ally):
+                self.allies.append(unit)
+            else:
+                self.enemies.append(unit)
+            self.onPlayEffect(unit)
+
+class Limbo(Location):
+    def __init__(self, number, status, locationlist):
+        super().__init__(number, status, locationlist)
+        self.name = "Limbo"
+    def onRevealLocation(self):
+        self.status["maxturns"] = 7
+    def changeLocation(self, newLocation):
+        super().changeLocation(newLocation)
+        check = False
+        for key, location in self.locationlist:
+            if location.name == "Limbo":
+                check = True
+        if not check:
+            self.status["maxturns"] = 6
+    
