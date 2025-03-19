@@ -8,10 +8,16 @@ allymaxenergy, enemymaxenergy =1,1
 turncounter = 1
 maxturns = 6
 locationList = {"location1": 0,"location2": 0, "location3": 0}
-status = {"maxturns": maxturns,"allymaxenergy":allymaxenergy, "enemymaxenergy": enemymaxenergy, "allyenergy": 1, "enemyenergy":1, "turncounter":turncounter, "allyhand":[], "enemyhand":[], "allydeck":[], "enemydeck":[]}
+status = {"maxturns": maxturns,"allymaxenergy":allymaxenergy,
+           "enemymaxenergy": enemymaxenergy, "allyenergy": 1,
+            "enemyenergy":1, "turncounter":turncounter,
+            "tempenergyally":0, "tempenergyenemy":0,
+            "allyhand":[], "enemyhand":[],
+            "allydeck":[], "enemydeck":[],
+            "alliesdestroyed":[], "enemiesdestroyed":[]}
 locationList["location1"]=Location(1,status,locationList)
-locationList["location2"]= onRevealActivatesTwice(2,status,locationList)
-locationList["location3"]= TestLocationEffects(3,status,locationList)
+locationList["location2"]= TemporaryLocation(2,status,locationList,onRevealActivatesTwice(2,status,locationList))
+locationList["location3"]= TemporaryLocation(3,status,locationList,TestLocationEffects(3,status,locationList))
 
 
 
@@ -75,15 +81,16 @@ def draw(hand,deck,num): #pesca un numero di carte dal deck
             i+=1
 
 def gameStart(): #genera deck casuali uguali per ogni player per ora e li mischia 
-    status["allydeck"], status["enemydeck"] = [OngoingTest(1,1,"Test Ongoing", True, status),EndOfTurnTest(1,0,"Test End of turn",True, status)],[TestCard(1,1,"Testcardenemies", False, status),EndOfTurnTest(1,0,"Test End of turn",False, status)]
+    status["allydeck"], status["enemydeck"] = [OngoingTest(1,1,"Test Ongoing", True, status),Sunspot(True,status)],[TestCard(1,1,"Testcardenemies", False, status),EndOfTurnTest(1,0,"Test End of turn",False, status)]
     status["allydeck"].append(Magik(True,status))
+    status["enemydeck"].append(Psylocke(False,status))
     for i in range (1,8,1):
         randomcost = random.randint(0,6)
         randompower = random.randint(1,10)
         cardname = "Number " + str(i)
-        curCard = Card(randomcost,randompower, cardname, True, status)
+        curCard = Elektra(True, status)
         status["allydeck"].append(curCard)
-        curCard = Card(randomcost,randompower, cardname, False, status)
+        curCard = Magik(False, status)
         status["enemydeck"].append(curCard)
     random.shuffle(status["allydeck"])
     random.shuffle(status["enemydeck"])
@@ -127,6 +134,7 @@ def playerTurn(hand, deck,energy):
                     print("Input error")
             case 3:
                 playerpass = True
+                return turnenergy
             case 4:
                 boardStatus()
             case 5:
@@ -134,8 +142,11 @@ def playerTurn(hand, deck,energy):
             case _:
                 print("Input error")
 
-def startOfTurn():
-    pass
+def startOfTurn(status):
+    status["allyenergy"] = status["allymaxenergy"] + status["tempenergyally"]
+    status["enemyenergy"] = status["enemymaxenergy"] + status["tempenergyenemy"]
+    status["tempenergyally"], status["tempenergyenemy"] = 0,0
+
 def endOfTurn():
     locationList["location1"].revealCards(True), locationList["location2"].revealCards(True), locationList["location3"].revealCards(True)
     print("End of turn!")
@@ -158,16 +169,16 @@ while status["turncounter"]<=status["maxturns"]:
     boardStatus()
     print("Turn ", status["turncounter"],", player turn")
     print("")
-    startOfTurn()
+    startOfTurn(status)
     turnAlly = not turnAlly
-    playerTurn(status["allyhand"], status["allydeck"], status["allyenergy"])
+    status["allyenergy"] = playerTurn(status["allyhand"], status["allydeck"], status["allyenergy"])
     print("Turn ", status["turncounter"],", enemy turn")
     turnAlly = not turnAlly
-    playerTurn(status["enemyhand"], status["enemydeck"], status["enemyenergy"])
+    status["enemyenergy"]= playerTurn(status["enemyhand"], status["enemydeck"], status["enemyenergy"])
     endOfTurn()
     status["turncounter"] +=1
-    status["allyenergy"]+=1
-    status["enemyenergy"]+=1
+    status["allymaxenergy"]+=1
+    status["enemymaxenergy"]+=1
 endGame()
  
     

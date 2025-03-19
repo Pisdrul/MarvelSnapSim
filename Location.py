@@ -10,6 +10,9 @@ class Location:
         self.status = status
         self.locationlist = locationlist
         self.name = "Location " + str(self.locationNum)
+        self.can_activate_onreveal = True
+        self.can_destroy = True
+        self.can_play_cards = True
         
 
     def __repr__(self):
@@ -47,7 +50,8 @@ class Location:
 
     def handleReveals(self,unitList):
         for unit in unitList:
-            unit.onReveal(self.locationlist)
+            if self.can_activate_onreveal:
+                unit.onReveal(self.locationlist)
             if(unit.ally):
                 self.allies.append(unit)
             else:
@@ -135,6 +139,16 @@ class Location:
         temp = "location" + str(self.locationNum)
         self.locationlist[temp] = newLocation
         newLocation.onRevealLocation()
+    
+    def destroyCard(self, card):
+        if card.ally:
+            self.allies.remove(card)
+            card.activateOnDestroy()
+            self.status["alliesdestroyed"].append(card)
+        else:
+            self.enemies.remove(card)
+            card.activateOnDestroy()
+            self.status["enemiesdestroyed"].append(card)
 
 class TestLocationEffects(Location):
     def __init__(self,number, status,locationlist):
@@ -178,4 +192,15 @@ class Limbo(Location):
                 check = True
         if not check:
             self.status["maxturns"] = 6
+
+class TemporaryLocation(Location):
+    def __init__(self, number, status, locationlist, newLoc):
+        super().__init__(number, status, locationlist)
+        self.counter = number - 1
+        self.newLoc = newLoc
+        self.name = "Revealing location in " + str(self.counter) + " turns"
     
+    def endOfTurn(self):
+        self.counter -= 1
+        if self.counter ==0: self.changeLocation(self.newLoc)
+        self.name = "Revealing location in " + str(self.counter) + " turns"
