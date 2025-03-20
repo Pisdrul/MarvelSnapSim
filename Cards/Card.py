@@ -12,6 +12,8 @@ class Card:
         self.has_ongoing = False
         self.status = status
         self.activate_while_in_hand = False
+        self.description = "Does nothing"
+        self.can_be_destroyed = True
         
     def __repr__(self):
         return f"{self.cur_power}"
@@ -34,6 +36,8 @@ class Card:
     def activateOnDestroy(self):
         print("Destroyed ", self.name)
 
+    def updateCard(self):
+        pass
 
 
 
@@ -81,6 +85,7 @@ class Magik(Card):
 class Sunspot(Card):
     def __init__(self, ally, status):
         super().__init__(1,0, "Sunspot", ally, status)
+        self.description = "At the end of the turn, gain power equals to the amount of your unspent energy this turn"
     def endOfTurn(self):
         if self.ally:
             self.power += self.status["allyenergy"]
@@ -90,6 +95,7 @@ class Sunspot(Card):
 class Psylocke(Card):
     def __init__(self, ally, status):
         super().__init__(2,1, "Psylocke", ally, status)
+        self.description = "On reveal: +1 energy next turn"
     
     def onReveal(self, locationlist):
         if self.ally:
@@ -101,6 +107,7 @@ class Psylocke(Card):
 class AmericaChavez(Card):
     def __init__(self, ally, status):
         super().__init__(1,2, "America Chavez", ally, status)
+        self.description = "On Reveal: Give the top card of your deck +2 power"
     
     def onReveal(self, locationlist):
         if self.ally:
@@ -112,6 +119,7 @@ class AmericaChavez(Card):
 class Elektra(Card):
     def __init__(self, ally, status):
         super().__init__(1, 2, "Elektra", ally, status)
+        self.description = "On Reveal: Replace this location with Limbo. Does not work after turn 5"
     
     def onReveal(self, locationlist):
         if self.ally:
@@ -135,5 +143,24 @@ class Elektra(Card):
                 if len(candidates)==0:
                     print("No candidates!")
                 else:
-                    tobedestroyed = random.choose(candidates)
+                    tobedestroyed = random.choice(candidates)
                     self.location.destroyCard(tobedestroyed)
+
+class Death(Card):
+    def __init__(self, ally, status):
+        super().__init__(8, 12, "Death", ally, status)
+        self.description = "Costs 1 less for each card that was destroyed this game"
+    
+    def updateCard(self):
+        self.cost = 12 - len(self.status["alliesdestroyed"]) - len(self.status["enemiesdestroyed"])
+
+class Knull(Card): #Fixare Knull, ritorna NoneType quando calcola il potere della location
+    def __init__(self,ally, status):
+        super().__init__(1,0,"Knull", ally, status)
+        self.description = "Ongoing: has the combined attack of all the destroyed cards"
+        self.has_ongoing = True
+    
+    def ongoing(self, card,temppower):
+        for unit in self.status["alliesdestroyed"]+ self.status["enemiesdestroyed"]:
+            print("Adding ", unit.power," to Knull")
+            self.cur_power += unit.power

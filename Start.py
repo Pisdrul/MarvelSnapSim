@@ -14,36 +14,38 @@ status = {"maxturns": maxturns,"allymaxenergy":allymaxenergy,
             "tempenergyally":0, "tempenergyenemy":0,
             "allyhand":[], "enemyhand":[],
             "allydeck":[], "enemydeck":[],
-            "alliesdestroyed":[], "enemiesdestroyed":[]}
+            "alliesdestroyed":[], "enemiesdestroyed":[],
+            "allypriority": True,
+            "cubes":1, "tempcubes":1,
+            "allysnapped":False, "enemysnapped": False}
 locationList["location1"]=Location(1,status,locationList)
 locationList["location2"]= TemporaryLocation(2,status,locationList,onRevealActivatesTwice(2,status,locationList))
-locationList["location3"]= TemporaryLocation(3,status,locationList,TestLocationEffects(3,status,locationList))
+locationList["location3"]= TemporaryLocation(3,status,locationList,Wakanda(3,status,locationList))
 
-
+def resolveTie(locationList):
+    allypower = locationList["location1"].alliesPower + locationList["location2"].alliesPower + locationList["location3"].alliesPower
+    enemypower = locationList["location1"].enemiesPower + locationList["location2"].enemiesPower + locationList["location3"].enemiesPower
+    if allypower > enemypower:
+        return "Ally"
+    elif allypower < enemypower:
+        return "Enemy"
+    else:
+        return "Tie"
 
 def checkWinner():
-    alliesWin = 0
-    enemiesWin = 0
-    allypower1, allypower2, allypower3 = locationList["location1"].alliesPower, locationList["location2"].alliesPower, locationList["location3"].alliesPower
-    enemypower1, enemypower2, enemypower3 = locationList["location1"].enemiesPower, locationList["location2"].enemiesPower, locationList["location3"].enemiesPower
-    alliesWin, enemiesWin = locationWon(allypower1,enemypower1, alliesWin, enemiesWin)
-    alliesWin, enemiesWin = locationWon(allypower2,enemypower2, alliesWin, enemiesWin)
-    alliesWin, enemiesWin = locationWon(allypower3,enemypower3, alliesWin, enemiesWin)
-    totalpowerally= allypower1+allypower2+allypower3
-    totalpowerenemy = enemypower1+enemypower2+enemypower3
-    if (alliesWin>enemiesWin or (alliesWin == enemiesWin and totalpowerally>totalpowerenemy)):
-        return "ally"
-    elif (alliesWin<enemiesWin or (alliesWin == enemiesWin and totalpowerally<totalpowerenemy)):
-        return "enemy"
+    results = [locationList["location1"].winning,locationList["location2"].winning,locationList["location3"].winning]
+    allywin, enemywin = 0,0
+    for string in results:
+        if string == "Ally":
+            allywin +=1
+        elif string == "Enemy":
+            enemywin +=1
+    if allywin > enemywin:
+        return "Ally"
+    elif allywin < enemywin:
+        return "Enemy"
     else:
-        return "tie"
-
-def locationWon(ally,enemy,counterally,counterenemy):
-    if ally > enemy:
-        counterally+=1
-    elif enemy > ally:
-        counterenemy+=1
-    return counterally, counterenemy
+        return resolveTie(locationList)
 
 
 def addUnit(unit):
@@ -52,18 +54,27 @@ def addUnit(unit):
         loc_num = int(input("Choose location: "))
     selectedLoc = "location"+str(loc_num)
     if(turnAlly):
-        locationList[selectedLoc].addToAllies(unit)
-        unit.playCard(locationList[selectedLoc])
+        was_added = locationList[selectedLoc].addToAllies(unit)
+        if was_added:
+            unit.playCard(locationList[selectedLoc])
+        return was_added
     else:
-        locationList[selectedLoc].addToEnemies(unit)
+        was_added = locationList[selectedLoc].addToEnemies(unit)
         unit.playCard(locationList[selectedLoc])
+        if was_added:
+            unit.playCard(locationList[selectedLoc])
+        return was_added
     
 def undoActions(turnAlly, hand):
     loc1temp =locationList["location1"].undoActions(turnAlly)
     loc2temp =locationList["location2"].undoActions(turnAlly)
     loc3temp =locationList["location3"].undoActions(turnAlly)
     print("temps:", loc1temp, loc2temp, loc3temp)
+    refund =0
+    for unit in loc1temp + loc2temp + loc3temp:
+        refund += unit.cost
     hand += loc1temp + loc2temp + loc3temp
+    return refund
 
 def boardStatus(): #ritorna una stringa che definisce lo stato di ogni location 
     print(locationList["location1"].name,": ",locationList["location1"].locationStatus(),"")
@@ -81,7 +92,7 @@ def draw(hand,deck,num): #pesca un numero di carte dal deck
             i+=1
 
 def gameStart(): #genera deck casuali uguali per ogni player per ora e li mischia 
-    status["allydeck"], status["enemydeck"] = [OngoingTest(1,1,"Test Ongoing", True, status),Sunspot(True,status)],[TestCard(1,1,"Testcardenemies", False, status),EndOfTurnTest(1,0,"Test End of turn",False, status)]
+    status["allydeck"], status["enemydeck"] = [Death(True, status),Sunspot(True,status)],[Knull(False, status),EndOfTurnTest(1,0,"Test End of turn",False, status)]
     status["allydeck"].append(Magik(True,status))
     status["enemydeck"].append(Psylocke(False,status))
     for i in range (1,8,1):
@@ -90,7 +101,7 @@ def gameStart(): #genera deck casuali uguali per ogni player per ora e li mischi
         cardname = "Number " + str(i)
         curCard = Elektra(True, status)
         status["allydeck"].append(curCard)
-        curCard = Magik(False, status)
+        curCard = Elektra(False, status)
         status["enemydeck"].append(curCard)
     random.shuffle(status["allydeck"])
     random.shuffle(status["enemydeck"])
@@ -103,7 +114,12 @@ def playerTurn(hand, deck,energy):
     turnenergy = energy
     while not playerpass:
         print()
-        print("Press 1 to check hand and current energy, 2 to add an unit to the board, 3 to pass, 4 to check board status, 5 to undo your actions")
+        print("Press 1 to check hand and current energy,"
+        " 2 to add an unit to the board,"
+        " 3 to pass,"
+        " 4 to check board status,"
+        " 5 to undo your actions,"
+        " 6 to SNAP!")
         check = True
         while check:
             try:
@@ -114,22 +130,26 @@ def playerTurn(hand, deck,energy):
         match userInput:
             case 1:
                 print("Energy left: ", turnenergy)
-                print(hand)
+                i=1
+                for unit in hand:
+                    print(i,": ",unit.name, "Cost:", unit.cost," Power: ", unit.power )
+                    i+=1
             case 2:
                 print("Energy left:", turnenergy)
                 print("Which unit would you like to add")
                 i=1
                 for unit in hand:
-                    print(i,": ",unit.name, "Power:", unit.power," Cost: ", unit.cost )
+                    print(i,": ",unit.name, "Cost:", unit.cost," Power: ", unit.power )
                     i+=1
                 try:
                     inputUnit = int(input()) -1
                     if turnenergy<hand[inputUnit].cost:
                         print("Not enough energy")
                     else:
-                        addUnit(hand[inputUnit])
-                        turnenergy-=hand[inputUnit].cost
-                        del hand[inputUnit]
+                        was_added = addUnit(hand[inputUnit])
+                        if was_added:
+                            turnenergy-=hand[inputUnit].cost
+                            del hand[inputUnit]
                 except:
                     print("Input error")
             case 3:
@@ -138,17 +158,52 @@ def playerTurn(hand, deck,energy):
             case 4:
                 boardStatus()
             case 5:
-                undoActions(turnAlly, hand)
+                turnenergy += undoActions(turnAlly, hand)
+            case 6:
+                if (turnAlly and not status["allysnapped"]) or (not turnAlly and not status["enemysnapped"]):
+                    print("SNAP!")
+                    snap(status, turnAlly)
+                else: print("You already snapped!")
+
             case _:
                 print("Input error")
+
+def snap(status,turnally):
+    if (turnAlly and not status["allysnapped"]):
+        status["allysnapped"] = True
+        if not status["enemysnapped"]: status["tempcubes"] = 2
+        else: status["cubes"], status["tempcubes"] = 4,4
+    else:
+        status["enemysnapped"] = True
+        if not status["allysnapped"]: status["tempcubes"] = 2
+        else: status["cubes"], status["tempcubes"] = 4,4
 
 def startOfTurn(status):
     status["allyenergy"] = status["allymaxenergy"] + status["tempenergyally"]
     status["enemyenergy"] = status["enemymaxenergy"] + status["tempenergyenemy"]
     status["tempenergyally"], status["tempenergyenemy"] = 0,0
+    match checkWinner():
+        case "ally","tie":
+            status["allypriority"] = True
+        case "enemy":
+            status["allypriority"] = False
+    for card in status["allyhand"] + status["allydeck"] + status ["enemyhand"] + status["enemydeck"]:
+        card.updateCard()
+
+def announcer(status):
+    match status["allypriority"]:
+        case True:
+            print("Revealing ally cards")
+        case False:
+            print("Revealing enemy cards")
 
 def endOfTurn():
-    locationList["location1"].revealCards(True), locationList["location2"].revealCards(True), locationList["location3"].revealCards(True)
+    status["cubes"] = status["tempcubes"]
+    announcer(status)
+    locationList["location1"].revealCards(), locationList["location2"].revealCards(), locationList["location3"].revealCards()
+    status["allypriority"] = not status["allypriority"]
+    announcer(status)
+    locationList["location1"].revealCards(), locationList["location2"].revealCards(), locationList["location3"].revealCards()
     print("End of turn!")
     locationList["location1"].endOfTurn(), locationList["location2"].endOfTurn(), locationList["location3"].endOfTurn()
 
@@ -157,11 +212,13 @@ def endGame():
     boardStatus()
     winner = checkWinner()
     match winner:
-        case "ally":
-            print("Allies have won")
-        case "enemy":
-            print("Enemies have won")
-        case "tie":
+        case "Ally":
+            print("Allies have won ", status["cubes"]*2)
+            print("Enemies have lost ", status["cubes"]*2)
+        case "Enemy":
+            print("Allies have lost ", status["cubes"]*2)
+            print("Enemies have won ", status["cubes"]*2)
+        case "Tie":
             print("Tie!") 
 
 gameStart()
