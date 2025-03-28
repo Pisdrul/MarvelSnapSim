@@ -10,11 +10,14 @@ class Card:
         self.ally = ally
         self.cur_power = power
         self.has_ongoing = False
+        self.has_ongoing_buff = False
         self.status = status
         self.activate_while_in_hand = False
         self.description = "Does nothing"
         self.can_be_destroyed = True
-        
+        self.has_ongoing_late = False
+        self.ongoing_buff = 0
+
     def __repr__(self):
         return f"{self.cur_power}"
     
@@ -38,6 +41,22 @@ class Card:
 
     def updateCard(self):
         pass
+
+    def ongoing(self, locationlist):
+        pass
+    
+    def move(self, newloc):
+        if self.ally:
+            current = self.location.allies
+            next = newloc.allies
+        else: 
+            current = self.location.enemies
+            next = newloc.enemies
+        
+        if len(next)<4:
+            next.append(self)
+            current.pop(self)
+
 
 
 
@@ -155,12 +174,121 @@ class Death(Card):
         self.cost = 12 - len(self.status["alliesdestroyed"]) - len(self.status["enemiesdestroyed"])
 
 class Knull(Card): #Fixare Knull, ritorna NoneType quando calcola il potere della location
-    def __init__(self,ally, status):
-        super().__init__(1,0,"Knull", ally, status)
-        self.description = "Ongoing: has the combined attack of all the destroyed cards"
-        self.has_ongoing = True
+    def __init__(self, ally, status):
+        super().__init__(1, 0, "Knull", ally, status)
+        self.has_ongoing_buffpower = True
+        self.description = "Ongoing: Has the combined attack of all destroyed cards"
     
     def ongoing(self, card,temppower):
-        for unit in self.status["alliesdestroyed"]+ self.status["enemiesdestroyed"]:
+        for unit in self.status["alliesdestroyed"] + self.status["enemiesdestroyed"]:
             print("Adding ", unit.power," to Knull")
             self.cur_power += unit.power
+
+class Sentinel(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 3, "Sentinel", ally, status)
+        self.description = "On Reveal: Add another Sentinel card to your hand"
+
+    def onReveal(self, locationlist):
+        if self.ally:
+            self.status["allyhand"].append(Sentinel(self.ally, self.status))
+        else:
+            self.status["enemyhand"].append(Sentinel(self.ally, self.status))
+        
+        print("Added another Sentinel card to your hand")
+
+class StarLord(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 2, "Star Lord", ally, status)
+        self.description = "On Reveal: If your opponent played a card here this turn, +4 power."
+
+    def onReveal(self, locationlist):
+        if self.ally:
+            if len(self.location.preRevealEnemies) >0:
+                self.power += 4
+        else:
+            if len(self.location.preRevealAllies) >0:
+                self.power += 4
+
+class Medusa(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 2, "Medusa", ally, status)
+        self.description = "On Reveal: If this is at the middle location, +3 Power"
+    
+    def onReveal(self, locationlist):
+        if self.location == locationlist["location2"]:
+            self.power += 3
+
+class Odin(Card):
+    def __init__(self, ally, status):
+        super().__init__(6, 8, "Odin", ally, status)
+        self.description = "On Reveal: Repeat the On Reveal abilities of your other cards here"
+    
+    def onReveal(self, locationlist):
+        if self.ally:
+            cur = self.location.allies
+        else:
+            cur = self.location.enemies
+        for unit in cur:
+            if unit != self:
+                unit.onReveal(locationlist)
+
+class Wolfsbane(Card):
+    def __init__(self, ally, status):
+        super().__init__(3, 1, "Wolfsbane", ally, status)
+        self.description = "On Reveal: +2 Power for each other card you have here"
+    
+    def onReveal(self, locationlist):
+        if self.ally: 
+            self.power += 2*(len(self.location.allies))
+        else:
+            self.power += 2*(len(self.location.enemies))
+
+class WhiteTiger(Card):
+    def __init__(self, ally, status):
+        super().__init__(5, 1, "White Tiger", ally, status)
+        self.description = "On Reveal: Add a 8-Power Tiger to another location."
+    
+    def onReveal(self, locationlist):
+        possible = []
+        if self.ally:
+            for loc in locationlist.values():
+                if loc != self.location and len(loc.allies) <4:
+                        possible.append(loc)
+        else:
+            for loc in locationlist.values():
+                if loc != self.location and len(loc.enemies) <4:
+                        possible.append[loc]
+        if len(possible) > 0:
+            loc = random.choice(possible)
+            loc.allies.append(Card(5, 8, "Tiger", self.ally, self.status))
+        else:
+            print("No possible locations")
+
+class Ironman(Card):
+    def __init__(self, ally, status):
+        super().__init__(5, 0, "Ironman", ally, status)
+        self.description = "Ongoing = Your total Power is doubled here."
+        self.has_ongoing_late = True
+    
+    def ongoing(self, locationlist):
+        if self.ally:
+            self.location.alliesPowerWithBuff = self.location.alliesPowerWithBuff * 2
+        else:
+            self.location.enemiesPowerWithBuff = self.location.enemiesPowerWithBuff * 2
+
+class CaptainAmerica(Card):
+    def __init__(self, ally, status):
+        super().__init__(3, 3, "Captain America", ally, status)
+        self.description = "Ongoing: Your other Ongoing cards here have +2 Power."
+        self.has_ongoing_buffpower = True
+    
+    def ongoing(self, locationlist):
+        if self.ally:
+            for unit in self.location.allies:
+                if unit.has_ongoing:
+                    unit.ongoing_buff += 2
+        else:
+            for unit in self.location.enemies:
+                if unit.has_ongoing:
+                    unit.ongoing_buff += 2

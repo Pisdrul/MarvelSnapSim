@@ -20,7 +20,7 @@ status = {"maxturns": maxturns,"allymaxenergy":allymaxenergy,
             "allysnapped":False, "enemysnapped": False}
 locationList["location1"]=Location(1,status,locationList)
 locationList["location2"]= TemporaryLocation(2,status,locationList,onRevealActivatesTwice(2,status,locationList))
-locationList["location3"]= TemporaryLocation(3,status,locationList,Wakanda(3,status,locationList))
+locationList["location3"]= TemporaryLocation(3,status,locationList,BarWithNoName(3,status,locationList))
 
 def resolveTie(locationList):
     allypower = locationList["location1"].alliesPower + locationList["location2"].alliesPower + locationList["location3"].alliesPower
@@ -34,6 +34,7 @@ def resolveTie(locationList):
 
 def checkWinner():
     results = [locationList["location1"].winning,locationList["location2"].winning,locationList["location3"].winning]
+    print("Location 3 winner:", locationList["location3"].winning)
     allywin, enemywin = 0,0
     for string in results:
         if string == "Ally":
@@ -92,16 +93,17 @@ def draw(hand,deck,num): #pesca un numero di carte dal deck
             i+=1
 
 def gameStart(): #genera deck casuali uguali per ogni player per ora e li mischia 
-    status["allydeck"], status["enemydeck"] = [Death(True, status),Sunspot(True,status)],[Knull(False, status),EndOfTurnTest(1,0,"Test End of turn",False, status)]
+    status["allydeck"], status["enemydeck"] = [WhiteTiger(True, status),Sunspot(True,status)],[Sentinel(False, status),StarLord(False, status)]
     status["allydeck"].append(Magik(True,status))
     status["enemydeck"].append(Psylocke(False,status))
-    for i in range (1,8,1):
-        randomcost = random.randint(0,6)
-        randompower = random.randint(1,10)
-        cardname = "Number " + str(i)
-        curCard = Elektra(True, status)
+    for i in range (1,3,1):
+        curCard = Wolfsbane(True, status)
         status["allydeck"].append(curCard)
-        curCard = Elektra(False, status)
+        curCard = Wolfsbane(False, status)
+        status["enemydeck"].append(curCard)
+        curCard = Odin(True, status)
+        status["allydeck"].append(curCard)
+        curCard = Odin(False, status)
         status["enemydeck"].append(curCard)
     random.shuffle(status["allydeck"])
     random.shuffle(status["enemydeck"])
