@@ -93,8 +93,8 @@ def draw(hand,deck,num): #pesca un numero di carte dal deck
             i+=1
 
 def gameStart(): #genera deck casuali uguali per ogni player per ora e li mischia 
-    status["allydeck"], status["enemydeck"] = [WhiteTiger(True, status),Sunspot(True,status)],[Sentinel(False, status),StarLord(False, status)]
-    status["allydeck"].append(Magik(True,status))
+    status["allydeck"], status["enemydeck"] = [MultipleMan(True, status),HandBuffTest(True,status)],[Sentinel(False, status),StarLord(False, status)]
+    status["allydeck"].append(Heimdall(True,status))
     status["enemydeck"].append(Psylocke(False,status))
     for i in range (1,3,1):
         curCard = Wolfsbane(True, status)

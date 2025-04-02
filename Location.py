@@ -17,7 +17,14 @@ class Location:
         self.can_play_cards = True
         self.winning = "Tie"
         self.ongoing_number = 1
-        
+        self.on_reveal_num = 1
+    
+    def returnRightOrLeftLocation(self, rightOrLeft):
+        locations = list(self.locationlist.items())
+        for i, (key, loc) in enumerate(locations):
+            if loc.locationNum == self.locationNum and rightOrLeft + loc.locationNum >0 and rightOrLeft + loc.locationNum < 4:
+                return locations[i + rightOrLeft][1]
+
 
     def __repr__(self):
         return f"Location {self.locationNum}"
@@ -60,7 +67,8 @@ class Location:
     def handleReveals(self,unitList):
         for unit in unitList:
             if self.can_activate_onreveal:
-                unit.onReveal(self.locationlist)
+                for i in range(self.on_reveal_num):
+                    unit.onReveal(self.locationlist)
             if(unit.ally):
                 self.allies.append(unit)
             else:
@@ -98,7 +106,7 @@ class Location:
         print("End of turn of cards in location ", self.locationNum)
         self.activateEndOfTurns(self.allies)
         self.activateEndOfTurns(self.enemies)
-        self.updateStatus()
+        #self.updateStatus()
         self.countPower()
         self.locationWinner()
         self.preRevealAllies = []
@@ -112,8 +120,8 @@ class Location:
         else:
             self.winning = "Tie"
 
-    def updateStatus(self):
-        self.checkOngoing()
+    #def updateStatus(self):
+    #    self.checkOngoing()
 
     def activateEndOfTurns(self,unitList):
         for unit in unitList:
@@ -126,7 +134,7 @@ class Location:
         else:
             self.enemies.remove(card)
     
-    def checkOngoingBuffPower(self,card): #fix ongoing, this only counts as buff
+    '''def checkOngoingBuffPower(self,card): #fix ongoing, this only counts as buff
         tempPower = card.power
         if card.ally:
             for unit in self.allies:
@@ -136,7 +144,7 @@ class Location:
             for unit in self.enemies:
                 if unit.has_ongoing:
                     tempPower= unit.ongoing(card, tempPower)
-        card.setCurPower(tempPower)
+        card.setCurPower(tempPower) '''
     
     def onPlayEffect(self,card):
         print("Activated on play effect of location!")
@@ -165,7 +173,7 @@ class Location:
         else:
             print(card.name," can't be destroyed!")
     
-    def checkOngoing(self):
+    '''def checkOngoing(self):
         num =0
         while num < self.ongoing_number:
             num +=1
@@ -179,7 +187,9 @@ class Location:
             for unit in self.allies + self.enemies:
                     if unit.has_ongoing_late:
                         unit.ongoing()
-        
+        '''
+    def onCardBeingMovedHere(self, card):
+        pass
 
 class TestLocationEffects(Location):
     def __init__(self,number, status,locationlist):
@@ -198,16 +208,7 @@ class onRevealActivatesTwice(Location):
     def __init__(self, number, status, locationlist):
         super().__init__(number, status, locationlist)
         self.name = "Double on reveals"
-    def handleReveals(self, unitList):
-         for unit in unitList:
-            print("Activating ", unit.name, " twice!")
-            unit.onReveal(self.locationlist)
-            unit.onReveal(self.locationlist)
-            if(unit.ally):
-                self.allies.append(unit)
-            else:
-                self.enemies.append(unit)
-            self.onPlayEffect(unit)
+        self.on_reveal_num = self.on_reveal_num * 2
 
 class Limbo(Location):
     def __init__(self, number, status, locationlist):

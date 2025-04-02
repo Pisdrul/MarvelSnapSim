@@ -1,5 +1,6 @@
 from Location import *
 import random
+import copy
 
 class Card:
     def __init__(self, cost, power, name, ally, status):
@@ -16,7 +17,9 @@ class Card:
         self.description = "Does nothing"
         self.can_be_destroyed = True
         self.has_ongoing_late = False
-        self.ongoing_buff = 0
+        self.ongoing_buff = False
+        self.has_ongoing_buffpower = False
+        self.can_move = 0 
 
     def __repr__(self):
         return f"{self.cur_power}"
@@ -45,17 +48,24 @@ class Card:
     def ongoing(self, locationlist):
         pass
     
+    def onMove(self):
+        pass
     def move(self, newloc):
         if self.ally:
-            current = self.location.allies
             next = newloc.allies
         else: 
-            current = self.location.enemies
             next = newloc.enemies
         
-        if len(next)<4:
+        if len(next)<4 and newloc != self.location:
+            self.location.removeCard(self)
+            self.location = newloc
+            self.onMove()
             next.append(self)
-            current.pop(self)
+            for unit in self.location.allies + self.location.enemies:
+                unit.onCardBeingMovedHere()
+    
+    def onCardBeingMovedHere(self):
+        pass
 
 
 
@@ -107,9 +117,9 @@ class Sunspot(Card):
         self.description = "At the end of the turn, gain power equals to the amount of your unspent energy this turn"
     def endOfTurn(self):
         if self.ally:
-            self.power += self.status["allyenergy"]
+            self.cur_power += self.status["allyenergy"]
         else:
-            self.power += self.status["enemyenergy"]
+            self.cur_power += self.status["enemyenergy"]
 
 class Psylocke(Card):
     def __init__(self, ally, status):
@@ -205,10 +215,10 @@ class StarLord(Card):
     def onReveal(self, locationlist):
         if self.ally:
             if len(self.location.preRevealEnemies) >0:
-                self.power += 4
+                self.cur_power += 4
         else:
             if len(self.location.preRevealAllies) >0:
-                self.power += 4
+                self.cur_power += 4
 
 class Medusa(Card):
     def __init__(self, ally, status):
@@ -217,7 +227,7 @@ class Medusa(Card):
     
     def onReveal(self, locationlist):
         if self.location == locationlist["location2"]:
-            self.power += 3
+            self.cur_power += 3
 
 class Odin(Card):
     def __init__(self, ally, status):
@@ -240,9 +250,9 @@ class Wolfsbane(Card):
     
     def onReveal(self, locationlist):
         if self.ally: 
-            self.power += 2*(len(self.location.allies))
+            self.cur_power += 2*(len(self.location.allies))
         else:
-            self.power += 2*(len(self.location.enemies))
+            self.cur_powerpower += 2*(len(self.location.enemies))
 
 class WhiteTiger(Card):
     def __init__(self, ally, status):
@@ -292,3 +302,56 @@ class CaptainAmerica(Card):
             for unit in self.location.enemies:
                 if unit.has_ongoing:
                     unit.ongoing_buff += 2
+
+class Heimdall(Card):
+    def __init__(self, ally, status):
+        super().__init__(1, 10, "Heimdall", ally, status)
+        self.description = "On Reveal: Move your other cards one location to the left"
+
+    def onReveal(self, locationlist):
+        print("Heimdall!")
+        if self.ally:
+            for unit in locationlist["location1"].allies + locationlist["location2"].allies + locationlist["location3"].allies:
+                if unit != self:
+                    newloc= unit.location.returnRightOrLeftLocation(-1)
+                    if newloc != None:
+                        unit.move(unit.location.returnRightOrLeftLocation(-1))
+        else:
+            for unit in locationlist["location1"].enemies + locationlist["location2"].enemies + locationlist["location3"].enemies:
+                if unit != self:
+                    newloc= unit.location.returnRightOrLeftLocation(-1)
+                    if newloc != None:
+                        unit.move(unit.location.returnRightOrLeftLocation(-1))
+
+class MultipleMan(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 3, "Multiple Man", ally, status)
+        self.description = "When this moves, add a copy to the old location"
+
+    def move(self, newloc):
+        if self.ally:
+            cur = self.location.allies
+            next = newloc.allies
+        else: 
+            cur = self.location.enemies
+            next = newloc.enemies
+        if len(next)<4 and newloc != self.location:
+            self.location.removeCard(self)
+            self.location = newloc
+            cur.append(copy.deepcopy(self))
+            next.append(self)
+            for unit in self.location.allies + self.location.enemies:
+                unit.onCardBeingMovedHere()
+    
+class HandBuffTest(Card):
+    def __init__(self, ally, status):
+        super().__init__(0, 0, "HandBuffTest", ally, status)
+        self.description = "On Reveal: Give +3 power to every card in your hand"
+    
+    def onReveal(self, locationlist):
+        if self.ally:
+            for unit in self.status["allyhand"]:
+                unit.cur_power += 3
+        else:
+            for unit in self.status["enemyhand"]:
+                unit.cur_power += 3
