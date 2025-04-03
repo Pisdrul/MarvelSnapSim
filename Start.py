@@ -1,6 +1,7 @@
 import random
-from Cards.Card import *
-from Location import *
+from Cards.AllCards import *
+from Locations.AllLocations import *
+from Locations.Location import *
 
 exit = False
 turnAlly = False
@@ -92,16 +93,16 @@ def draw(hand,deck,num): #pesca un numero di carte dal deck
             del deck[-1]
             i+=1
 
-def gameStart(): #genera deck casuali uguali per ogni player per ora e li mischia 
-    status["allydeck"], status["enemydeck"] = [MultipleMan(True, status),HandBuffTest(True,status)],[Sentinel(False, status),StarLord(False, status)]
+def gameStart(): #inserisci carte nel deck e pesca le carte
+    status["allydeck"], status["enemydeck"] = [MultipleMan(True, status),OldCaptainAmerica(True,status)],[Sentinel(False, status),StarLord(False, status)]
     status["allydeck"].append(Heimdall(True,status))
     status["enemydeck"].append(Psylocke(False,status))
     for i in range (1,3,1):
-        curCard = Wolfsbane(True, status)
+        curCard = Elektra(True, status)
         status["allydeck"].append(curCard)
         curCard = Wolfsbane(False, status)
         status["enemydeck"].append(curCard)
-        curCard = Odin(True, status)
+        curCard = Kazan(True, status)
         status["allydeck"].append(curCard)
         curCard = Odin(False, status)
         status["enemydeck"].append(curCard)
@@ -141,7 +142,7 @@ def playerTurn(hand, deck,energy):
                 print("Which unit would you like to add")
                 i=1
                 for unit in hand:
-                    print(i,": ",unit.name, "Cost:", unit.cost," Power: ", unit.power )
+                    print(i,": ",unit.name, "Cost:", unit.cost," Power: ", unit.cur_power )
                     i+=1
                 try:
                     inputUnit = int(input()) -1
