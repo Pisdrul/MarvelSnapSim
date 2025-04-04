@@ -100,7 +100,7 @@ def gameStart(): #inserisci carte nel deck e pesca le carte
     for i in range (1,3,1):
         curCard = Elektra(True, status)
         status["allydeck"].append(curCard)
-        curCard = Wolfsbane(False, status)
+        curCard = Klaw(False, status)
         status["enemydeck"].append(curCard)
         curCard = Kazan(True, status)
         status["allydeck"].append(curCard)
@@ -185,6 +185,7 @@ def startOfTurn(status):
     status["allyenergy"] = status["allymaxenergy"] + status["tempenergyally"]
     status["enemyenergy"] = status["enemymaxenergy"] + status["tempenergyenemy"]
     status["tempenergyally"], status["tempenergyenemy"] = 0,0
+    locationList["location1"].startOfTurn(), locationList["location2"].startOfTurn(), locationList["location3"].startOfTurn()
     match checkWinner():
         case "ally","tie":
             status["allypriority"] = True

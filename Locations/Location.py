@@ -19,6 +19,10 @@ class Location:
         self.ongoing_number = 1
         self.on_reveal_number = 1
         self.ongoing_to_apply = []
+        self.allies_power_buff_sum = 0
+        self.allies_power_buff_mult = 1
+        self.enemies_power_buff_sum = 0
+        self.enemies_power_buff_mult = 1
     
     def returnRightOrLeftLocation(self, rightOrLeft):
         locations = list(self.locationlist.items())
@@ -55,13 +59,27 @@ class Location:
         power = 0
         for unit in self.allies:
             power += unit.cur_power
-        self.alliesPower = power
-        #check power from ongoing here
+        print(self.allies_power_buff_sum)
+        self.alliesPower = power + self.allies_power_buff_sum 
+        self.alliesPower *= self.allies_power_buff_mult
         power =0
         for unit in self.enemies:
             print(unit.name, unit.cur_power)
             power += unit.cur_power
-        self.enemiesPower = power
+        self.enemiesPower = power + self.enemies_power_buff_sum
+        self.enemiesPower *= self.enemies_power_buff_mult
+
+    def updateLocation(self):
+        self.allies_power_buff_mult = 1
+        self.allies_power_buff_sum = 0
+        self.enemies_power_buff_mult = 1
+        self.enemies_power_buff_sum = 0
+        for unit in self.ongoing_to_apply:
+            unit.ongoing(self)
+        self.ongoing_to_apply = []
+
+    def startOfTurn(self):
+        pass
 
     def handleReveals(self,unitList):
         for unit in unitList:
@@ -74,6 +92,7 @@ class Location:
                 self.enemies.append(unit)
             self.onPlayEffect(unit)
             self.updateCards()
+            self.updateLocation()
 
     def revealCards(self): #bisogna fare in modo che vengano rivelate prima tutte le carte del player con prio invece che location per location
         if(self.status["allypriority"]):
@@ -84,6 +103,7 @@ class Location:
             if len(self.preRevealEnemies)>0:
                 print("Enemies are revealing: on location ",self.locationNum,":", self.preRevealEnemies)
                 self.handleReveals(self.preRevealEnemies)
+        self.updateLocation()
         self.countPower()
 
     def locationStatus(self):
@@ -122,7 +142,8 @@ class Location:
         print("End of turn of cards in location ", self.locationNum)
         self.activateEndOfTurns(self.allies)
         self.activateEndOfTurns(self.enemies)
-        #self.updateStatus()
+        self.updateLocation()
+        print(self.ongoing_to_apply)
         self.countPower()
         self.locationWinner()
         self.preRevealAllies = []
@@ -136,8 +157,6 @@ class Location:
         else:
             self.winning = "Tie"
 
-    #def updateStatus(self):
-    #    self.checkOngoing()
 
     def activateEndOfTurns(self,unitList):
         for unit in unitList:
@@ -200,7 +219,7 @@ class TemporaryLocation(Location):
         self.newLoc = newLoc
         self.name = "Revealing location in " + str(self.counter) + " turns"
     
-    def endOfTurn(self):
+    def startOfTurn(self):
         self.counter -= 1
         if self.counter ==0: self.changeLocation(self.newLoc)
         self.name = "Revealing location in " + str(self.counter) + " turns"
