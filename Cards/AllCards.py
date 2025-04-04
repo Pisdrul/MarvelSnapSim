@@ -1,4 +1,5 @@
 from Cards.Card import Card
+from Locations.AllLocations import *
 import copy
 import random
 class TestCard(Card):
@@ -251,6 +252,7 @@ class Kazan(Card):
     def __init__(self, ally, status):
         super().__init__(4, 4, "Kazan", ally, status)
         self.description = "Ongoing: Your 1-cost cards have +1 Power."
+        self.has_ongoing = True
 
     def ongoing(self, card):
         card.ongoing_buff += 1
@@ -328,7 +330,7 @@ class OldCaptainAmerica(Card):
     def ongoing(self, card):
         card.ongoing_buff += 1
     
-    def applyOngoing(self):
+    def applyOngoing(self, locationlist):
         if self.ally:
             for unit in self.location.allies:
                 if unit != self:

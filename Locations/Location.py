@@ -100,7 +100,7 @@ class Location:
         units = self.locationlist["location1"].allies + self.locationlist["location2"].allies + self.locationlist["location3"].allies+ self.locationlist["location1"].enemies + self.locationlist["location2"].enemies + self.locationlist["location3"].enemies
         for unit in units:
             if unit.has_ongoing:
-                for self in range(self.ongoing_number):
+                for i in range(self.ongoing_number):
                     unit.applyOngoing(self.locationlist)
         for unit in units:
             unit.updateCard()
