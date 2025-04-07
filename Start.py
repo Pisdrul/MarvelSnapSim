@@ -19,10 +19,9 @@ status = {"maxturns": maxturns,"allymaxenergy":allymaxenergy,
             "allypriority": True,
             "cubes":1, "tempcubes":1,
             "allysnapped":False, "enemysnapped": False}
-locationList["location1"]=Location(1,status,locationList)
-locationList["location2"]= TemporaryLocation(2,status,locationList,onRevealActivatesTwice(2,status,locationList))
-locationList["location3"]= TemporaryLocation(3,status,locationList,BarWithNoName(3,status,locationList))
-
+locationList["location1"]=TemporaryLocation(1,status,locationList)
+locationList["location2"]= TemporaryLocation(2,status,locationList)
+locationList["location3"]= TemporaryLocation(3,status,locationList)
 def resolveTie(locationList):
     allypower = locationList["location1"].alliesPower + locationList["location2"].alliesPower + locationList["location3"].alliesPower
     enemypower = locationList["location1"].enemiesPower + locationList["location2"].enemiesPower + locationList["location3"].enemiesPower
@@ -37,6 +36,7 @@ def checkWinner():
     results = [locationList["location1"].winning,locationList["location2"].winning,locationList["location3"].winning]
     print("Location 3 winner:", locationList["location3"].winning)
     allywin, enemywin = 0,0
+    print(results)
     for string in results:
         if string == "Ally":
             allywin +=1
@@ -94,17 +94,17 @@ def draw(hand,deck,num): #pesca un numero di carte dal deck
             i+=1
 
 def gameStart(): #inserisci carte nel deck e pesca le carte
-    status["allydeck"], status["enemydeck"] = [MultipleMan(True, status),OldCaptainAmerica(True,status)],[Sentinel(False, status),StarLord(False, status)]
-    status["allydeck"].append(Heimdall(True,status))
-    status["enemydeck"].append(Psylocke(False,status))
+    status["allydeck"], status["enemydeck"] = [Antman(True, status),Klaw(True,status)],[Punisher(False, status),Armor(False, status)]
+    status["allydeck"].append(DevilDinosaur(True,status))
+    status["enemydeck"].append(Lizard(False,status))
     for i in range (1,3,1):
-        curCard = Elektra(True, status)
+        curCard = Agent13(True, status)
         status["allydeck"].append(curCard)
         curCard = Klaw(False, status)
         status["enemydeck"].append(curCard)
         curCard = Kazan(True, status)
         status["allydeck"].append(curCard)
-        curCard = Odin(False, status)
+        curCard = SpiderWoman(False, status)
         status["enemydeck"].append(curCard)
     random.shuffle(status["allydeck"])
     random.shuffle(status["enemydeck"])
@@ -185,12 +185,17 @@ def startOfTurn(status):
     status["allyenergy"] = status["allymaxenergy"] + status["tempenergyally"]
     status["enemyenergy"] = status["enemymaxenergy"] + status["tempenergyenemy"]
     status["tempenergyally"], status["tempenergyenemy"] = 0,0
-    locationList["location1"].startOfTurn(), locationList["location2"].startOfTurn(), locationList["location3"].startOfTurn()
-    match checkWinner():
-        case "ally","tie":
+    locationList["location1"].startOfTurn()
+    locationList["location2"].startOfTurn()
+    locationList["location3"].startOfTurn()
+    winning = checkWinner()
+    match winning:
+        case "Ally" | "Tie":
             status["allypriority"] = True
-        case "enemy":
+            print("Allies have priority")
+        case "Enemy":
             status["allypriority"] = False
+            print("Enemies have priority")
     for card in status["allyhand"] + status["allydeck"] + status ["enemyhand"] + status["enemydeck"]:
         card.updateCard()
 
@@ -227,10 +232,10 @@ def endGame():
 
 gameStart()
 while status["turncounter"]<=status["maxturns"]:
-    boardStatus()
     print("Turn ", status["turncounter"],", player turn")
     print("")
     startOfTurn(status)
+    boardStatus()
     turnAlly = not turnAlly
     status["allyenergy"] = playerTurn(status["allyhand"], status["allydeck"], status["allyenergy"])
     print("Turn ", status["turncounter"],", enemy turn")

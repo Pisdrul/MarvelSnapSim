@@ -1,7 +1,7 @@
 from Locations.Location import Location
 from Locations.AllLocations import *
 import random
-import copy
+import copy, inspect, sys
 
 class Card:
     def __init__(self, cost, power, name, ally, status):
@@ -23,6 +23,7 @@ class Card:
         self.ongoing_to_apply = []
         self.has_ongoing_buffpower = False
         self.can_move = 0 
+        self.onslaught = True
 
     def __repr__(self):
         return f"{self.cur_power}"
@@ -55,7 +56,7 @@ class Card:
 
     def ongoing(self, locationlist):
         pass
-    
+
     def onMove(self):
         pass
     def move(self, newloc):

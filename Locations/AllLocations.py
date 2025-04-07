@@ -44,3 +44,10 @@ class Limbo(Location):
                 check = True
         if not check:
             self.status["maxturns"] = 6
+
+class OnslaughtCitadel(Location):
+    def __init__(self, number, status, locationlist):
+        super().__init__(number, status, locationlist)
+        self.name = "Onslaught Citadel"
+        self.description = "Ongoing effects here are doubled"
+        self.ongoing_number_base = 2

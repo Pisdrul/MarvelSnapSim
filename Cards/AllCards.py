@@ -2,6 +2,7 @@ from Cards.Card import Card
 from Locations.AllLocations import *
 import copy
 import random
+import sys, inspect
 class TestCard(Card):
     def __init__(self, cost, power, name, ally, status):
         super().__init__(cost, power, name, ally, status)
@@ -243,10 +244,17 @@ class CaptainAmerica(Card):
                 if unit != self:
                     unit.ongoing_to_apply.append(self)
 
-class Armor(Card): #Da implementare appena finisco la lista degli ongoing delle location
+class Armor(Card): 
     def __init__(self, ally, status):
         super().__init__(2, 3, "Armor", ally, status)
-        self.description("Ongoing: Cards can't be destroyed here")
+        self.description= "Ongoing: Cards can't be destroyed here"
+        self.has_ongoing = True
+    
+    def applyOngoing(self, locationlist):
+        self.location.ongoing_to_apply.append(self)
+    
+    def ongoing(self, location):
+        location.can_destroy = False
 
 class Kazan(Card):
     def __init__(self, ally, status):
@@ -260,7 +268,6 @@ class Kazan(Card):
     def applyOngoing(self, locationlist):
         if self.ally:
             for unit in locationlist["location1"].allies + locationlist["location2"].allies + locationlist["location3"].allies:
-                print(unit.cost)
                 if unit.cost == 1:
                     unit.ongoing_to_apply.append(self)
         else:
@@ -356,5 +363,123 @@ class Klaw(Card):
         location = self.location.returnRightOrLeftLocation(1)
         if location != None:
             location.ongoing_to_apply.append(self)
-            print(location.ongoing_to_apply)
+
+class MrFantastic(Card):
+    def __init__(self, ally, status):
+        super().__init__(3, 2, "Mr Fantastic", ally, status)
+        self.description = "Ongoing: The location to the left and right have +2 Power."
+        self.has_ongoing = True
     
+    def applyOngoing(self, locationlist):
+        location = self.location.returnRightOrLeftLocation(1)
+        if location != None:
+            location.ongoing_to_apply.append(self)
+        location = self.location.returnRightOrLeftLocation(-1)
+        if location != None:
+            location.ongoing_to_apply.append(self)
+    
+    def ongoing(self, location):
+        if self.ally:
+            location.allies_power_buff_sum += 2
+        else:
+            location.enemies_power_buff_sum += 2
+
+class Onslaught(Card):
+    def __init__(self, ally, status):
+        super().__init__(6, 7, "Onslaught", ally, status)
+        self.description = "Ongoing: Your Ongoings here are doubled."
+        self.has_ongoing = True
+        self.onslaught = True
+
+class Antman(Card):
+    def __init__(self, ally, status):
+        super().__init__(1, 1, "Antman", ally, status)
+        self.description = "Ongoing: If your side of this location is full, +4 power."
+        self.has_ongoing = True
+    
+    def applyOngoing(self, locationlist):
+        if self.ally:
+            if len(self.location.allies) == 4:
+                self.ongoing_to_apply.append(self)
+        else:
+            if len(self.location.enemies) == 4:
+                self.ongoing_to_apply.append(self)
+    
+    def ongoing(self, locationlist):
+        self.ongoing_buff += 4
+
+class Lizard(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 5, "Lizard", ally, status)
+        self.description = "Ongoing: -4 power if your opponent has 4 cards here."
+        self.has_ongoing = True
+
+    def applyOngoing(self, locationlist):
+        if self.ally:
+            if len(self.location.enemies) == 4:
+                self.ongoing_to_apply.append(self)
+        else:
+            if len(self.location.allies) == 4:
+                self.ongoing_to_apply.append(self)
+    
+    def ongoing(self, locationlist):
+        self.ongoing_buff -= 4
+
+class Punisher(Card):
+    def __init__(self, ally, status):
+        super().__init__(3, 3, "Punisher", ally, status)
+        self.description = "Ongoing: +1 power for each enemy card here."
+        self.has_ongoing = True
+
+    def applyOngoing(self, locationlist):
+        self.ongoing_to_apply.append(self)
+    
+    def ongoing(self, locationlist):
+        if self.ally:
+            self.ongoing_buff += len(self.location.enemies)
+        else:
+            self.ongoing_buff += len(self.location.allies)
+
+class SpiderWoman(Card):
+    def __init__(self, ally, status):
+        super().__init__(5, 8, "Spider-Woman", ally, status)
+        self.description = "On Reveal: Afflict all enemy cards here with -1 power."
+    
+    def onReveal(self, locationlist):
+        if self.ally:
+            for unit in self.location.enemies:
+                unit.onreveal_buff -= 1
+        else:
+            for unit in self.location.allies:
+                unit.onreveal_buff -= 1
+
+class DevilDinosaur(Card):
+    def __init__(self, ally, status):
+        super().__init__(5, 3, "Devil Dinosaur", ally, status)
+        self.description = "Ongoing: +2 Power for each card in your hand."
+        self.has_ongoing = True
+    
+    def applyOngoing(self, locationlist):
+        self.ongoing_to_apply.append(self)
+    
+    def ongoing(self, locationlist):
+        if self.ally:
+            self.ongoing_buff += 2*len(self.status["allyhand"])
+        else:
+            self.ongoing_buff += 2*len(self.status["enemyhand"])
+
+class Agent13(Card):
+    def __init__(self, ally, status):
+        super().__init__(1, 2, "Agent 13", ally, status)
+        self.description = "On Reveal: Add a random card to your hand."
+    def randomCard(self):
+        current_module = sys.modules[__name__]
+        classes = [cls for name, cls in inspect.getmembers(current_module, inspect.isclass)
+                if cls.__module__ == __name__]
+        return random.choice(classes)(self.ally, self.status)
+
+    def onReveal(self, locationlist):
+        if self.ally: 
+            self.status["allyhand"].append(self.randomCard())
+        else:
+            self.status["enemyhand"].append(self.randomCard())
