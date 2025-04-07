@@ -68,11 +68,12 @@ def addUnit(unit):
         return was_added
     
 def undoActions(turnAlly, hand):
+    
     loc1temp =locationList["location1"].undoActions(turnAlly)
     loc2temp =locationList["location2"].undoActions(turnAlly)
     loc3temp =locationList["location3"].undoActions(turnAlly)
     print("temps:", loc1temp, loc2temp, loc3temp)
-    refund =0
+    refund = 0
     for unit in loc1temp + loc2temp + loc3temp:
         refund += unit.cost
     hand += loc1temp + loc2temp + loc3temp
@@ -94,17 +95,17 @@ def draw(hand,deck,num): #pesca un numero di carte dal deck
             i+=1
 
 def gameStart(): #inserisci carte nel deck e pesca le carte
-    status["allydeck"], status["enemydeck"] = [Antman(True, status),Klaw(True,status)],[Punisher(False, status),Armor(False, status)]
-    status["allydeck"].append(DevilDinosaur(True,status))
-    status["enemydeck"].append(Lizard(False,status))
+    status["allydeck"], status["enemydeck"] = [EbonyMaw(True, status),Cosmo(True,status)],[ProfessorX(False, status),Armor(False, status)]
+    status["allydeck"].append(WhiteQueen(True,status))
+    status["enemydeck"].append(Warpath(False,status))
     for i in range (1,3,1):
-        curCard = Agent13(True, status)
+        curCard = Magik(True, status)
         status["allydeck"].append(curCard)
-        curCard = Klaw(False, status)
+        curCard = ShangChi(False, status)
         status["enemydeck"].append(curCard)
-        curCard = Kazan(True, status)
+        curCard = DevilDinosaur(True, status)
         status["allydeck"].append(curCard)
-        curCard = SpiderWoman(False, status)
+        curCard = ScarletWitch(False, status)
         status["enemydeck"].append(curCard)
     random.shuffle(status["allydeck"])
     random.shuffle(status["enemydeck"])
@@ -135,7 +136,7 @@ def playerTurn(hand, deck,energy):
                 print("Energy left: ", turnenergy)
                 i=1
                 for unit in hand:
-                    print(i,": ",unit.name, "Cost:", unit.cost," Power: ", unit.power )
+                    print(i,": ",unit.name, "Cost:", unit.cost," Power: ", unit.cur_power )
                     i+=1
             case 2:
                 print("Energy left:", turnenergy)
@@ -182,12 +183,12 @@ def snap(status,turnally):
         else: status["cubes"], status["tempcubes"] = 4,4
 
 def startOfTurn(status):
-    status["allyenergy"] = status["allymaxenergy"] + status["tempenergyally"]
-    status["enemyenergy"] = status["enemymaxenergy"] + status["tempenergyenemy"]
     status["tempenergyally"], status["tempenergyenemy"] = 0,0
     locationList["location1"].startOfTurn()
     locationList["location2"].startOfTurn()
     locationList["location3"].startOfTurn()
+    status["allyenergy"] = status["allymaxenergy"] + status["tempenergyally"]
+    status["enemyenergy"] = status["enemymaxenergy"] + status["tempenergyenemy"]
     winning = checkWinner()
     match winning:
         case "Ally" | "Tie":

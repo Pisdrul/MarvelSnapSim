@@ -24,6 +24,7 @@ class Card:
         self.has_ongoing_buffpower = False
         self.can_move = 0 
         self.onslaught = True
+        self.can_be_played = True
 
     def __repr__(self):
         return f"{self.cur_power}"

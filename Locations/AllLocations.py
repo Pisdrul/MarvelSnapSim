@@ -7,7 +7,7 @@ class Wakanda(Location):
         super().__init__(number, status, locationlist)
         self.name = "Wakanda"
         self.description = "Cards here can't be destroyed"
-        self.can_destroy = False
+        self.can_destroy_base = False
 
 class BarWithNoName(Location):
     def __init__(self, number, status, locationlist):
@@ -27,7 +27,7 @@ class onRevealActivatesTwice(Location):
     def __init__(self, number, status, locationlist):
         super().__init__(number, status, locationlist)
         self.name = "Double on reveals"
-        self.on_reveal_num = self.on_reveal_number * 2
+        self.on_reveal_number_base = self.on_reveal_number_base * 2
 
 class Limbo(Location):
     def __init__(self, number, status, locationlist):
@@ -51,3 +51,36 @@ class OnslaughtCitadel(Location):
         self.name = "Onslaught Citadel"
         self.description = "Ongoing effects here are doubled"
         self.ongoing_number_base = 2
+
+class Asgard(Location):
+    def __init__(self, number, status, locationlist):
+        super().__init__(number, status, locationlist)
+        self.name = "Asgard"
+        self.description = "After turn 4, whoever is winning here draws 2 cards"
+    
+    def endOfTurn(self):
+        super().endOfTurn()
+        if self.status["turncounter"] == 4:
+            if self.winning == "Ally":
+                print("Allies drawing 2")
+                for i in range(2):
+                    if self.status["allydeck"] != []:
+                        self.status["allyhand"].append(self.status["allydeck"].pop())
+            elif self.winning == "Enemy":
+                print("Enemies drawing 2")
+                for i in range(2):
+                    if self.status["enemydeck"] != []:
+                        self.status["enemyhand"].append(self.status["enemydeck"].pop())
+    
+class CastleBlackstone(Location):
+    def __init__(self, number, status, locationlist):
+        super().__init__(number, status, locationlist)
+        self.name = "Castle Blackstone"
+        self.description = "The player winning here gets +1 energy each turn"
+    
+    def startOfTurn(self):
+        super().startOfTurn()
+        if self.winning == "Ally":
+            self.status["tempenergyally"] += 1
+        elif self.winning == "Enemy":
+            self.status["tempenergyenemy"] += 1

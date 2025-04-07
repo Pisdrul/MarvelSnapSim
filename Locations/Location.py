@@ -14,13 +14,17 @@ class Location:
         self.locationlist = locationlist
         self.name = "Location " + str(self.locationNum)
         self.can_activate_onreveal = True
-        self.can_destroy = True
-        self.can_play_cards = True
+        self.can_destroy_base = True
+        self.can_play_cards_base = True
+        self.can_play_cards_allies = self.can_play_cards_base
+        self.can_play_cards_enemies = self.can_play_cards_base
         self.winning = "Tie"
         self.ongoing_number_base = 1
         self.ongoing_number_allies = self.ongoing_number_base
         self.ongoing_number_enemies = self.ongoing_number_base
-        self.on_reveal_number = 1
+        self.on_reveal_number_base = 1
+        self.on_reveal_number_allies = self.on_reveal_number_base
+        self.on_reveal_number_enemies = self.on_reveal_number_base
         self.ongoing_to_apply = []
         self.onslaught_number = []
         self.allies_power_buff_sum = 0
@@ -31,16 +35,18 @@ class Location:
         self.onslaught_enemies = []
         self.tribunal_allies = False
         self.tribunal_enemies = False
+        self.can_destroy = self.can_destroy_base
     
     def resetVariablesPreOngoing(self):
         self.ongoing_number_allies = self.ongoing_number_base
         self.ongoing_number_enemies = self.ongoing_number_base
-        self.on_reveal_number = 1
+        self.on_reveal_number_allies, self.on_reveal_number_enemies = self.on_reveal_number_base, self.on_reveal_number_base
         self.allies_power_buff_sum = 0
         self.allies_power_buff_mult = 1
         self.enemies_power_buff_sum = 0
         self.enemies_power_buff_mult = 1
-        self.can_destroy = True
+        self.can_play_cards_enemies, self.can_play_cards_allies = self.can_play_cards_base, self.can_play_cards_base
+        self.can_destroy = self.can_destroy_base
     def returnRightOrLeftLocation(self, rightOrLeft):
         locations = list(self.locationlist.items())
         for i, (key, loc) in enumerate(locations):
@@ -51,22 +57,32 @@ class Location:
     def __repr__(self):
         return f"Location {self.locationNum}"
 
-    def addToAllies(self,unit):
-        print("Adding allies!")
-        if (len(self.allies) + len(self.preRevealAllies))<4:
-            self.preRevealAllies.append(unit)
+    def canCardBePlayed(self,unit):
+        if unit.can_be_played:
             return True
         else:
-            print("location full")
+            return False
+    def addToAllies(self,unit):
+        print("Adding allies!")
+        if (len(self.allies) + len(self.preRevealAllies))<4 and self.can_play_cards_allies:
+                if self.canCardBePlayed(unit):
+                    self.preRevealAllies.append(unit)
+                    return True
+                else:
+                    print("Can't play that card here")
+                    return False
+        else:
+            if (self.can_play_cards_allies == False): print("Can't play cards")
+            else: print("location full")
             return False
         
     def addToEnemies(self,unit):
         print("Adding enemies!")
-        if (len(self.enemies) + len(self.preRevealEnemies))<4 and self.can_play_cards:
+        if (len(self.enemies) + len(self.preRevealEnemies))<4 and self.can_play_cards_enemies:
             self.preRevealEnemies.append(unit)
             return True
         else:
-            if self.can_play_cards == False:
+            if self.can_play_cards_enemies == False:
                 print("Can't play cards")
             else:
                 print("location full")
@@ -111,8 +127,12 @@ class Location:
     def handleReveals(self,unitList):
         for unit in unitList:
             if self.can_activate_onreveal:
-                for i in range(self.on_reveal_number):
-                    unit.onReveal(self.locationlist)
+                if unit.ally:
+                    for i in range(self.on_reveal_number_allies):
+                        unit.onReveal(self.locationlist)
+                else:
+                    for i in range(self.on_reveal_number_enemies):
+                        unit.onReveal(self.locationlist)
             if(unit.ally):
                 self.allies.append(unit)
             else:
@@ -199,7 +219,6 @@ class Location:
         newLocation.onRevealLocation()
     
     def destroyCard(self, card):
-        print(self.can_destroy)
         if card.can_be_destroyed and self.can_destroy:
             if card.ally:
                 self.allies.remove(card)

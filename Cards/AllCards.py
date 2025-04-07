@@ -3,35 +3,6 @@ from Locations.AllLocations import *
 import copy
 import random
 import sys, inspect
-class TestCard(Card):
-    def __init__(self, cost, power, name, ally, status):
-        super().__init__(cost, power, name, ally, status)
-    def onReveal(self,locationlist):
-        print("Revealing TestCard")
-        print("Current power: ", self.power)
-        self.power+=2
-        print("Increased power to: ", self.power)
-    
-class EndOfTurnTest(Card):
-    def __init__(self, cost, power, name, ally, status):
-        super().__init__(cost, power, name, ally, status)
-        self.counter =0
-    def endOfTurn(self):
-        print("increasing power of", self.name)
-        self.power +=1
-        self.counter +=1
-        if self.counter >3:
-            print(self.name," destroyed itself!")
-            self.location.removeCard(self)
-class OngoingTest(Card):
-    def __init__(self, cost, power, name, ally, status):
-        super().__init__(cost, power, name, ally, status)
-        self.has_ongoing = True
-
-    def ongoing(self,power):
-        print('here')
-        return power * 2
-
 class Magik(Card):
     def __init__(self, ally, status):
         super().__init__(3, 2, "Magik", ally, status)
@@ -229,7 +200,6 @@ class CaptainAmerica(Card):
         super().__init__(3, 3, "Captain America", ally, status)
         self.description = "Ongoing: Your other Ongoing cards here have +2 Power."
         self.has_ongoing = True
-        self.has_ongoing_buffpower = True
 
     def ongoing(self, card):
         card.ongoing_buff += 1
@@ -483,3 +453,198 @@ class Agent13(Card):
             self.status["allyhand"].append(self.randomCard())
         else:
             self.status["enemyhand"].append(self.randomCard())
+
+class BlueMarvel(Card):
+    def __init__(self, ally, status):
+        super().__init__(5, 3, "Blue Marvel", ally, status)
+        self.description = "Ongoing: Your other cards have +1 Power."
+        self.has_ongoing = True
+    
+    def applyOngoing(self, locationlist):
+        if self.ally:
+            for unit in locationlist["location1"].allies + locationlist["location2"].allies + locationlist["location3"].allies:
+                if unit != self:
+                    unit.ongoing_to_apply.append(self)
+        else:
+            for unit in locationlist["location1"].enemies + locationlist["location2"].enemies + locationlist["location3"].enemies:
+                if unit != self:
+                    unit.ongoing_to_apply.append(self)
+    
+    def ongoing(self, card):
+        card.ongoing_buff += 1
+
+class Enchantress(Card):
+    def __init__(self, ally, status):
+        super().__init__(4, 6, "Enchantress", ally, status)
+        self.description = "On Reveal: Remove the abilities from all Ongoing cards here"
+    
+    def onReveal(self, locationlist):
+        if self.ally:
+            for unit in self.location.enemies:
+                unit.has_ongoing = False
+        else:
+            for unit in self.location.allies:
+                unit.has_ongoing = False
+
+class Namor(Card):
+    def __init__(self, ally, status):
+        super().__init__(4, 6, "Namor", ally, status)
+        self.description = "+5 Power if this is your only card here."
+        self.has_ongoing = True
+    
+    def applyOngoing(self, locationlist):
+        if self.ally:
+            if len(self.location.allies) == 1:
+                self.ongoing_to_apply.append(self)
+        else:
+            if len(self.location.enemies) == 1:
+                self.ongoing_to_apply.append(self)
+    
+    def ongoing(self, locationlist):
+        self.ongoing_buff += 5
+
+class Hobgoblin(Card):
+    def __init__(self, ally, status):
+        super().__init__(5, -8, "Hobgoblin", ally, status)
+        self.description = "On Reveal: Switch sides."
+    
+    def onReveal(self, locationlist):
+        if self.ally:
+            if len(self.location.enemies) <4:
+                self.ally = False       
+        else:
+            if len(self.location.allies) <4:
+                self.ally = True
+                
+class Jubilee(Card):
+    def __init__(self, ally, status):
+        super().__init__(4, 1, "Jubilee", ally, status)
+        self.description = "On Reveal: Add the top card of your deck to this location."
+    
+    def onReveal(self, locationlist):
+        if self.ally and len(self.status["allydeck"]) > 0 and (len(self.location.allies) + len(self.location.preRevealAllies)) < 4:
+            self.location.preRevealAllies.append(self.status["allydeck"].pop(0))
+        elif not self.ally and len(self.status["enemydeck"]) > 0 and (len(self.location.enemies) + len(self.location.preRevealEnemies)) < 4:
+            self.location.preRevealEnemies.append(self.status["enemydeck"].pop(0))
+            
+class Okoye(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 3, "Okoye", ally, status)
+        self.description = "On Reveal: Give every card in your deck +1 Power."
+    
+    def onReveal(self, locationlist):
+        if self.ally:
+            for card in self.status["allydeck"]:
+                card.onreveal_buff += 1
+        else:
+            for card in self.status["enemydeck"]:
+                card.onreveal_buff += 1
+
+class ScarletWitch(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 3, "Scarlet Witch", ally, status)
+        self.description = "On Reveal: Replace this location with a new one."
+    
+    def onReveal(self, locationlist):
+        self.location.changeLocation(self.location.randomLocation())
+
+class Vulture(Card):
+    def __init__(self, ally, status):
+        super().__init__(3, 3, "Vulture", ally, status)
+        self.description = "When this card moves, +6 Power."
+    
+    def onMove(self):
+        self.onreveal_buff += 6
+    
+class Warpath(Card):
+    def __init__(self, ally, status):
+        super().__init__(4, 5, "Warpath", ally, status)
+        self.description = "Ongoing: if any of your locations are empty, +5 Power."
+        self.has_ongoing = True
+    
+    def applyOngoing(self, locationlist):
+        if self.ally:
+            if len(locationlist["location1"].allies) == 0 or len(locationlist["location2"].allies) == 0 or len(locationlist["location3"].allies) == 0:
+                self.ongoing_to_apply.append(self)
+        
+        else:
+            if len(locationlist["location1"].enemies) == 0 or len(locationlist["location2"].enemies) == 0 or len(locationlist["location3"].enemies) == 0:
+                self.ongoing_to_apply.append(self)
+    
+    def ongoing(self, locationlist):
+        self.ongoing_buff += 5
+
+class WhiteQueen(Card):
+    def __init__(self, ally, status):
+        super().__init__(3, 4, "White Queen", ally, status)
+        self.description= "On Reveal: Copy the card that costs the most from your opponent's hand into your hand."
+
+    def onReveal(self, locationlist):
+        if self.ally:
+            max_cost = max(obj.cost for obj in self.status["enemyhand"])
+            max_cost_items = [obj for obj in self.status["enemyhand"] if obj.cost == max_cost]
+            self.status["allyhand"].append(copy.deepcopy(random.choice(max_cost_items)))
+        else:
+            max_cost = max(obj.cost for obj in self.status["allyhand"])
+            max_cost_items = [obj for obj in self.status["allyhand"] if obj.cost == max_cost]
+            self.status["enemyhand"].append(copy.deepcopy(random.choice(max_cost_items))) 
+
+class Cosmo(Card):
+    def __init__(self, ally, status):
+        super().__init__(3, 3, "Cosmo", ally, status)
+        self.description = "Ongoing: On Reveal abilities won't happen here"
+        self.has_ongoing = True
+    
+    def applyOngoing(self, locationlist):
+        self.location.ongoing_to_apply.append(self)
+    
+    def ongoing(self, location):
+        location.on_reveal_number_allies, location.on_reveal_number_enemies = 0, 0
+
+class EbonyMaw(Card):
+    def __init__(self, ally, status):
+        super().__init__(1, 7, "Ebony Maw", ally, status)
+        self.description = "You can't play this after turn 3. Ongoing: You can't play cards here"
+        self.has_ongoing = True
+    
+    def updateCard(self):
+        super().updateCard()
+        if self.status["turncounter"] >= 3:
+            self.can_be_played = False
+        
+    def ongoing(self, location):
+        if self.ally:
+            location.can_play_cards_allies = False
+        else:
+            location.can_play_cards_enemies = False
+    
+    def applyOngoing(self, locationlist):
+        self.location.ongoing_to_apply.append(self)
+
+class ProfessorX(Card):
+    def __init__(self, ally, status):
+        super().__init__(5, 3, "Professor X", ally, status)
+        self.description = "You can't play this after turn 3. Ongoing: You can't play cards here"
+        self.has_ongoing = True
+    
+    def ongoing(self, location):
+        location.can_play_cards_allies, location.can_play_cards_enemies = False, False
+        location.can_destroy = False
+    
+    def applyOngoing(self, locationlist):
+        self.location.ongoing_to_apply.append(self)
+
+class ShangChi(Card):
+    def __init__(self, ally, status):
+        super().__init__(4, 3, "Shang-Chi", ally, status)
+        self.description = "On Reveal: Destroy all enemy cards here with 10+ Power"
+    
+    def onReveal(self, locationlist):
+        if self.ally:
+            for card in self.location.enemies:
+                if card.cur_power >= 10:
+                    self.location.destroyCard(card)
+        else:
+            for card in self.location.allies:
+                if card.cur_power >= 10:
+                    self.location.destroyCard(card) 
