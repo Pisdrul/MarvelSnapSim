@@ -88,18 +88,18 @@ class Death(Card):
         super().updateCard()
         self.cost = 12 - len(self.status["alliesdestroyed"]) - len(self.status["enemiesdestroyed"])
 
-class Knull(Card): #Fixare Knull, ritorna NoneType quando calcola il potere della location
+class Knull(Card):
     def __init__(self, ally, status):
         super().__init__(1, 0, "Knull", ally, status)
-        self.has_ongoing_buffpower = True
+        self.has_ongoing = True
         self.description = "Ongoing: Has the combined attack of all destroyed cards"
     
-    def ongoing(self, card, temppower):
+    def ongoing(self,card):
         for unit in self.status["alliesdestroyed"] + self.status["enemiesdestroyed"]:
-            print("Adding ", unit.power," to Knull")
-            self.ongoing_buff += unit.power
+            print("Adding ", unit.cur_power," to Knull")
+            self.ongoing_buff += unit.cur_power
     
-    def toApply(self):
+    def applyOngoing(self, locationlist):
         self.ongoing_to_apply.append(self)
 
 class Sentinel(Card):
@@ -118,6 +118,19 @@ class Sentinel(Card):
 class StarLord(Card):
     def __init__(self, ally, status):
         super().__init__(2, 2, "Star Lord", ally, status)
+        self.description = "On Reveal: If your opponent played a card here this turn, +4 power."
+
+    def onReveal(self, locationlist):
+        if self.ally:
+            if len(self.location.preRevealEnemies) >0:
+                self.onreveal_buff += 4
+        else:
+            if len(self.location.preRevealAllies) >0:
+                self.onreveal_buff += 4
+
+class RocketRacoon(Card):
+    def __init__(self, ally, status):
+        super().__init__(1, 1, "Rocket Racoon", ally, status)
         self.description = "On Reveal: If your opponent played a card here this turn, +4 power."
 
     def onReveal(self, locationlist):
@@ -654,3 +667,79 @@ class Nightcrawler(Card):
         super().__init__(1, 2, "Nightcrawler", ally, status)
         self.description = "You can move this card once"
         self.moves_number = 1
+
+class Vision(Card):
+    def __init__(self, ally, status):
+        super().__init__(3, 5, "Vision", ally, status)
+        self.description = "You can move this card every turn"
+        self.moves_number = 100
+
+class Spectrum(Card):
+    def __init__(self, ally, status):
+        super().__init__(6, 7, "Spectrum", ally, status)
+        self.description = "On Reveal: Give your Ongoing cards +2 Power"
+    
+    def onReveal(self, locationlist):
+        if self.ally:
+            for card in locationlist["location1"].allies + locationlist["location2"].allies + locationlist["location3"].allies:
+                if card.has_ongoing:
+                    card.onreveal_buff += 2
+        else:
+            for card in locationlist["location1"].enemies + locationlist["location2"].enemies + locationlist["location3"].enemies:
+                if card.has_ongoing:
+                    card.onreveal_buff += 2
+
+class SquirrelGirl(Card):
+    def __init__(self, ally, status):
+        super().__init__(1, 2, "Squirrel Girl", ally, status)
+        self.description = "On Reveal: Add a 1-Power Squirrel to each other location"
+
+    class Squirrel(Card):
+        def __init__(self, ally, status):
+            super().__init__(1, 1, "Squirrel", ally, status)
+            self.description = "Squeak!"
+        
+    def onReveal(self, locationlist):
+        if self.ally:
+            for location in locationlist.values():
+                if location != self.location and len(location.allies) < 4:
+                    newSquirrel = self.Squirrel(self.ally, self.status)
+                    location.allies.append(newSquirrel)
+                    newSquirrel.location = location
+        else:
+            for location in locationlist.values():
+                if location != self.location and len(location.enemies) < 4:
+                    newSquirrel = self.Squirrel(self.ally, self.status)
+                    location.enemies.append(newSquirrel)
+                    newSquirrel.location = location
+def StrongGuy(Card):
+    def __init__(self, ally, status):
+        super().__init__(3, 3, "Strong Guy", ally, status)
+        self.description = "Ongoing: if your hand has 1 or fewer cards, +6 power"
+        self.has_ongoing = True
+    
+    def ongoing(self, card):
+        self.ongoing_buff += 6
+    
+    def applyOngoing(self, locationlist):
+        if self.ally:
+            if len(self.status["allyhand"]) <= 1:
+                self.ongoing_to_apply.append(self)
+        else:
+            if len(self.status["enemyhand"]) <= 1:
+                self.ongoing_to_apply += 6
+
+class Cable(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 3, "Cable", ally, status)
+        self.description = "On Reveal: Draw a card from the opponent's deck"
+    
+    def onReveal(self, locationlist):
+        if self.ally:
+            if len(self.status["enemydeck"]) != 0:
+                self.status["allyhand"].append(self.status["enemydeck"][-1])
+                self.status["enemydeck"].pop().ally = True
+        else:
+            if len(self.status["allydeck"]) != 0:
+                self.status["enemyhand"].append(self.status["allydeck"][-1])
+                self.status["allydeck"].pop().ally = False

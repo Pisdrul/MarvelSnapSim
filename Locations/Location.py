@@ -130,6 +130,8 @@ class Location:
         for location in self.locationlist.values():
             location.updateCards()
             location.updateLocation()
+        for card in self.status["allyhand"] + self.status["enemyhand"]:
+            card.updateCard()
 
     def updateLocation(self):
         self.resetVariablesPreOngoing()
@@ -172,6 +174,7 @@ class Location:
             if move[0].moves_number >0:
                 move[0].moves_number -= 1
             self.updateGameState()
+
     def revealCards(self):
         if(self.status["allypriority"]):
             if len(self.preRevealAllies)>0:
@@ -217,15 +220,18 @@ class Location:
         self.locationWinner()
         self.preRevealAllies = []
         self.preRevealEnemies = []
+        self.location_can_be_moved_to = False
         
 
     def locationWinner(self):
+        self.countPower()
         if self.alliesPower > self.enemiesPower:
             self.winning = "Ally"
         elif self.alliesPower < self.enemiesPower:
             self.winning = "Enemy"
         else:
             self.winning = "Tie"
+        print("Location ", self.locationNum, " winner: ", self.winning)
 
 
     def activateEndOfTurns(self,unitList):
@@ -246,12 +252,15 @@ class Location:
         print("Revealed location")
     
     def changeLocation(self, newLocation):
+        for unit in self.allies + self.enemies:
+            unit.location = newLocation
         newLocation.allies, newLocation.preRevealAllies = self.allies, self.preRevealAllies
         newLocation.enemies, newLocation.preRevealEnemies = self.enemies, self.preRevealEnemies
         newLocation.locationNum = self.locationNum
         temp = "location" + str(self.locationNum)
         self.locationlist[temp] = newLocation
         newLocation.onRevealLocation()
+        newLocation.updateGameState()
     
     def destroyCard(self, card):
         if card.can_be_destroyed and self.can_destroy:

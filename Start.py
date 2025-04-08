@@ -33,8 +33,8 @@ def resolveTie(locationList):
         return "Tie"
 
 def checkWinner():
+    locationList["location1"].locationWinner(), locationList["location2"].locationWinner(), locationList["location3"].locationWinner()
     results = [locationList["location1"].winning,locationList["location2"].winning,locationList["location3"].winning]
-    print("Location 3 winner:", locationList["location3"].winning)
     allywin, enemywin = 0,0
     print(results)
     for string in results:
@@ -96,16 +96,16 @@ def draw(hand,deck,num): #pesca un numero di carte dal deck
 
 def gameStart(): #inserisci carte nel deck e pesca le carte
     status["allydeck"], status["enemydeck"] = [EbonyMaw(True, status),Cosmo(True,status)],[ProfessorX(False, status),Armor(False, status)]
-    status["allydeck"].append(WhiteQueen(True,status))
+    status["allydeck"].append(Knull(True,status))
     status["enemydeck"].append(Warpath(False,status))
     for i in range (1,3,1):
         curCard = Nightcrawler(True, status)
         status["allydeck"].append(curCard)
-        curCard = ShangChi(False, status)
+        curCard = Elektra(False, status)
         status["enemydeck"].append(curCard)
-        curCard = DevilDinosaur(True, status)
+        curCard = SquirrelGirl(True, status)
         status["allydeck"].append(curCard)
-        curCard = ScarletWitch(False, status)
+        curCard = Cable(False, status)
         status["enemydeck"].append(curCard)
     random.shuffle(status["allydeck"])
     random.shuffle(status["enemydeck"])
@@ -193,6 +193,10 @@ def moveSelection(turnally):
         cardToMove = units[choice]
     except:
         print("Input error")
+    for moves in cardToMove.location.cards_to_move:
+        if moves[0] == cardToMove:
+            print("You already moved that card")
+            return 0
     
     print("Where would you like to move the card?")
     i=1
