@@ -99,7 +99,7 @@ def gameStart(): #inserisci carte nel deck e pesca le carte
     status["allydeck"].append(WhiteQueen(True,status))
     status["enemydeck"].append(Warpath(False,status))
     for i in range (1,3,1):
-        curCard = Magik(True, status)
+        curCard = Nightcrawler(True, status)
         status["allydeck"].append(curCard)
         curCard = ShangChi(False, status)
         status["enemydeck"].append(curCard)
@@ -122,8 +122,10 @@ def playerTurn(hand, deck,energy):
         " 2 to add an unit to the board,"
         " 3 to pass,"
         " 4 to check board status,"
-        " 5 to undo your actions,"
-        " 6 to SNAP!")
+        " 5 to undo your actions, "
+        "6 to move a card, "
+        "7 to retreat,"
+        " 8 to SNAP!")
         check = True
         while check:
             try:
@@ -164,6 +166,9 @@ def playerTurn(hand, deck,energy):
             case 5:
                 turnenergy += undoActions(turnAlly, hand)
             case 6:
+                print("Which card would you like to move?")
+                moveSelection(turnAlly)
+            case 8:
                 if (turnAlly and not status["allysnapped"]) or (not turnAlly and not status["enemysnapped"]):
                     print("SNAP!")
                     snap(status, turnAlly)
@@ -171,6 +176,48 @@ def playerTurn(hand, deck,energy):
 
             case _:
                 print("Input error")
+
+def moveSelection(turnally):
+    if turnally:
+        units = locationList["location1"].allies + locationList["location2"].allies + locationList["location3"].allies
+    else:
+        units = locationList["location1"].enemies + locationList["location2"].enemies + locationList["location3"].enemies
+    i=1
+    print("Which card would you like to move?")
+    for unit in units:
+        print(i, "-", unit.location.name, " :", unit.name, " Power:", unit.cur_power)
+        i+=1
+    try:
+        choice = int(input())
+        choice -= 1
+        cardToMove = units[choice]
+    except:
+        print("Input error")
+    
+    print("Where would you like to move the card?")
+    i=1
+    for location in locationList.values():
+        if location != cardToMove.location:
+            print(i, "-", location.name)
+        i+=1
+    try:
+        choice = int(input())
+        choice -= 1
+        locationToMove = list(locationList.values())[choice]
+    except:
+        print("Input error")
+    if locationToMove == cardToMove.location:
+        print("You can't move the card to the same location")
+    else:
+        if cardToMove.moves_number > 0 or locationToMove.location_can_be_moved_to:
+            if not locationToMove.checkIfLocationFull(cardToMove.ally):
+                cardToMove.location.cards_to_move.append([cardToMove, locationToMove])
+            else:
+                print("Location full")
+        else:
+            print("You can't move that card!")
+    
+
 
 def snap(status,turnally):
     if (turnAlly and not status["allysnapped"]):
@@ -210,6 +257,7 @@ def announcer(status):
 def endOfTurn():
     status["cubes"] = status["tempcubes"]
     announcer(status)
+    locationList["location1"].startOfTurnMoves(), locationList["location2"].startOfTurnMoves(), locationList["location3"].startOfTurnMoves()
     locationList["location1"].revealCards(), locationList["location2"].revealCards(), locationList["location3"].revealCards()
     status["allypriority"] = not status["allypriority"]
     announcer(status)

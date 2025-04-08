@@ -648,3 +648,9 @@ class ShangChi(Card):
             for card in self.location.allies:
                 if card.cur_power >= 10:
                     self.location.destroyCard(card) 
+
+class Nightcrawler(Card):
+    def __init__(self, ally, status):
+        super().__init__(1, 2, "Nightcrawler", ally, status)
+        self.description = "You can move this card once"
+        self.moves_number = 1

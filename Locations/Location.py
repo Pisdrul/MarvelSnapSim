@@ -36,6 +36,8 @@ class Location:
         self.tribunal_allies = False
         self.tribunal_enemies = False
         self.can_destroy = self.can_destroy_base
+        self.location_can_be_moved_to = False
+        self.cards_to_move = []
     
     def resetVariablesPreOngoing(self):
         self.ongoing_number_allies = self.ongoing_number_base
@@ -64,7 +66,7 @@ class Location:
             return False
     def addToAllies(self,unit):
         print("Adding allies!")
-        if (len(self.allies) + len(self.preRevealAllies))<4 and self.can_play_cards_allies:
+        if not self.checkIfLocationFull(True) and self.can_play_cards_allies:
                 if self.canCardBePlayed(unit):
                     self.preRevealAllies.append(unit)
                     return True
@@ -78,7 +80,7 @@ class Location:
         
     def addToEnemies(self,unit):
         print("Adding enemies!")
-        if (len(self.enemies) + len(self.preRevealEnemies))<4 and self.can_play_cards_enemies:
+        if not self.checkIfLocationFull(unit.ally) and self.can_play_cards_enemies:
             self.preRevealEnemies.append(unit)
             return True
         else:
@@ -87,7 +89,31 @@ class Location:
             else:
                 print("location full")
             return False
-        
+    
+    #controlla se la location è full o meno in base a chi sta giocando controllando le carte che stanno per essere giocate + quelle già giocate e quelle che si devono muovere
+    def checkIfLocationFull(self,allyOrEnemy):
+        full = False
+        num = 0
+        if allyOrEnemy:
+            num += len(self.preRevealAllies) + len(self.allies)
+            if num == 4:
+                full = True
+                return full
+        else:
+            num += len(self.preRevealEnemies) + len(self.enemies)
+            if num == 4:
+                full = True
+                return full
+        for location in self.locationlist.values():
+            if location != self:
+                for move in location.cards_to_move:
+                    if move[1] == self and move[0].ally == allyOrEnemy:
+                        num += 1
+                    if num == 4:
+                        full = True
+                        break
+        return full
+
     def countPower(self):
         power = 0
         for unit in self.allies:
@@ -140,6 +166,12 @@ class Location:
             self.onPlayEffect(unit)
             self.updateGameState()
 
+    def startOfTurnMoves(self):
+        for move in self.cards_to_move:
+            move[0].move(move[1])
+            if move[0].moves_number >0:
+                move[0].moves_number -= 1
+            self.updateGameState()
     def revealCards(self):
         if(self.status["allypriority"]):
             if len(self.preRevealAllies)>0:
@@ -169,6 +201,9 @@ class Location:
         else:
             tempArray = self.preRevealEnemies
             self.preRevealEnemies =[]
+        for move in self.cards_to_move:
+                if move[0].ally == allyTurn:
+                    self.cards_to_move.remove(move)
         return tempArray
     
     def endOfTurn(self):

@@ -25,6 +25,7 @@ class Card:
         self.can_move = 0 
         self.onslaught = True
         self.can_be_played = True
+        self.moves_number = 0
 
     def __repr__(self):
         return f"{self.cur_power}"
