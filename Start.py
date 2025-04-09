@@ -80,9 +80,9 @@ def undoActions(turnAlly, hand):
     return refund
 
 def boardStatus(): #ritorna una stringa che definisce lo stato di ogni location 
-    print(locationList["location1"].name,": ",locationList["location1"].locationStatus(),"")
-    print(locationList["location2"].name,": ",locationList["location2"].locationStatus(),"")
-    print(locationList["location3"].name,": ", locationList["location3"].locationStatus(),"")
+    print(locationList["location1"].name,"[", locationList["location1"].description, "] : ",locationList["location1"].locationStatus(),"")
+    print(locationList["location2"].name,"[", locationList["location2"].description, "]: ",locationList["location2"].locationStatus(),"")
+    print(locationList["location3"].name,"[", locationList["location3"].description, "]: ", locationList["location3"].locationStatus(),"")
 
 def draw(hand,deck,num): #pesca un numero di carte dal deck 
     i=0
@@ -95,17 +95,17 @@ def draw(hand,deck,num): #pesca un numero di carte dal deck
             i+=1
 
 def gameStart(): #inserisci carte nel deck e pesca le carte
-    status["allydeck"], status["enemydeck"] = [EbonyMaw(True, status),Cosmo(True,status)],[ProfessorX(False, status),Armor(False, status)]
+    status["allydeck"], status["enemydeck"] = [Storm(True, status),Cosmo(True,status)],[ProfessorX(False, status),Armor(False, status)]
     status["allydeck"].append(Knull(True,status))
     status["enemydeck"].append(Warpath(False,status))
     for i in range (1,3,1):
         curCard = Nightcrawler(True, status)
         status["allydeck"].append(curCard)
-        curCard = Elektra(False, status)
+        curCard = AmericaChavez(False, status)
         status["enemydeck"].append(curCard)
         curCard = SquirrelGirl(True, status)
         status["allydeck"].append(curCard)
-        curCard = Cable(False, status)
+        curCard = MisterSinister(False, status)
         status["enemydeck"].append(curCard)
     random.shuffle(status["allydeck"])
     random.shuffle(status["enemydeck"])
@@ -138,14 +138,14 @@ def playerTurn(hand, deck,energy):
                 print("Energy left: ", turnenergy)
                 i=1
                 for unit in hand:
-                    print(i,": ",unit.name, "Cost:", unit.cost," Power: ", unit.cur_power )
+                    print(i,": ",unit.name, "Cost:", unit.cost," Power: ", unit.cur_power, " Description:", unit.description)
                     i+=1
             case 2:
                 print("Energy left:", turnenergy)
                 print("Which unit would you like to add")
                 i=1
                 for unit in hand:
-                    print(i,": ",unit.name, "Cost:", unit.cost," Power: ", unit.cur_power )
+                    print(i,": ",unit.name, "Cost:", unit.cost," Power: ", unit.cur_power, " Description:", unit.description)
                     i+=1
                 try:
                     inputUnit = int(input()) -1

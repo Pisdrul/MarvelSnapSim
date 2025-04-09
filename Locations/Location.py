@@ -81,8 +81,12 @@ class Location:
     def addToEnemies(self,unit):
         print("Adding enemies!")
         if not self.checkIfLocationFull(unit.ally) and self.can_play_cards_enemies:
-            self.preRevealEnemies.append(unit)
-            return True
+            if self.canCardBePlayed(unit):
+                self.preRevealEnemies.append(unit)
+                return True
+            else:
+                print("Can't play that card here")
+                return False
         else:
             if self.can_play_cards_enemies == False:
                 print("Can't play cards")
@@ -135,6 +139,7 @@ class Location:
 
     def updateLocation(self):
         self.resetVariablesPreOngoing()
+        self.applyOngoing(self.locationlist)
         for unit in self.ongoing_to_apply:
             unit.ongoing(self)
         self.ongoing_to_apply.clear()
@@ -262,6 +267,12 @@ class Location:
         newLocation.onRevealLocation()
         newLocation.updateGameState()
     
+    def applyOngoing(self,locationlist):
+        pass
+
+    def ongoing(self,cardOrLocation):
+        pass
+
     def destroyCard(self, card):
         if card.can_be_destroyed and self.can_destroy:
             if card.ally:
@@ -303,6 +314,7 @@ class TemporaryLocation(Location):
         self.counter = number
         self.newLoc = self.randomLocation()
         self.name = "Revealing location in " + str(self.counter) + " turns"
+        self.description = ""
     
     def startOfTurn(self):
         super().startOfTurn()
