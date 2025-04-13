@@ -73,7 +73,15 @@ class Asgard(Location):
                 for i in range(2):
                     if self.status["enemydeck"] != []:
                         self.status["enemyhand"].append(self.status["enemydeck"].pop())
+class FiskTower(Location):
+    def __init__(self, number, status, locationlist):
+        super().__init__(number, status, locationlist)
+        self.name = "Fisk Tower"
+        self.description = "When a card moves here, afflict it with -4 Power"
     
+    def onCardBeingMoved(self, card):
+        if card.location == self:
+            card.onreveal_buff -= 4
 class CastleBlackstone(Location):
     def __init__(self, number, status, locationlist):
         super().__init__(number, status, locationlist)
@@ -273,7 +281,7 @@ class LakeHeldas(Location):
                 unit.ongoing_to_apply.append(self)
     
     def ongoing(self, unit):
-        unit.ongoing_buff +=1
+        unit.ongoing_buff +=2
 
 class Kyln(Location):
     def __init__(self, number, status, locationlist):

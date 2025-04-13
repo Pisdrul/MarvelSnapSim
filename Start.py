@@ -16,9 +16,11 @@ status = {"maxturns": maxturns,"allymaxenergy":allymaxenergy,
             "allyhand":[], "enemyhand":[],
             "allydeck":[], "enemydeck":[],
             "alliesdestroyed":[], "enemiesdestroyed":[],
+            "alliesdiscarded":[], "enemiesdiscarded":[],
             "allypriority": True,
             "cubes":1, "tempcubes":1,
-            "allysnapped":False, "enemysnapped": False}
+            "allysnapped":False, "enemysnapped": False,
+            "cardsplayed": [], "onnextcardbeingplayed": []}
 locationList["location1"]=TemporaryLocation(1,status,locationList)
 locationList["location2"]= TemporaryLocation(2,status,locationList)
 locationList["location3"]= TemporaryLocation(3,status,locationList)
@@ -95,17 +97,17 @@ def draw(hand,deck,num): #pesca un numero di carte dal deck
             i+=1
 
 def gameStart(): #inserisci carte nel deck e pesca le carte
-    status["allydeck"], status["enemydeck"] = [Storm(True, status),Cosmo(True,status)],[ProfessorX(False, status),Armor(False, status)]
-    status["allydeck"].append(Knull(True,status))
-    status["enemydeck"].append(Warpath(False,status))
+    status["allydeck"], status["enemydeck"] = [Angel(True, status),Apocalypse(True,status)],[Ironman(False, status),Onslaught(False, status)]
+    status["allydeck"].append(Wolverine(True,status))
+    status["enemydeck"].append(Punisher(False,status))
     for i in range (1,3,1):
-        curCard = Nightcrawler(True, status)
+        curCard = Carnage(True, status)
         status["allydeck"].append(curCard)
-        curCard = AmericaChavez(False, status)
+        curCard = Yondu(False, status)
         status["enemydeck"].append(curCard)
-        curCard = SquirrelGirl(True, status)
+        curCard = HulkBuster(True, status)
         status["allydeck"].append(curCard)
-        curCard = MisterSinister(False, status)
+        curCard = CaptainAmerica(False, status)
         status["enemydeck"].append(curCard)
     random.shuffle(status["allydeck"])
     random.shuffle(status["enemydeck"])
@@ -249,7 +251,7 @@ def startOfTurn(status):
             status["allypriority"] = False
             print("Enemies have priority")
     for card in status["allyhand"] + status["allydeck"] + status ["enemyhand"] + status["enemydeck"]:
-        card.updateCard()
+        card.updateCard(locationList)
 
 def announcer(status):
     match status["allypriority"]:

@@ -44,9 +44,9 @@ class AmericaChavez(Card):
         self.description = "On Reveal: Give the top card of your deck +2 power"
     
     def onReveal(self, locationlist):
-        if self.ally:
+        if self.ally and len(self.status["allydeck"])>0:
             self.status["allydeck"][-1].onreveal_buff += 2
-        else:
+        elif not self.ally and len(self.status["enemydeck"])>0:
             self.status["enemydeck"][-1].onreveal_buff += 2
         print("Increased power of the card on top of the deck by 2!")
 
@@ -85,8 +85,8 @@ class Death(Card):
         super().__init__(8, 12, "Death", ally, status)
         self.description = "Costs 1 less for each card that was destroyed this game"
     
-    def updateCard(self):
-        super().updateCard()
+    def updateCard(self,locationlist):
+        super().updateCard(locationlist)
         self.cost = 12 - len(self.status["alliesdestroyed"]) - len(self.status["enemiesdestroyed"])
 
 class Knull(Card):
@@ -119,6 +119,32 @@ class Sentinel(Card):
 class StarLord(Card):
     def __init__(self, ally, status):
         super().__init__(2, 2, "Star Lord", ally, status)
+        self.description = "On Reveal: If your opponent played a card here this turn, +4 power."
+
+    def onReveal(self, locationlist):
+        if self.ally:
+            if len(self.location.preRevealEnemies) >0:
+                self.onreveal_buff += 4
+        else:
+            if len(self.location.preRevealAllies) >0:
+                self.onreveal_buff += 4
+
+class Groot(Card):
+    def __init__(self, ally, status):
+        super().__init__(3, 3, "Groot", ally, status)
+        self.description = "On Reveal: If your opponent played a card here this turn, +4 power."
+
+    def onReveal(self, locationlist):
+        if self.ally:
+            if len(self.location.preRevealEnemies) >0:
+                self.onreveal_buff += 4
+        else:
+            if len(self.location.preRevealAllies) >0:
+                self.onreveal_buff += 4
+
+class Gamora(Card):
+    def __init__(self, ally, status):
+        super().__init__(5, 8, "Gamora", ally, status)
         self.description = "On Reveal: If your opponent played a card here this turn, +4 power."
 
     def onReveal(self, locationlist):
@@ -201,13 +227,16 @@ class Ironman(Card):
     def __init__(self, ally, status):
         super().__init__(5, 0, "Ironman", ally, status)
         self.description = "Ongoing = Your total Power is doubled here."
-        self.has_ongoing_late = True
+        self.has_ongoing = True
     
     def ongoing(self, locationlist):
         if self.ally:
-            self.location.alliesPowerWithBuff = self.location.alliesPowerWithBuff * 2
+            self.location.allies_power_buff_mult = self.location.allies_power_buff_mult * 2
         else:
-            self.location.enemiesPowerWithBuff = self.location.enemiesPowerWithBuff * 2
+            self.location.enemies_power_buff_mult = self.location.enemies_power_buff_mult * 2
+    
+    def applyOngoing(self, locationlist):
+        self.location.ongoing_to_apply.append(self)
 
 class CaptainAmerica(Card):
     def __init__(self, ally, status):
@@ -216,7 +245,7 @@ class CaptainAmerica(Card):
         self.has_ongoing = True
 
     def ongoing(self, card):
-        card.ongoing_buff += 1
+        card.ongoing_buff += 2
     
     def applyOngoing(self,locationlist):
         if self.ally:
@@ -374,6 +403,16 @@ class Onslaught(Card):
         self.description = "Ongoing: Your Ongoings here are doubled."
         self.has_ongoing = True
         self.onslaught = True
+    
+    def applyOngoing(self, locationlist):
+        if self.ally:
+            for unit in self.location.allies:
+                if unit != self and not unit.onslaught:
+                    unit.applyOngoing(self.locationlist)
+        else:
+            for unit in self.location.enemies:
+                if unit != self and not unit.onslaught:
+                    unit.applyOngoing(locationlist)
 
 class Antman(Card):
     def __init__(self, ally, status):
@@ -621,8 +660,8 @@ class EbonyMaw(Card):
         self.description = "You can't play this after turn 3. Ongoing: You can't play cards here"
         self.has_ongoing = True
     
-    def updateCard(self):
-        super().updateCard()
+    def updateCard(self,locationlist):
+        super().updateCard(locationlist)
         if self.status["turncounter"] > 3:
             self.can_be_played = False
         
@@ -793,3 +832,522 @@ class MisterSinister(Card):
             newSinisterClone = self.SinisterClone(self.ally, self.cur_power, self.status)
             self.location.enemies.append(newSinisterClone)
             newSinisterClone.location = self.location
+
+class Kraven(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 3, "Kraven", ally, status)
+        self.description = "When a card moves here, +2 Power"
+    
+    def onCardBeingMoved(self,card):
+        if card.location == self.location:
+            self.onreveal_buff += 2
+
+class Nakia(Card):
+    def __init__(self, ally, status):
+        super().__init__(3, 3, "Nakia", ally, status)
+        self.description = "On Reveal: Give +1 power to all cards in your hand"
+    
+    def onReveal(self, locationlist):
+        if self.ally:
+            for card in self.status["allyhand"]:
+                card.onreveal_buff += 1
+        else:
+            for card in self.status["enemyhand"]:
+                card.onreveal_buff += 1
+
+class Morph(Card):
+    def __init__(self, ally, status):
+        super().__init__(3, 0, "Morph", ally, status)
+        self.description = "On Reveal: Become a copy of a card in your opponent's hand"
+
+    def onReveal(self, locationlist):
+        if self.ally:
+            if len(self.status["enemyhand"]) != 0:
+                self.location.preRevealAllies.remove(self)
+                morphInto = copy.deepcopy(random.choice(self.status["enemyhand"]))
+                self.location.allies.append(morphInto)
+                morphInto.location = self.location
+                morphInto.ally = True
+                morphInto.onReveal(locationlist)
+        else:
+            if len(self.status["allyhand"]) != 0:
+                self.location.PreRevealEnemies.remove(self)
+                morphInto = copy.deepcopy(random.choice(self.status["allyhand"]))
+                self.location.enemies.append(morphInto)
+                morphInto.location = self.location
+                morphInto.ally = False
+                morphInto.onReveal(locationlist)
+
+class Blade(Card):
+    def __init__(self, ally, status):
+        super().__init__(1, 3, "Blade", ally, status)
+        self.description = "On Reveal: Discard the leftmost card in your hand"
+    
+    def onReveal(self, locationlist):
+        if self.ally:
+            self.status["allyhand"][-1].discard()
+        else:
+            self.status["enemyhand"][-1].discard()
+
+class Morbius(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 0, "Morbius", ally, status)
+        self.description = "Ongoing: +2 Power for each card you discarded this game"
+        self.has_ongoing = True
+    
+    def applyOngoing(self, locationlist):
+        self.ongoing_to_apply.append(self)
+    
+    def ongoing(self, locationlist):
+        if self.ally:
+            self.ongoing_buff += 2*len(self.status["alliesdiscarded"])
+        else:
+            self.ongoing_buff += 2*len(self.status["enemiesdiscarded"])
+
+class Swarm(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 3, "Swarm", ally, status)
+        self.description = "When discarded, add 2 copies here that cost 0"
+    
+    def whenDiscarded(self):
+        if self.ally:
+            self.cost = 0
+            self.status["allyhand"].append(self.createCopy())
+            self.status["allyhand"].append(self.createCopy())
+        else:
+            self.cost = 0
+            self.status["enemyhand"].append(self.createCopy())
+            self.status["enemyhand"].append(self.createCopy())
+    
+    def createCopy(self):
+        zerocostcopy = Swarm(self.ally, self.status)
+        zerocostcopy.cost = 0
+        zerocostcopy.base_power = self.base_power
+        zerocostcopy.onreveal_buff = self.onreveal_buff
+        zerocostcopy.was_created = True
+        return zerocostcopy
+
+class Modok(Card):
+    def __init__(self, ally, status):
+        super().__init__(5, 7, "Modok", ally, status)
+        self.description = "On Reveal: Discard all cards in your hand"
+    
+    def onReveal(self, locationlist):
+        if self.ally:
+            toDiscard = copy.copy(self.status["allyhand"])
+            for card in toDiscard:
+                card.discard()
+        else:
+            toDiscard = copy.copy(self.status["enemyhand"])
+            for card in toDiscard:
+                card.discard()
+
+class Apocalypse(Card):
+    def __init__(self, ally, status):
+        super().__init__(6, 7, "Apocalypse", ally, status)
+        self.description = "When discarded, put it back with +4 power"
+    
+    def whenDiscarded(self):
+        if self.ally:
+            self.status["allyhand"].append(self)
+            self.onreveal_buff += 4
+        else:
+            self.status["enemyhand"].append(self)
+            self.onreveal_buff += 4
+
+class Angela(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 3, "Angela", ally, status)
+        self.description = "After you play a card here, +1 Power"
+    
+    def onCardBeingPlayed(self, card):
+        print("Angela!")
+        if card.ally == self.ally and card.location == self.location and card != self:
+            self.onreveal_buff += 1
+
+class Bishop(Card):
+    def __init__(self, ally, status):
+        super().__init__(3, 2, "Bishop", ally, status)
+        self.description = "After you play a card, this gains +1 Power"
+    
+    def onCardBeingPlayed(self, card):
+        if card.ally == self.ally and card != self:
+            self.onreveal_buff += 1
+
+class LadySif(Card):
+    def __init__(self, ally, status):
+        super().__init__(3, 5, "Lady Sif", ally, status)
+        self.description = "On Reveal: Discard the highest cost card in your hand"
+    
+    def onReveal(self, locationlist):
+        if self.ally:
+            handToCheck = self.status["allyhand"]
+        else:
+            handToCheck = self.status["enemyhand"]
+        
+        highestCost = 0
+        highestCostCard = []
+        for card in handToCheck:
+            if card.cost == highestCost:
+                highestCostCard.append(card)
+            elif card.cost > highestCost:
+                highestCost = card.cost
+                highestCostCard = [card]
+        
+        random.choice(highestCostCard).discard()
+
+class ColeenWing(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 4, "Coleen Wing", ally, status)
+        self.description = "On Reveal: Discard the lowest cost card in your hand"
+    
+    def onReveal(self, locationlist):
+        if self.ally:
+            handToCheck = self.status["allyhand"]
+        else:
+            handToCheck = self.status["enemyhand"]
+        
+        lowestCost = 100
+        lowestCostCard = []
+        for card in handToCheck:
+            if card.cost == lowestCost:
+                lowestCostCard.append(card)
+            if card.cost < lowestCost:
+                lowestCost = card.cost
+                lowestCostCard = [card]
+        
+        random.choice(lowestCostCard).discard()
+
+class Korg(Card):
+    def __init__(self, ally, status):
+        super().__init__(1, 2, "Korg", ally, status)
+        self.description = "On Reveal: Shuffle a Rock into the opponent's deck"
+    
+    class Rock(Card):
+        def __init__(self, ally, status):
+            super().__init__(1, 0, "Rock", ally, status)
+            self.description = "Rock!"
+    
+    def onReveal(self, locationlist):
+        if not self.ally:
+            rock = self.Rock(not self.ally, self.status)
+            self.status["allydeck"].insert(random.randint(0, len(self.status["allydeck"])), rock)
+        else:
+            rock = self.Rock(not self.ally, self.status)
+            self.status["enemydeck"].insert(random.randint(0, len(self.status["enemydeck"])), rock)
+    
+class Killmonger(Card):
+    def __init__(self, ally, status):
+        super().__init__(3, 3, "Killmonger", ally, status)
+        self.description = "On Reveal: Destroy ALL 1-cost cards"
+    
+    def onReveal(self, locationlist):
+        for location in locationlist.values():
+            for card in location.allies + location.enemies:
+                if card.cost == 1:
+                    location.destroyCard(card)
+
+class Nova(Card):
+    def __init__(self, ally, status):
+        super().__init__(1, 1, "Nova", ally, status)
+        self.description = "When this card is destroyed, +1 Power to all allies"
+    
+    def whenDestroyed(self, locationlist):
+        
+        for location in locationlist.values():
+            if self.ally:
+                for card in location.allies:
+                    card.onreveal_buff += 1
+            else:
+                for card in location.enemies:
+                    card.onreveal_buff += 1
+
+class JessicaJones(Card):
+    def __init__(self, ally, status):
+        super().__init__(4, 5, "Jessica Jones", ally, status)
+        self.description = "On Reveal: If you don't play a card at this location next turn, +5 Power"
+        self.turnToCheck = 0
+        self.onRevealNum = 0
+    
+    def onReveal(self, locationlist):
+        self.onRevealNum += 1
+        self.turnToCheck = self.status["turncounter"] + 1
+    
+    def endOfTurn(self):
+        check = True
+        if self.status["turncounter"] == self.turnToCheck and self.onRevealNum != 0:
+            for cardPlayed in self.status["cardsplayed"]:
+                if cardPlayed[1] == self.turnToCheck and cardPlayed[2] == self.locationNumToCheck and cardPlayed[0].ally == self.ally:
+                    print("You played a card here this turn")
+                    check = False
+                    break
+            if check:
+                print("Buffing Jessica Jones!")
+                self.onreveal_buff += 5*self.onRevealNum
+
+class Ironheart(Card):
+    def __init__(self, ally, status):
+        super().__init__(3, 0, "Ironheart", ally, status)
+        self.description = "On Reveal: Give 3 of your other cards +2 Power"
+    
+    def onReveal(self, locationlist):
+        alreadyApplied = []
+        if self.ally:
+            for card in locationlist["location1"].allies + locationlist["location2"].allies + locationlist["location3"].allies:
+                if card != self and len(alreadyApplied) <3:
+                    alreadyApplied.append(card)
+                    card.onreveal_buff += 2
+        else:
+            for card in locationlist["location1"].enemies + locationlist["location2"].enemies + locationlist["location3"].enemies:
+                if card != self and len(alreadyApplied) <3:
+                    alreadyApplied.append(card)
+                    card.onreveal_buff += 2
+
+class Hawkeye(Card):
+    def __init__(self, ally, status):
+        super().__init__(1, 1, "Hawkeye", ally, status)
+        self.description = "On Reveal: If you play a card at this location next turn, +3 Power"
+        self.turnToCheck = 0
+        self.onRevealNum = 0
+    
+    def onReveal(self, locationlist):
+        self.onRevealNum += 1
+        self.turnToCheck = self.status["turncounter"] + 1
+        self.locationNumToCheck = self.location.locationNum
+    
+    def endOfTurn(self):
+        check = False
+        if self.status["turncounter"] == self.turnToCheck and self.onRevealNum != 0:
+            for cardPlayed in self.status["cardsplayed"]:
+                if cardPlayed[1] == self.turnToCheck and cardPlayed[2] == self.locationNumToCheck and cardPlayed[0].ally == self.ally:
+                    check = True
+                    break
+            if check:
+                print("Buffing Hawkeye!")
+                self.onreveal_buff += 3*self.onRevealNum
+
+class Forge(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 2, "Forge", ally, status)
+        self.description = "On Reveal: Give the next card you play +2 Power"
+    
+    def onReveal(self, locationlist):
+        self.status["onnextcardbeingplayed"].append(self)
+    
+    def nextCardBuff(self, card):
+        if card.ally == self.ally and card != self:
+            card.onreveal_buff += 2
+            self.status["onnextcardbeingplayed"].remove(self)
+
+class Deathlok(Card):
+    def __init__(self, ally, status):
+        super().__init__(3, 5, "Deathlok", ally, status)
+        self.description = "On Reveal: Destroy your other cards here"
+    
+    def onReveal(self, locationlist):
+        if self.ally:
+            for card in self.location.allies:
+                if card != self:
+                    self.location.destroyCard(card)
+        else:
+            for card in self.location.enemies:
+                if card != self:
+                    self.location.destroyCard(card)
+
+class Mantis(Card):
+    def __init__(self, ally, status):
+        super().__init__(1, 2, "Mantis", ally, status)
+        self.description = "On Reveal: If your opponent played any cards here this turn, copy one of them into your hand."
+
+    def onReveal(self, locationlist):
+        if self.ally:
+            if len(self.location.preRevealEnemies) >0:
+                self.status["allyhand"].append(copy.deepcopy(random.choice(self.location.preRevealEnemies)))
+        else:
+            if len(self.location.preRevealAllies) >0:
+                self.status["enemyhand"].append(copy.deepcopy(random.choice(self.location.preRevealAllies)))
+
+class IronFist(Card):
+    def __init__(self, ally, status):
+        super().__init__(1, 2, "Iron Fist", ally, status)
+        self.description = "On Reveal: After you play your next card, move it one location to the left."
+    
+    def onReveal(self, locationlist):
+        self.status["onnextcardbeingplayed"].append(self)
+    
+    def nextCardBuff(self, card):
+        if card.ally == self.ally and card != self:
+            print("Here for iron fist")
+            self.status["onnextcardbeingplayed"].remove(self)
+            newloc= card.location.returnRightOrLeftLocation(-1)
+            if newloc != None:
+                card.move(newloc)
+
+class Uatu(Card):
+    def __init__(self, ally, status):
+        super().__init__(1, 2, "Uatu the Watcher", ally, status)
+        self.description = "Game start: You can see the unrevealed locations"
+    
+    def startOfGame(self, locationlist):
+        self.activate_in_deck = True
+    
+    def updateCard(self, locationlist):
+        super().updateCard(locationlist)
+        """Reveal the unrevealed locations."""
+        print("Uatu is telling you that:")
+        for location in locationlist.values():
+            if location.temporary:
+                print(f"Location {location.locationNum} will turn into: {location.newLoc.name}")
+
+class SwordMaster(Card):
+    def __init__(self, ally, status):
+        super().__init__(3, 6, "Sword Master", ally, status)
+        self.description = "On Reveal: Discard an odd-costed card from your hand."
+    
+    def onReveal(self, locationlist):
+        toChoose = []
+        if self.ally:
+            for card in self.status["allyhand"]:
+                if card.cost % 2 == 1:
+                    toChoose.append(card)
+        else:
+            for card in self.status["enemyhand"]:
+                if card.cost % 2 == 1:
+                    toChoose.append(card)
+        if len(toChoose) > 0:
+            random.choice(toChoose).discard()
+
+class Carnage(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 2, "Carnage", ally, status)
+        self.description = "On Reveal: Destroy all your cards here. +2 Power for each destroyed"
+    
+    def onReveal(self, locationlist):
+        cardsToDestroy = []
+        if self.ally:
+            for card in self.location.allies:
+                if card != self:
+                    cardsToDestroy.append(card)
+        else:
+            for card in self.location.enemies:
+                if card != self:
+                    cardsToDestroy.append(card)
+        for card in cardsToDestroy:
+                self.location.destroyCard(card)
+                self.onreveal_buff += 2
+
+class Angel(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 3, "Angel", ally, status)
+        self.description = "When one of your cards is destroyed, this flies out of your hand or deck to replace it."
+        self.activate_on_destroy = True
+    
+    def activateOnDestroy(self, card, location):
+        if self.ally and card.ally:
+            print("Adding angel!")
+            try:
+                self.status["allyhand"].remove(self)
+            except: pass
+            try:
+                self.status["allydeck"].remove(self)
+            except: pass
+            if len(location.allies)<4: location.allies.append(self)
+        elif not self.ally and not card.ally:
+            try:
+                self.status["enemyhand"].remove(self)
+            except: pass
+            try:
+                self.status["enemydeck"].remove(self)
+            except: pass
+            if len(location.enemies)<4: location.enemies.append(self)
+
+class Moongirl(Card):
+    def __init__(self, ally, status):
+        super().__init__(4, 5, "Moongirl", ally, status)
+        self.description = "On Reveal: Duplicate your hand."
+    
+    def onReveal(self, locationlist):
+        temparray = []
+        if self.ally:
+            for card in self.status["allyhand"]:
+                temparray.append(copy.deepcopy(card))
+            self.status["allyhand"]+= temparray
+        else:
+            for card in self.status["enemyhand"]:
+                temparray.append(copy.deepcopy(card))
+            self.status["enemyhand"]+= temparray
+
+class Wolverine(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 3, "Wolverine", ally, status)
+        self.description = "When this card is destroyed or discarded, regenerate it with +2 Power at a random location"
+    
+    def whenDestroyed(self, locationlist):
+        self.regenerate()
+    def whenDiscarded(self):
+        self.regenerate()
+
+    def regenerate(self):
+        locationsNotFull = self.location.locationsThatArentfull(self.ally)
+        print(locationsNotFull)
+        if len(locationsNotFull) > 0:
+            location = random.choice(locationsNotFull)
+            if self.ally:
+                location.allies.append(self)
+            else:
+                location.enemies.append(self)
+            self.location = location
+            self.onreveal_buff += 2
+
+class Yondu(Card):
+    def __init__(self, ally, status):
+        super().__init__(1, 2, "Yondu", ally, status)
+        self.description = "On Reveal: Banish the card that costs the least in your opponent's deck."
+    
+    def onReveal(self, locationlist):
+        if self.ally:
+            if len(self.status["enemydeck"]) > 0:
+                toBanish = min(self.status["enemydeck"], key=lambda x: x.cost)
+                self.status["enemydeck"].remove(toBanish)
+                print("Removed ", toBanish.name)
+        else:
+            if len(self.status["allydeck"]) > 0:
+                toBanish = min(self.status["allydeck"], key=lambda x: x.cost)
+                self.status["allydeck"].remove(toBanish)
+                print("Removed ", toBanish.name)
+
+class HulkBuster(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 3, "Hulk Buster", ally, status)
+        self.description = "On Reveal: Merge with one of your cards here."
+    
+    def onReveal(self, locationlist):
+        toMergeWith = []
+        if self.ally:
+            if len(self.location.allies) > 0:
+                for card in self.location.allies:
+                    if card != self:
+                        toMergeWith.append(card)
+        else:
+            if len(self.location.enemies) > 0:
+                for card in self.location.enemies:
+                    if card != self:
+                        toMergeWith.append(card)
+        if len(toMergeWith) > 0:
+            choice = random.choice(toMergeWith)
+            self.merge(choice)
+    
+    def merge(self, card):
+        card.onreveal_buff += self.cur_power
+        if self.ally:
+            self.location.allies.remove(self)
+        else:
+            self.location.enemies.remove(self)
+
+class DoctorStrange(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 3, "Doctor Strange", ally, status)
+        self.description = "On Reveal: Move your highest-Power card(s) to this location."
+    
+    def onReveal(self, locationlist):
+        """Ricordati di controllare nel caso in cui la location è piena se ci sono più carte da spostare"""

@@ -26,9 +26,12 @@ class Card:
         self.onslaught = True
         self.can_be_played = True
         self.moves_number = 0
-
+        self.was_created = False
+        self.has_start_of_game = False
+        self.activate_in_deck = False
+        self.activate_on_destroy = False
     def __repr__(self):
-        return f"{self.cur_power}"
+        return f"{self.name}:{self.cur_power}"
     
     def onReveal(self,locationlist):
         print("Revealed ",self.name)
@@ -45,10 +48,11 @@ class Card:
     def setPower(self, num):
         set.base_power = num
     
-    def activateOnDestroy(self):
+    def whenDestroyed(self, locationlist):
         print("Destroyed ", self.name)
+        return True
 
-    def updateCard(self):
+    def updateCard(self,locationlist):
         self.canbedestroyed = True
         self.ongoing_buff = 0
         for buff in self.ongoing_to_apply:
@@ -56,6 +60,8 @@ class Card:
         self.cur_power = self.base_power + self.onreveal_buff + self.ongoing_buff
         self.ongoing_to_apply = []
 
+    def nextCardBuff(self, card):
+        pass
     def ongoing(self, locationlist):
         pass
 
@@ -72,11 +78,27 @@ class Card:
             self.location = newloc
             self.onMove()
             next.append(self)
-            for unit in self.location.allies + self.location.enemies:
-                unit.onCardBeingMovedHere()
+            newloc.moveEffects(self)
     
-    def onCardBeingMovedHere(self):
+    def onCardBeingMoved(self, card):
         pass
+
+    def onCardBeingPlayed(self, card):
+        pass
+
+    def discard(self):
+        self.status["allyhand"].remove(self)
+        print("Discarded ", self.name)
+        if self.ally: self.status["alliesdiscarded"].append(self)
+        else: self.status["enemiesdiscarded"].append(self)
+        self.whenDiscarded()
+    
+    def whenDiscarded(self):
+        pass
+
+    def startOfGame(self, locationlist):
+        pass
+    
 
 
 

@@ -38,6 +38,7 @@ class Location:
         self.can_destroy = self.can_destroy_base
         self.location_can_be_moved_to = False
         self.cards_to_move = []
+        self.temporary = False
     
     def resetVariablesPreOngoing(self):
         self.ongoing_number_allies = self.ongoing_number_base
@@ -99,12 +100,18 @@ class Location:
         full = False
         num = 0
         if allyOrEnemy:
+            for moves in self.cards_to_move:
+                if moves.ally == allyOrEnemy:
+                    num-=1
             num += len(self.preRevealAllies) + len(self.allies)
             if num == 4:
                 full = True
                 return full
         else:
             num += len(self.preRevealEnemies) + len(self.enemies)
+            for moves in self.cards_to_move:
+                if moves.ally == allyOrEnemy:
+                    num-=1
             if num == 4:
                 full = True
                 return full
@@ -134,8 +141,8 @@ class Location:
         for location in self.locationlist.values():
             location.updateCards()
             location.updateLocation()
-        for card in self.status["allyhand"] + self.status["enemyhand"]:
-            card.updateCard()
+        for card in self.status["allyhand"] + self.status["enemyhand"] + self.status["allydeck"] + self.status["enemydeck"]:
+            card.updateCard(self.locationlist)
 
     def updateLocation(self):
         self.resetVariablesPreOngoing()
@@ -152,13 +159,22 @@ class Location:
                 for i in range(self.ongoing_number):
                     unit.applyOngoing(self.locationlist)
         for unit in units:
-            unit.updateCard()
+            unit.updateCard(self.locationlist)
 
     def startOfTurn(self):
         self.updateGameState()
 
+    def checkOnPlayEffect(self,unit):
+        unitlist = self.locationlist["location1"].allies + self.locationlist["location2"].allies + self.locationlist["location3"].allies + self.locationlist["location1"].enemies + self.locationlist["location2"].enemies + self.locationlist["location3"].enemies
+        for card in unitlist:
+            card.onCardBeingPlayed(unit)
+    
     def handleReveals(self,unitList):
         for unit in unitList:
+            if(unit.ally):
+                self.allies.append(unit)
+            else:
+                self.enemies.append(unit)
             if self.can_activate_onreveal:
                 if unit.ally:
                     for i in range(self.on_reveal_number_allies):
@@ -166,11 +182,14 @@ class Location:
                 else:
                     for i in range(self.on_reveal_number_enemies):
                         unit.onReveal(self.locationlist)
-            if(unit.ally):
-                self.allies.append(unit)
-            else:
-                self.enemies.append(unit)
+            for effect in self.status["onnextcardbeingplayed"]:
+                effect.nextCardBuff(unit)
             self.onPlayEffect(unit)
+            for location in self.locationlist.values():
+                if location != self:
+                    location.onPlayEffect(unit)
+            self.status["cardsplayed"].append([unit, self.status["turncounter"], self.locationNum])
+            self.checkOnPlayEffect(unit)
             self.updateGameState()
 
     def startOfTurnMoves(self):
@@ -275,19 +294,31 @@ class Location:
 
     def destroyCard(self, card):
         if card.can_be_destroyed and self.can_destroy:
+            temp = card.location
             if card.ally:
                 self.allies.remove(card)
-                card.activateOnDestroy()
-                self.status["alliesdestroyed"].append(card)
+                result = card.whenDestroyed(self.locationlist)
+                if result: self.status["alliesdestroyed"].append(card)
             else:
                 self.enemies.remove(card)
-                card.activateOnDestroy()
-                self.status["enemiesdestroyed"].append(card)
+                result = card.whenDestroyed(self.locationlist)
+                if result: self.status["enemiesdestroyed"].append(card)
+            
+            for card in self.status["allyhand"] + self.status["allydeck"] + self.status["enemyhand"] + self.status["enemydeck"]:
+                if card.activate_on_destroy: 
+                    card.activateOnDestroy(card, temp)
         else:
             print(card.name," can't be destroyed!")
 
-    def onCardBeingMovedHere(self, card):
+    def onCardBeingMoved(self, card):
         pass
+    
+    def locationsThatArentfull(self,ally):
+        notFull = []
+        for location in self.locationlist.values():
+            if not location.checkIfLocationFull(ally):
+                notFull.append(location)
+        return notFull
 
     def randomLocation(self):
         import Locations.AllLocations
@@ -295,11 +326,20 @@ class Location:
                if cls.__module__ == Locations.AllLocations.__name__]
         return random.choice(classes)(self.locationNum,self.status,self.locationlist)
 
+    def moveEffects(self, card):
+        toProcess = self.locationlist["location1"].allies + self.locationlist["location2"].allies + self.locationlist["location3"].allies + self.locationlist["location1"].enemies + self.locationlist["location2"].enemies + self.locationlist["location3"].enemies
+        toProcess.append(self.locationlist["location1"])
+        toProcess.append(self.locationlist["location2"])
+        toProcess.append(self.locationlist["location3"])
+        for object in toProcess:
+            object.onCardBeingMoved(card)
+        
 class TestLocationEffects(Location):
     def __init__(self,number, status,locationlist):
         super().__init__(number,status,locationlist)
         self.counter = 0
         self.name = "On play effect test"
+
     
     def onPlayEffect(self, card):
         self.counter += 1
@@ -315,6 +355,7 @@ class TemporaryLocation(Location):
         self.newLoc = self.randomLocation()
         self.name = "Revealing location in " + str(self.counter) + " turns"
         self.description = ""
+        self.temporary = True
     
     def startOfTurn(self):
         super().startOfTurn()
