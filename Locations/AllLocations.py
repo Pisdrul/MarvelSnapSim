@@ -114,7 +114,7 @@ class HellfireClub(Location):
         self.description = "You can't play 1 cost cards here"
     
     def canCardBePlayed(self,unit):
-        if unit.cost == 1:
+        if unit.cur_cost == 1:
             return False
         elif unit.can_be_played:
             return True
@@ -251,7 +251,7 @@ class CrimsonCosmos(Location):
         self.description = "Cards that cost 1,2 or 3 can't be played here"
     
     def canCardBePlayed(self,unit):
-        if unit.cost == 1 or unit.cost == 2 or unit.cost == 3:
+        if unit.cur_cost == 1 or unit.cur_cost == 2 or unit.cur_cost == 3:
             return False
         elif unit.can_be_played:
             return True
@@ -264,9 +264,9 @@ class PlunderCastle(Location):
         self.description = "Only cards that cost 6 can be played here"
     
     def canCardBePlayed(self,unit):
-        if unit.cost == 6 and unit.can_be_played:
+        if unit.cur_cost == 6 and unit.can_be_played:
             return True
-        else:
+        else: 
             return False
         
 class LakeHeldas(Location):
@@ -277,7 +277,7 @@ class LakeHeldas(Location):
     
     def applyOngoing(self, location):
         for unit in self.allies + self.enemies:
-            if unit.cost == 1:
+            if unit.base_cost == 1:
                 unit.ongoing_to_apply.append(self)
     
     def ongoing(self, unit):
@@ -317,3 +317,42 @@ class Jotunheim(Location):
         super().endOfTurn()
         for unit in self.allies + self.enemies:
             unit.onreveal_buff -= 1
+
+class AltarOfDeath(Location):
+    def __init__(self, number, status, locationlist):
+        super().__init__(number, status, locationlist)
+        self.name = "Altar of Death"
+        self.description = "After you play a card here, destroy it to get +2 Energy next turn."
+    
+    def onPlayEffect(self, card):
+        if card.location == self:
+            print("Destroying ", card.name, " to get +2 Energy next turn.")
+            if card.ally:
+                self.status["tempenergyally"] += 2
+            else:
+                self.status["tempenergyenemy"] += 2
+            self.destroyCard(card)
+
+class AsteroidM(Location):
+    def __init__(self, number, status, locationlist):
+        super().__init__(number, status, locationlist)
+        self.name = "Asteroid M"
+        self.description = "After you play a 3 or 4 cost card, move it here"
+    
+    def onPlayEffect(self, card):
+        if (card.cost == 3 or card.cost == 4) and not self.checkIfLocationFull(card.ally):
+            card.move(self)
+
+class Elysium(Location):
+    def __init__(self, number, status, locationlist):
+        super().__init__(number, status, locationlist)
+        self.name = "Elysium"
+        self.description = "Cards cost 1 less"
+    
+    def applyOngoing(self, locationlist):
+        for cards in self.status["allyhand"] + self.status["enemyhand"]:
+            print("Help")
+            cards.ongoing_to_apply.append(self)
+    
+    def ongoing(self, card):
+        card.cost_ongoing -= 1

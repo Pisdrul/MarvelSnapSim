@@ -21,7 +21,7 @@ status = {"maxturns": maxturns,"allymaxenergy":allymaxenergy,
             "cubes":1, "tempcubes":1,
             "allysnapped":False, "enemysnapped": False,
             "cardsplayed": [], "onnextcardbeingplayed": []}
-locationList["location1"]=TemporaryLocation(1,status,locationList)
+locationList["location1"]=Elysium(1,status,locationList)
 locationList["location2"]= TemporaryLocation(2,status,locationList)
 locationList["location3"]= TemporaryLocation(3,status,locationList)
 def resolveTie(locationList):
@@ -77,12 +77,12 @@ def undoActions(turnAlly, hand):
     print("temps:", loc1temp, loc2temp, loc3temp)
     refund = 0
     for unit in loc1temp + loc2temp + loc3temp:
-        refund += unit.cost
+        refund += unit.cur_cost
     hand += loc1temp + loc2temp + loc3temp
     return refund
 
 def boardStatus(): #ritorna una stringa che definisce lo stato di ogni location 
-    print(locationList["location1"].name,"[", locationList["location1"].description, "] : ",locationList["location1"].locationStatus(),"")
+    print(locationList["location1"].name,"[", locationList["location1"].description, "]: ",locationList["location1"].locationStatus(),"")
     print(locationList["location2"].name,"[", locationList["location2"].description, "]: ",locationList["location2"].locationStatus(),"")
     print(locationList["location3"].name,"[", locationList["location3"].description, "]: ", locationList["location3"].locationStatus(),"")
 
@@ -97,15 +97,15 @@ def draw(hand,deck,num): #pesca un numero di carte dal deck
             i+=1
 
 def gameStart(): #inserisci carte nel deck e pesca le carte
-    status["allydeck"], status["enemydeck"] = [Angel(True, status),Apocalypse(True,status)],[Ironman(False, status),Onslaught(False, status)]
-    status["allydeck"].append(Wolverine(True,status))
-    status["enemydeck"].append(Punisher(False,status))
+    status["allydeck"], status["enemydeck"] = [Colossus(True, status),Heimdall(True,status)],[Scorpion(False, status),Onslaught(False, status)]
+    status["allydeck"].append(Apocalypse(True,status))
+    status["enemydeck"].append(Infinaut(False,status))
     for i in range (1,3,1):
-        curCard = Carnage(True, status)
+        curCard = Swarm(True, status)
         status["allydeck"].append(curCard)
-        curCard = Yondu(False, status)
+        curCard = Blade(False, status)
         status["enemydeck"].append(curCard)
-        curCard = HulkBuster(True, status)
+        curCard = Blade(True, status)
         status["allydeck"].append(curCard)
         curCard = CaptainAmerica(False, status)
         status["enemydeck"].append(curCard)
@@ -140,23 +140,23 @@ def playerTurn(hand, deck,energy):
                 print("Energy left: ", turnenergy)
                 i=1
                 for unit in hand:
-                    print(i,": ",unit.name, "Cost:", unit.cost," Power: ", unit.cur_power, " Description:", unit.description)
+                    print(i,": ",unit.name, "Cost:", unit.cur_cost," Power: ", unit.cur_power, " Description:", unit.description)
                     i+=1
             case 2:
                 print("Energy left:", turnenergy)
                 print("Which unit would you like to add")
                 i=1
                 for unit in hand:
-                    print(i,": ",unit.name, "Cost:", unit.cost," Power: ", unit.cur_power, " Description:", unit.description)
+                    print(i,": ",unit.name, "Cost:", unit.cur_cost," Power: ", unit.cur_power, " Description:", unit.description)
                     i+=1
                 try:
                     inputUnit = int(input()) -1
-                    if turnenergy<hand[inputUnit].cost:
+                    if turnenergy<hand[inputUnit].cur_cost:
                         print("Not enough energy")
                     else:
                         was_added = addUnit(hand[inputUnit])
                         if was_added:
-                            turnenergy-=hand[inputUnit].cost
+                            turnenergy-=hand[inputUnit].cur_cost
                             del hand[inputUnit]
                 except:
                     print("Input error")
@@ -236,13 +236,15 @@ def snap(status,turnally):
         else: status["cubes"], status["tempcubes"] = 4,4
 
 def startOfTurn(status):
-    status["tempenergyally"], status["tempenergyenemy"] = 0,0
     locationList["location1"].startOfTurn()
     locationList["location2"].startOfTurn()
     locationList["location3"].startOfTurn()
     status["allyenergy"] = status["allymaxenergy"] + status["tempenergyally"]
     status["enemyenergy"] = status["enemymaxenergy"] + status["tempenergyenemy"]
+    status["tempenergyally"], status["tempenergyenemy"] = 0,0
     winning = checkWinner()
+    for card in locationList["location1"].allies + locationList["location2"].allies + locationList["location3"].allies + locationList["location1"].enemies + locationList["location2"].enemies + locationList["location3"].enemies:
+        card.startOfTurn()
     match winning:
         case "Ally" | "Tie":
             status["allypriority"] = True

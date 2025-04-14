@@ -158,7 +158,7 @@ class Location:
             if unit.has_ongoing:
                 for i in range(self.ongoing_number):
                     unit.applyOngoing(self.locationlist)
-        for unit in units:
+        for unit in units + self.status["allyhand"] + self.status["enemyhand"]:
             unit.updateCard(self.locationlist)
 
     def startOfTurn(self):

@@ -5,7 +5,7 @@ import copy, inspect, sys
 
 class Card:
     def __init__(self, cost, power, name, ally, status):
-        self.cost = cost
+        self.base_cost = cost
         self.base_power = power
         self.name = name
         self.location = 0
@@ -30,6 +30,9 @@ class Card:
         self.has_start_of_game = False
         self.activate_in_deck = False
         self.activate_on_destroy = False
+        self.cost = self.base_cost
+        self.cur_cost = self.cost
+        self.cost_ongoing = 0
     def __repr__(self):
         return f"{self.name}:{self.cur_power}"
     
@@ -38,25 +41,27 @@ class Card:
     
     def playCard(self,location):
         self.location= location
+    
+    def startOfTurn(self):
+        pass
 
     def endOfTurn(self):
         pass
 
-    def checkOngoing(self):
-        self.location.checkOngoing(self)
-
-    def setPower(self, num):
-        set.base_power = num
-    
     def whenDestroyed(self, locationlist):
         print("Destroyed ", self.name)
         return True
 
     def updateCard(self,locationlist):
+        print(self.name)
         self.canbedestroyed = True
         self.ongoing_buff = 0
+        self.cost_ongoing = 0
         for buff in self.ongoing_to_apply:
+            print(buff.name)
             buff.ongoing(self)
+        self.cur_cost = self.cost + self.cost_ongoing
+        if self.cur_cost <0: self.cur_cost = 0
         self.cur_power = self.base_power + self.onreveal_buff + self.ongoing_buff
         self.ongoing_to_apply = []
 

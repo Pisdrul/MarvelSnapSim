@@ -60,7 +60,7 @@ class Elektra(Card):
             if len(self.location.enemies)>0:
                 candidates = []
                 for unit in self.location.enemies:
-                    if unit.cost == 1:
+                    if unit.base_cost == 1:
                         candidates.append(unit)
                 print(len(candidates))
                 if len(candidates)==0:
@@ -72,7 +72,7 @@ class Elektra(Card):
             if len(self.location.allies)>0:
                 candidates = []
                 for unit in self.location.allies:
-                    if unit.cost == 1:
+                    if unit.base_cost == 1:
                         candidates.append(unit)
                 if len(candidates)==0:
                     print("No candidates!")
@@ -87,7 +87,7 @@ class Death(Card):
     
     def updateCard(self,locationlist):
         super().updateCard(locationlist)
-        self.cost = 12 - len(self.status["alliesdestroyed"]) - len(self.status["enemiesdestroyed"])
+        self.cur_cost = 12 - len(self.status["alliesdestroyed"]) - len(self.status["enemiesdestroyed"])
 
 class Knull(Card):
     def __init__(self, ally, status):
@@ -281,11 +281,11 @@ class Kazan(Card):
     def applyOngoing(self, locationlist):
         if self.ally:
             for unit in locationlist["location1"].allies + locationlist["location2"].allies + locationlist["location3"].allies:
-                if unit.cost == 1:
+                if unit.base_cost == 1:
                     unit.ongoing_to_apply.append(self)
         else:
             for unit in locationlist["location1"].enemies + locationlist["location2"].enemies + locationlist["location3"].enemies:
-                if unit.cost == 1:
+                if unit.base_cost == 1:
                     unit.ongoing_to_apply.append(self)
 class Heimdall(Card):
     def __init__(self, ally, status):
@@ -634,12 +634,12 @@ class WhiteQueen(Card):
 
     def onReveal(self, locationlist):
         if self.ally:
-            max_cost = max(obj.cost for obj in self.status["enemyhand"])
-            max_cost_items = [obj for obj in self.status["enemyhand"] if obj.cost == max_cost]
+            max_cost = max(obj.cur_cost for obj in self.status["enemyhand"])
+            max_cost_items = [obj for obj in self.status["enemyhand"] if obj.cur_cost == max_cost]
             self.status["allyhand"].append(copy.deepcopy(random.choice(max_cost_items)))
         else:
-            max_cost = max(obj.cost for obj in self.status["allyhand"])
-            max_cost_items = [obj for obj in self.status["allyhand"] if obj.cost == max_cost]
+            max_cost = max(obj.cur_cost for obj in self.status["allyhand"])
+            max_cost_items = [obj for obj in self.status["allyhand"] if obj.cur_cost == max_cost]
             self.status["enemyhand"].append(copy.deepcopy(random.choice(max_cost_items))) 
 
 class Cosmo(Card):
@@ -911,11 +911,9 @@ class Swarm(Card):
     
     def whenDiscarded(self):
         if self.ally:
-            self.cost = 0
             self.status["allyhand"].append(self.createCopy())
             self.status["allyhand"].append(self.createCopy())
         else:
-            self.cost = 0
             self.status["enemyhand"].append(self.createCopy())
             self.status["enemyhand"].append(self.createCopy())
     
@@ -988,10 +986,10 @@ class LadySif(Card):
         highestCost = 0
         highestCostCard = []
         for card in handToCheck:
-            if card.cost == highestCost:
+            if card.cur_cost == highestCost:
                 highestCostCard.append(card)
-            elif card.cost > highestCost:
-                highestCost = card.cost
+            elif card.cur_cost > highestCost:
+                highestCost = card.cur_cost
                 highestCostCard = [card]
         
         random.choice(highestCostCard).discard()
@@ -1010,10 +1008,10 @@ class ColeenWing(Card):
         lowestCost = 100
         lowestCostCard = []
         for card in handToCheck:
-            if card.cost == lowestCost:
+            if card.cur_cost == lowestCost:
                 lowestCostCard.append(card)
-            if card.cost < lowestCost:
-                lowestCost = card.cost
+            if card.cur_cost < lowestCost:
+                lowestCost = card.cur_cost
                 lowestCostCard = [card]
         
         random.choice(lowestCostCard).discard()
@@ -1044,7 +1042,7 @@ class Killmonger(Card):
     def onReveal(self, locationlist):
         for location in locationlist.values():
             for card in location.allies + location.enemies:
-                if card.cost == 1:
+                if card.base_cost == 1:
                     location.destroyCard(card)
 
 class Nova(Card):
@@ -1208,11 +1206,11 @@ class SwordMaster(Card):
         toChoose = []
         if self.ally:
             for card in self.status["allyhand"]:
-                if card.cost % 2 == 1:
+                if card.cur_cost % 2 == 1:
                     toChoose.append(card)
         else:
             for card in self.status["enemyhand"]:
-                if card.cost % 2 == 1:
+                if card.cur_cost % 2 == 1:
                     toChoose.append(card)
         if len(toChoose) > 0:
             random.choice(toChoose).discard()
@@ -1350,4 +1348,170 @@ class DoctorStrange(Card):
         self.description = "On Reveal: Move your highest-Power card(s) to this location."
     
     def onReveal(self, locationlist):
-        """Ricordati di controllare nel caso in cui la location è piena se ci sono più carte da spostare"""
+        cur_high = -100
+        toMove = []
+        if self.ally:
+            for card in locationlist["location1"].allies + locationlist["location2"].allies + locationlist["location3"].allies:
+                if card.location != self.location:
+                    if card.cur_power > cur_high:
+                        cur_high = card.cur_power
+                        toMove = [card]
+                    elif card.cur_power == cur_high:
+                        toMove.append(card)
+        else:
+            for card in locationlist["location1"].enemies + locationlist["location2"].enemies + locationlist["location3"].enemies:
+                if card.location != self.location:
+                    if card.cur_power > cur_high:
+                        cur_high = card.cur_power
+                        toMove = [card]
+                    elif card.cur_power == cur_high:
+                        toMove.append(card)
+        random.shuffle(toMove)
+        for card in toMove:
+            if not self.location.checkIfLocationFull(card.ally):
+                card.move(self.location)
+
+class BuckyBarnes(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 1, "Bucky Barnes", ally, status)
+        self.description = "When this is destroyed, replace it with the Winter Soldier."
+    
+    class WinterSoldier(Card):
+        def __init__(self, ally, status):
+            super().__init__(2, 7, "Winter Soldier", ally, status)
+            self.description = "It's time for me to face my past"
+    
+    def whenDestroyed(self, locationlist):
+        if self.ally:
+            locationlist["location1"].allies.append(self.WinterSoldier(self.ally, self.status))
+        else:
+            locationlist["location1"].enemies.append(self.WinterSoldier(self.ally, self.status))
+
+class Scorpion(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 2, "Scorpion", ally, status)
+        self.description = "On Reveal: Afflict cards in your opponent’s hand with -1 Power."
+    
+    def onReveal(self, locationlist):
+        if self.ally:
+            for card in self.status["enemyhand"]:
+                card.onreveal_buff -= 1
+        else:
+            for card in self.status["allyhand"]:
+                card.onreveal_buff -= 1
+
+class Iceman(Card):
+    def __init__(self, ally, status):
+        super().__init__(1, 2, "Iceman", ally, status)
+        self.description = "On Reveal: Give a card in your opponent’s hand +1 Cost. (maximum 6)"
+    
+    def onReveal(self, locationlist):
+        toDebuff = []
+        if self.ally:
+            if len(self.status["enemyhand"]) > 0:
+                for card in self.status["enemyhand"]:
+                    if card.cost < 6:
+                        toDebuff.append(card)
+        else:
+            if len(self.status["allyhand"]) > 0:
+                for card in self.status["allyhand"]:
+                    if card.cost < 6:
+                        toDebuff.append(card)
+        if len(toDebuff) > 0:
+            choice = random.choice(toDebuff)
+            choice.cost += 1
+            print(f"{choice.name}", "now has a cost of", choice.cost)
+
+class Sabretooth(Card):
+    def __init__(self, ally, status):
+        super().__init__(3, 5, "Sabretooth", ally, status)
+        self.description = "When this is destroyed, return it to your hand. It costs 0."
+    
+    def whenDestroyed(self, locationlist):
+        self.cost = 0
+        if self.ally:
+            self.status["allyhand"].append(self)
+        else:
+            self.status["enemyhand"].append(self)
+
+class Rhino(Card):
+    def __init__(self, ally, status):
+        super().__init__(3, 3, "Rhino", ally, status)
+        self.description = "On Reveal: Ruin this location. (Remove its ability)"
+    
+    class Ruin(Location):
+        def __init__(self, number, status, locationlist):
+            super().__init__(number, status, locationlist)
+            self.name = "Ruin"
+            self.description = "No ability"
+    
+    def onReveal(self, locationlist):
+        self.location.changeLocation(self.Ruin(self.location.locationNum, self.status, locationlist))
+
+class Cloak(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 4, "Cloak", ally, status)
+        self.description = "On Reveal: Next turn, both players can move cards to this location."
+    
+    def onReveal(self, locationlist):
+        self.turnToCheck = self.status["turncounter"] + 1
+        self.locationToMove = self.location
+    
+    def startOfTurn(self):
+        if self.turnToCheck == self.status["turncounter"]:
+            self.location.location_can_be_moved_to = True
+
+class Infinaut(Card):
+    def __init__(self, ally, status):
+        super().__init__(6, 20, "The Infinaut", ally, status)
+        self.description = "If you played a card last turn, you can't play this"
+    
+    def updateCard(self, locationlist):
+        self.can_be_played = True
+        for cards in self.status["cardsplayed"]:
+            print(cards)
+            if cards[0].ally == self.ally and cards[1] == self.status["turncounter"]-1:
+                self.can_be_played = False
+"""
+Atm too complicated to include due to how the on reveal works and the card does not see use in the game
+class Sandman(Card):
+    def __init__(self, ally, status):
+        super().__init__(1, 8, "Sandman", ally, status)
+        self.description = "On Reveal: Next turn, cards cost 1 more, max 6"
+        self.turnToCheck = 0
+    
+    def onReveal(self, locationlist):
+        self.turnToCheck = self.status["turncounter"] + 1
+
+    def updateCard(self, locationlist):
+        if self.turnToCheck == self.status["turncounter"]:
+            print("Sandman!")
+            for card in self.status["allyhand"] + self.status["enemyhand"]:
+                if card.cur_cost >= 6:
+                    self.ongoing_to_apply.append(card)
+    
+    def ongoing(self, locationlist):
+        self.cost_ongoing += 1
+"""
+class Colossus(Card):
+    def __init__(self, ally, status):
+        super().__init__(2, 3, "Colossus", ally, status)
+        self.has_ongoing = True
+        self.description = "Ongoing: This card can't be destroyed, moved or have it's power reduced"
+        self.onreveal_to_check = 0
+        self.ongoing_to_check = 0
+    
+    def applyOngoing(self, locationlist):
+        self.ongoing_to_apply.append(self)
+    
+    def ongoing(self, locationlist):
+        self.can_be_destroyed = False
+        self.onreveal_buff = self.onreveal_to_check= max(self.onreveal_to_check, self.onreveal_buff)
+        self.ongoing_buff = self.ongoing_to_check = max(self.ongoing_to_check, self.ongoing_buff)
+    
+    def move(self, location):
+        if self.has_ongoing:
+            print("Colossus can't be moved!")
+        else:
+            super().move(location)
+        
