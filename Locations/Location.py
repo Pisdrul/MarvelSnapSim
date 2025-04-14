@@ -139,8 +139,8 @@ class Location:
         
     def updateGameState(self):
         for location in self.locationlist.values():
-            location.updateCards()
             location.updateLocation()
+            location.updateCards()
         for card in self.status["allyhand"] + self.status["enemyhand"] + self.status["allydeck"] + self.status["enemydeck"]:
             card.updateCard(self.locationlist)
 
@@ -158,7 +158,7 @@ class Location:
             if unit.has_ongoing:
                 for i in range(self.ongoing_number):
                     unit.applyOngoing(self.locationlist)
-        for unit in units + self.status["allyhand"] + self.status["enemyhand"]:
+        for unit in units:
             unit.updateCard(self.locationlist)
 
     def startOfTurn(self):

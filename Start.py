@@ -1,5 +1,5 @@
 import random
-from Cards.AllCards import *
+import cards
 from Locations.AllLocations import *
 from Locations.Location import *
 
@@ -21,7 +21,7 @@ status = {"maxturns": maxturns,"allymaxenergy":allymaxenergy,
             "cubes":1, "tempcubes":1,
             "allysnapped":False, "enemysnapped": False,
             "cardsplayed": [], "onnextcardbeingplayed": []}
-locationList["location1"]=Elysium(1,status,locationList)
+locationList["location1"]=TemporaryLocation(1,status,locationList)
 locationList["location2"]= TemporaryLocation(2,status,locationList)
 locationList["location3"]= TemporaryLocation(3,status,locationList)
 def resolveTie(locationList):
@@ -97,17 +97,17 @@ def draw(hand,deck,num): #pesca un numero di carte dal deck
             i+=1
 
 def gameStart(): #inserisci carte nel deck e pesca le carte
-    status["allydeck"], status["enemydeck"] = [Colossus(True, status),Heimdall(True,status)],[Scorpion(False, status),Onslaught(False, status)]
-    status["allydeck"].append(Apocalypse(True,status))
-    status["enemydeck"].append(Infinaut(False,status))
-    for i in range (1,3,1):
-        curCard = Swarm(True, status)
+    status["allydeck"], status["enemydeck"] = [cards.Colossus(True, status),cards.Heimdall(True,status)],[cards.Scorpion(False, status),cards.Onslaught(False, status)]
+    status["allydeck"].append(cards.Apocalypse(True,status))
+    status["enemydeck"].append(cards.Infinaut(False,status))
+    for i in range (1,5,1):
+        curCard = cards.Swarm(True, status)
         status["allydeck"].append(curCard)
-        curCard = Blade(False, status)
+        curCard = cards.Nightcrawler(False, status)
         status["enemydeck"].append(curCard)
-        curCard = Blade(True, status)
+        curCard = cards.Blade(True, status)
         status["allydeck"].append(curCard)
-        curCard = CaptainAmerica(False, status)
+        curCard = cards.CaptainAmerica(False, status)
         status["enemydeck"].append(curCard)
     random.shuffle(status["allydeck"])
     random.shuffle(status["enemydeck"])
@@ -116,6 +116,8 @@ def gameStart(): #inserisci carte nel deck e pesca le carte
 
 def playerTurn(hand, deck,energy):
     draw(hand,deck,1)
+    for location in locationList.values():
+        location.updateGameState()
     playerpass = False
     turnenergy = energy
     while not playerpass:

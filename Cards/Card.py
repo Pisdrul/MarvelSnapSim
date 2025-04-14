@@ -1,7 +1,5 @@
 from Locations.Location import Location
 from Locations.AllLocations import *
-import random
-import copy, inspect, sys
 
 class Card:
     def __init__(self, cost, power, name, ally, status):
@@ -53,7 +51,6 @@ class Card:
         return True
 
     def updateCard(self,locationlist):
-        print(self.name)
         self.canbedestroyed = True
         self.ongoing_buff = 0
         self.cost_ongoing = 0
