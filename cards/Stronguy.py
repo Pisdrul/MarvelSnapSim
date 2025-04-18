@@ -1,6 +1,6 @@
 from cards import Card
 
-class StrongGuy(Card):
+class Strongguy(Card):
     def __init__(self, ally, status):
         super().__init__(3, 3, "Strong Guy", ally, status)
         self.description = "Ongoing: if your hand has 1 or fewer cards, +6 power"

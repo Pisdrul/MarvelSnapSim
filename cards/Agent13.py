@@ -1,6 +1,7 @@
 from cards import Card
 import random
 import sys, inspect
+import flask
 
 class Agent13(Card):
     def __init__(self, ally, status):
@@ -17,3 +18,6 @@ class Agent13(Card):
             self.status["allyhand"].append(self.randomCard())
         else:
             self.status["enemyhand"].append(self.randomCard())
+    
+    def render(self):
+        return flask.url_for('static', filename='assets/Agent13.webp')

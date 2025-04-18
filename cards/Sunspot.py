@@ -1,4 +1,4 @@
-from cards.Card from cards import Card
+from cards import Card
 class Sunspot(Card):
     def __init__(self, ally, status):
         super().__init__(1,0, "Sunspot", ally, status)

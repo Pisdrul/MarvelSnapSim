@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mano del Giocatore</title>
+    <style>
+        .hand-container {
+            display: flex;
+            flex-direction: row;
+            gap: 10px; /* Spazio tra le carte */
+            overflow-x: auto; /* Scorrimento orizzontale se necessario */
+            padding: 10px;
+        }
+        .card {
+            flex: 0 0 auto;
+            width: 150px; /* Larghezza fissa per ogni carta */
+            text-align: center;
+        }
+        .card img {
+            width: 100%;
+            height: auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Le tue carte</h1>
+    <div class="hand-container">
+        {% for card in hand %}
+            <div class="card">
+                <form action="{{ url_for('playCardAlly') if card.ally else url_for('playCardEnemy') }}" method="post">
+                    <input type="hidden" name="index" value="{{ loop.index0 }}">
+                    <button type="submit">
+                        <img src="{{ card.render() }}" alt="{{ card.nome }}">
+                    </button>
+                    <p>{{ card.name }}, Cost: {{ card.cost }}, Power: {{ card.cur_power }}, {{card.description}}</p>
+                </form>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

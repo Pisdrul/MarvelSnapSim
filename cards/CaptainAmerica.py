@@ -1,6 +1,6 @@
 from cards import Card
 
-class CaptainAmerica(Card):
+class Captainamerica(Card):
     def __init__(self, ally, status):
         super().__init__(3, 3, "Captain America", ally, status)
         self.description = "Ongoing: Your other Ongoing cards here have +2 Power."

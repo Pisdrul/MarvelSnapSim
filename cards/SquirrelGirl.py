@@ -1,6 +1,6 @@
 from cards import Card
 
-class SquirrelGirl(Card):
+class Squirrelgirl(Card):
     def __init__(self, ally, status):
         super().__init__(1, 2, "Squirrel Girl", ally, status)
         self.description = "On Reveal: Add a 1-Power Squirrel to each other location"

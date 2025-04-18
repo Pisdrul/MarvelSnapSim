@@ -1,6 +1,6 @@
 from cards import Card
 
-class MrFantastic(Card):
+class Mrfantastic(Card):
     def __init__(self, ally, status):
         super().__init__(3, 2, "Mr Fantastic", ally, status)
         self.description = "Ongoing: The location to the left and right have +2 Power."

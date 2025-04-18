@@ -1,6 +1,6 @@
 import copy
 from cards import Card
-class MultipleMan(Card):
+class Multipleman(Card):
     def __init__(self, ally, status):
         super().__init__(2, 3, "Multiple Man", ally, status)
         self.description = "When this moves, add a copy to the old location"

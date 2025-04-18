@@ -1,5 +1,6 @@
-from cards import Card,random
-class DoctorStrange(Card):
+from cards import Card
+import random
+class Doctorstrange(Card):
     def __init__(self, ally, status):
         super().__init__(2, 3, "Doctor Strange", ally, status)
         self.description = "On Reveal: Move your highest-Power card(s) to this location."

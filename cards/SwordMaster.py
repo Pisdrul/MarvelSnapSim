@@ -1,6 +1,7 @@
-from cards import Card, random
+from cards import Card
+import random
 
-class SwordMaster(Card):
+class Swordmaster(Card):
     def __init__(self, ally, status):
         super().__init__(3, 6, "Sword Master", ally, status)
         self.description = "On Reveal: Discard an odd-costed card from your hand."

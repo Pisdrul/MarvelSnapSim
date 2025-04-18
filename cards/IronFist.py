@@ -1,6 +1,6 @@
 from cards import Card
 
-class IronFist(Card):
+class Ironfist(Card):
     def __init__(self, ally, status):
         super().__init__(1, 2, "Iron Fist", ally, status)
         self.description = "On Reveal: After you play your next card, move it one location to the left."

@@ -1,6 +1,7 @@
-from cards import Card,random
+from cards import Card
+import random
 
-class ColeenWing(Card):
+class Coleenwing(Card):
     def __init__(self, ally, status):
         super().__init__(2, 4, "Coleen Wing", ally, status)
         self.description = "On Reveal: Discard the lowest cost card in your hand"

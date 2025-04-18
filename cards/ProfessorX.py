@@ -1,6 +1,6 @@
 from cards import Card
 
-class ProfessorX(Card):
+class Professorx(Card):
     def __init__(self, ally, status):
         super().__init__(5, 3, "Professor X", ally, status)
         self.description = "You can't play this after turn 3. Ongoing: You can't play cards here"

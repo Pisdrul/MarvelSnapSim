@@ -1,5 +1,5 @@
 from cards import Card
-class StarLord(Card):
+class Starlord(Card):
     def __init__(self, ally, status):
         super().__init__(2, 2, "Star Lord", ally, status)
         self.description = "On Reveal: If your opponent played a card here this turn, +4 power."

@@ -1,6 +1,7 @@
-from cards import Card, random
+from cards import Card
+import random
 
-class HulkBuster(Card):
+class Hulkbuster(Card):
     def __init__(self, ally, status):
         super().__init__(2, 3, "Hulk Buster", ally, status)
         self.description = "On Reveal: Merge with one of your cards here."

@@ -1,7 +1,7 @@
 from cards import Card
 import random
 
-class WhiteTiger(Card):
+class Whitetiger(Card):
     def __init__(self, ally, status):
         super().__init__(5, 1, "White Tiger", ally, status)
         self.description = "On Reveal: Add a 8-Power Tiger to another location."

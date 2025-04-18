@@ -1,6 +1,6 @@
 from cards import Card
 
-class BuckyBarnes(Card):
+class Buckybarnes(Card):
     def __init__(self, ally, status):
         super().__init__(2, 1, "Bucky Barnes", ally, status)
         self.description = "When this is destroyed, replace it with the Winter Soldier."

@@ -1,4 +1,5 @@
-from cards import Card, copy
+from cards import Card
+import copy
 
 class Moongirl(Card):
     def __init__(self, ally, status):

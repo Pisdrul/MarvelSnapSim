@@ -1,5 +1,5 @@
 from cards import Card
-from Locations import Location
+from Locations.Location import Location
 
 
 class Storm(Card):

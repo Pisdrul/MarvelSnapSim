@@ -1,6 +1,6 @@
 from cards import Card
 
-class ShangChi(Card):
+class Shangchi(Card):
     def __init__(self, ally, status):
         super().__init__(4, 3, "Shang-Chi", ally, status)
         self.description = "On Reveal: Destroy all enemy cards here with 10+ Power"

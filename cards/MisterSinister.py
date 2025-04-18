@@ -1,6 +1,6 @@
 from cards import Card
 
-class MisterSinister(Card):
+class Mistersinister(Card):
     def __init__(self, ally, status):
         super().__init__(2, 2, "Mister Sinister", ally, status)
         self.description = "On Reveal: Add a Sinister Clone here with the same power"

@@ -1,6 +1,6 @@
 from cards import Card
 
-class JessicaJones(Card):
+class Jessicajones(Card):
     def __init__(self, ally, status):
         super().__init__(4, 5, "Jessica Jones", ally, status)
         self.description = "On Reveal: If you don't play a card at this location next turn, +5 Power"

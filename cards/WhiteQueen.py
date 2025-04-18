@@ -1,7 +1,7 @@
 from cards import Card
 import copy, random
 
-class WhiteQueen(Card):
+class Whitequeen(Card):
     def __init__(self, ally, status):
         super().__init__(3, 4, "White Queen", ally, status)
         self.description= "On Reveal: Copy the card that costs the most from your opponent's hand into your hand."

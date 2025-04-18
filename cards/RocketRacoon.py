@@ -1,6 +1,6 @@
 from cards import Card
 
-class RocketRacoon(Card):
+class Rocketracoon(Card):
     def __init__(self, ally, status):
         super().__init__(1, 1, "Rocket Racoon", ally, status)
         self.description = "On Reveal: If your opponent played a card here this turn, +4 power."

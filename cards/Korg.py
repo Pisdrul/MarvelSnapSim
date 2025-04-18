@@ -1,4 +1,5 @@
-from cards import Card, random
+from cards import Card
+import random
 
 class Korg(Card):
     def __init__(self, ally, status):

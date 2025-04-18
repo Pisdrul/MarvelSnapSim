@@ -1,4 +1,5 @@
-from cards import Card, random, copy
+from cards import Card
+import random, copy
 
 class Mantis(Card):
     def __init__(self, ally, status):

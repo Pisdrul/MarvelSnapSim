@@ -1,4 +1,5 @@
-import random, Card
+from cards import Card
+import random
 
 class Iceman(Card):
     def __init__(self, ally, status):

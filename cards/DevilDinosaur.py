@@ -1,6 +1,6 @@
 from cards import Card
 
-class DevilDinosaur(Card):
+class Devildinosaur(Card):
     def __init__(self, ally, status):
         super().__init__(5, 4, "Devil Dinosaur", ally, status)
         self.description = "Ongoing: +2 Power for each card in your hand."

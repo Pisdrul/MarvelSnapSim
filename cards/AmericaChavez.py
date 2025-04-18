@@ -1,6 +1,6 @@
 from cards import Card
 
-class AmericaChavez(Card):
+class Americachavez(Card):
     def __init__(self, ally, status):
         super().__init__(1,2, "America Chavez", ally, status)
         self.description = "On Reveal: Give the top card of your deck +2 power"

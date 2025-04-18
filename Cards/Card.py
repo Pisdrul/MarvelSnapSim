@@ -1,6 +1,7 @@
 from Locations.Location import Location
 from Locations.AllLocations import *
-
+from flask import url_for, current_app
+import os
 class Card:
     def __init__(self, cost, power, name, ally, status):
         self.base_cost = cost
@@ -100,8 +101,13 @@ class Card:
 
     def startOfGame(self, locationlist):
         pass
-    
 
+    def render(self):
+        image_path = f'assets/{self.name.replace(" ", "").capitalize()}.webp'
+        full_path = os.path.join(current_app.static_folder, image_path)
+        if not os.path.exists(full_path):
+            return url_for('static', filename='assets/placeholder.webp')
+        return url_for('static', filename=image_path)
 
 
 

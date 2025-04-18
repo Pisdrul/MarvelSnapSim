@@ -1,4 +1,5 @@
-from cards import Card,copy,random
+from cards import Card
+import copy,random
 
 class Morph(Card):
     def __init__(self, ally, status):

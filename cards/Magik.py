@@ -1,4 +1,4 @@
-from cards import Cards.Card as Card
+from cards import Card
 from Locations.AllLocations import Limbo
 class Magik(Card):
     def __init__(self, ally, status):

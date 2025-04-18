@@ -1,6 +1,6 @@
 from cards import Card
 
-class BlueMarvel(Card):
+class Bluemarvel(Card):
     def __init__(self, ally, status):
         super().__init__(5, 3, "Blue Marvel", ally, status)
         self.description = "Ongoing: Your other cards have +1 Power."
