@@ -23,7 +23,9 @@ status = {"maxturns": maxturns,"allymaxenergy":allymaxenergy,
             "allypriority": True,
             "cubes":1, "tempcubes":1,
             "allysnapped":False, "enemysnapped": False,
-            "cardsplayed": [], "onnextcardbeingplayed": []}
+            "cardsplayed": [], "onnextcardbeingplayed": [],
+            "allypass": False, "enemypass": False,
+            "endofturncounterally":0, "endofturncounterenemy":0,}
 locationList["location1"]=TemporaryLocation(1,status,locationList)
 locationList["location2"]= TemporaryLocation(2,status,locationList)
 locationList["location3"]= TemporaryLocation(3,status,locationList)
@@ -55,12 +57,9 @@ def checkWinner():
         return resolveTie(locationList)
 
 
-def addUnit(unit):
-    loc_num = 0
-    while(loc_num not in [1,2,3]):
-        loc_num = int(input("Choose location: "))
-    selectedLoc = "location"+str(loc_num)
-    if(turnAlly):
+def addUnit(unit,ally, locNum):
+    selectedLoc = "location" + str(locNum)
+    if(ally):
         was_added = locationList[selectedLoc].addToAllies(unit)
         if was_added:
             unit.playCard(locationList[selectedLoc])
@@ -68,6 +67,7 @@ def addUnit(unit):
     else:
         was_added = locationList[selectedLoc].addToEnemies(unit)
         unit.playCard(locationList[selectedLoc])
+        print(was_added)
         if was_added:
             unit.playCard(locationList[selectedLoc])
         return was_added
@@ -116,6 +116,8 @@ def gameStart(): #inserisci carte nel deck e pesca le carte
     random.shuffle(status["enemydeck"])
     draw(status["allyhand"],status["allydeck"],3)
     draw(status["enemyhand"],status["enemydeck"],3)
+    for location in locationList.values():
+        location.startOfTurn()
 
 def playerTurn(hand, deck,energy):
     draw(hand,deck,1)
@@ -154,17 +156,7 @@ def playerTurn(hand, deck,energy):
                 for unit in hand:
                     print(i,": ",unit.name, "Cost:", unit.cur_cost," Power: ", unit.cur_power, " Description:", unit.description)
                     i+=1
-                try:
-                    inputUnit = int(input()) -1
-                    if turnenergy<hand[inputUnit].cur_cost:
-                        print("Not enough energy")
-                    else:
-                        was_added = addUnit(hand[inputUnit])
-                        if was_added:
-                            turnenergy-=hand[inputUnit].cur_cost
-                            del hand[inputUnit]
-                except:
-                    print("Input error")
+                
             case 3:
                 playerpass = True
                 return turnenergy
@@ -259,7 +251,6 @@ def startOfTurn(status):
             print("Enemies have priority")
     for card in status["allyhand"] + status["allydeck"] + status ["enemyhand"] + status["enemydeck"]:
         card.updateCard(locationList)
-
 def announcer(status):
     match status["allypriority"]:
         case True:
@@ -277,6 +268,9 @@ def endOfTurn():
     locationList["location1"].revealCards(), locationList["location2"].revealCards(), locationList["location3"].revealCards()
     print("End of turn!")
     locationList["location1"].endOfTurn(), locationList["location2"].endOfTurn(), locationList["location3"].endOfTurn()
+    status["turncounter"] +=1
+    status["allymaxenergy"]+=1
+    status["enemymaxenergy"]+=1
 
 
 def endGame():
@@ -299,55 +293,101 @@ def gaming():
         startOfTurn(status)
         boardStatus()
         turnAlly = not turnAlly
-        status["allyenergy"] = playerTurn(status["allyhand"], status["allydeck"], status["allyenergy"])
         print("Turn ", status["turncounter"],", enemy turn")
         turnAlly = not turnAlly
         status["enemyenergy"]= playerTurn(status["enemyhand"], status["enemydeck"], status["enemyenergy"])
         endOfTurn()
-        status["turncounter"] +=1
-        status["allymaxenergy"]+=1
-        status["enemymaxenergy"]+=1
     endGame()
     
+def turnEnd():
+    endOfTurn()
+    status['allypass'] = status['enemypass'] = False
+    startOfTurn(status)
+    status['endofturncounterally'] = status['endofturncounterenemy'] = 0
 
 app = Flask(__name__)
 def normalize_name(name):
     return name.replace(" ", "").capitalize()
-@app.route('/card/<card_name>')
-def show_card(card_name):
-    try:
-        normalized_name = normalize_name(card_name)
-        module = importlib.import_module(f'cards.{normalized_name}')
-        CardClass = getattr(module, normalized_name)
-        card = CardClass(ally=True, status={})
-        return render_template('home.html', card=card)
-    except (ModuleNotFoundError, AttributeError):
-        abort(404)
+@app.route('/')
+def home():
+    return render_template('home.html')
 
-    # Crea un'istanza della carta
-    card = CardClass(ally=True, status={})
-    return render_template('home.html', card=card)
 @app.route('/game/ally')
 def gameAlly():
-    locations = locationList.values()
-    return render_template('mano.html', hand=status['allyhand'])
+    return render_template('allygame.html', status=status, locations=locationList.values())
 
 @app.route('/game/ally/playcard', methods=['POST'])
 def playCardAlly():
-    index = int(request.form['index'])
-    print(status['allyhand'][index].name)
+    print(status["allyenergy"])
+    if not status['allypass']:
+        inputUnit = int(request.form['index'])
+        print(inputUnit)
+        try:
+            was_added = False
+            if status["allyenergy"] <status["allyhand"][inputUnit].cur_cost:
+                print("not enough energy")
+            else:
+                print("hereeee")
+                was_added = addUnit(status["allyhand"][inputUnit], True, 1)
+                print(was_added)
+            if was_added:
+                turnenergy-=status["allyhand"][inputUnit].cur_cost
+                del status["allyhand"][inputUnit]
+        except:
+            print("error")
     return redirect(url_for('gameAlly'))
 
 @app.route('/game/enemy')
 def gameEnemy():
-    return render_template('mano.html', hand=status['enemyhand'])
+    return render_template('enemygame.html', status=status, locations=locationList.values())
 
 @app.route('/game/enemy/playcard', methods=['POST'])
 def playCardEnemy():
-    index = int(request.form['index'])
-    print(status['enemyhand'][index].name)
+    print(status["enemyenergy"])
+    was_added = False
+    if not status['enemypass']:
+        inputUnit = int(request.form['index'])
+        print(inputUnit)
+        try:
+            if status["enemyenergy"] <status["enemyhand"][inputUnit].cur_cost:
+                print("not enough energy")
+            else:
+                was_added = addUnit(status["enemyhand"][inputUnit], False, 1)
+            if was_added:
+                status["enemyenergy"]-=status["enemyhand"][inputUnit].cur_cost
+                del status["enemyhand"][inputUnit]
+        except:
+            print("error")
     return redirect(url_for('gameEnemy'))
 
+@app.route('/game/ally/pass', methods=['POST'])
+def passTurnAlly():
+    status["allypass"] = True
+    return redirect(url_for('gameAlly'))
+
+@app.route('/game/enemy/pass', methods=['POST'])
+def passTurnEnemy():
+    status["enemypass"] = True
+    return redirect(url_for('gameEnemy'))
+
+@app.route('/check_turn/<allyorenemy>')
+def check_turn(allyorenemy):
+    print(allyorenemy)
+    passStatus = {
+        'turnpassally': status['allypass'],  
+        'turnpassenemy': status['enemypass']  
+    }
+    if status["allypass"] and status["enemypass"]:
+        if allyorenemy == "ally":
+            status["endofturncounterally"] = 1
+        elif allyorenemy == "enemy":
+            status["endofturncounterenemy"] = 1
+        print(status["endofturncounterally"], status["endofturncounterenemy"])
+        if status["endofturncounterally"] == 1 and status["endofturncounterenemy"] == 1:
+            print("end turn!")    
+            turnEnd()
+    return jsonify(passStatus)
+    
 if __name__ == "__main__":
     app.run(debug=True)
-    
+

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mano del Giocatore</title>
+    <script>
+        function checkTurnStatus() {
+            fetch('/check_turn/ally')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.turnpassally && data.turnpassenemy) {
+                        location.reload();
+                    }
+                });
+            
+        }
+        setInterval(checkTurnStatus, 2000);
+    </script>
+    <style>
+        .hand-container {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            padding: 10px;
+        }
+        .card, .cardinlocation {
+            flex: 0 0 auto;
+            width: 100px;
+            height: 100px;
+            text-align: center;
+            padding: 10px;
+        }
+        .cardtext {
+            padding: 10px;
+        }
+        .card img {
+            width: 100%;
+            height: auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .locationlist {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px; 
+        }
+        .location {
+            border: 2px solid #444;
+            border-radius: 10px;
+            padding: 10px;
+            min-width: 300px;
+            background-color: #f5f5f5;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .enemies, .allies {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+
+    </style>
+</head>
+<body>
+    <h1> Locations </h1>
+    <div class="locationlist">
+        {% for location in locations %}
+        <div class="location">
+        <h2>{{ location.name }}</h2>
+    
+        <!-- Sezione Nemici -->
+        <div class="enemies">
+            <h3>Enemies</h3>
+            {% for enemy_card in location.enemies %}
+            <div class="card">
+                <img src="{{ enemy_card.render() }}" alt="{{ enemy_card.name }}" class="card img">
+                <p class="cardtext">{{ enemy_card.name }} - Power: {{ enemy_card.cur_power }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        <div> Enemies Power: {{ location.enemiesPower }}
+                {{location.name}}: {{location.description}}
+                Allies Power: {{ location.alliesPower }}
+        </div>
+        <!-- Sezione Alleati -->
+            <div class="allies">
+            <h3>Allies</h3>
+            {% for ally_card in location.allies + location.preRevealAllies %}
+                <div class="cardinlocation">
+                    <img src="{{ ally_card.render() }}" alt="{{ ally_card.name }}" class = "card img">
+                    <p>{{ ally_card.name }} - Power: {{ ally_card.cur_power }}</p>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <h1>Your Cards</h1>
+    <div class="hand-container">
+        {% for card in status["allyhand"] %}
+        <div class="card">
+            <form action="/game/ally/playcard" method="post">
+                <input type="hidden" name="index" value="{{ loop.index0 }}">
+                <button type="submit">
+                    <img src="{{ card.render() }}" alt="{{ card.name }}">
+                </button>
+                <p>{{card.name}}: {{card.cur_cost}}, Power: {{card.cur_power}}, Description: {{card.description}}</p>
+            </form>
+        </div>
+        {% endfor %}
+        <p>Energy: {{ status["enemyenergy"] }}</p>
+        <form action="/game/ally/pass" method="post">
+            <button type="submit">
+                End Turn
+            </button>
+        </form>
+    </div>
+
+</body>
+</html>

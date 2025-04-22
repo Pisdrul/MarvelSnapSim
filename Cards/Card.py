@@ -105,8 +105,7 @@ class Card:
     def render(self):
         image_path = f'assets/{self.name.replace(" ", "").capitalize()}.webp'
         full_path = os.path.join(current_app.static_folder, image_path)
-        if not os.path.exists(full_path):
-            return url_for('static', filename='assets/placeholder.webp')
+        print(full_path)
         return url_for('static', filename=image_path)
 
 
