@@ -1,0 +1,55 @@
+.hand-container {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    padding: 10px;
+}
+.cardinlocation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #aaa;
+    padding: 8px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    margin: 4px;
+    width: 120px;
+}
+.card {
+    flex: 0 0 auto;
+    width: 100px;
+    height: 100px;
+    text-align: center;
+    padding: 10px;
+}
+.cardtext {
+    text-align: center;
+    margin-top: 6px;
+    font-size: 14px;
+}
+.card img {
+    width: 100%;
+    height: auto;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+.locationlist {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; 
+}
+.location {
+    border: 2px solid #444;
+    border-radius: 10px;
+    padding: 10px;
+    min-width: 300px;
+    background-color: #f5f5f5;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+}
+
+.enemies, .allies {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+}

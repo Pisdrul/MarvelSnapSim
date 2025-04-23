@@ -251,6 +251,8 @@ def startOfTurn(status):
             print("Enemies have priority")
     for card in status["allyhand"] + status["allydeck"] + status ["enemyhand"] + status["enemydeck"]:
         card.updateCard(locationList)
+    draw(status["allyhand"],status["allydeck"],1)
+    draw(status["enemyhand"],status["enemydeck"],1)
 def announcer(status):
     match status["allypriority"]:
         case True:
@@ -302,6 +304,9 @@ def gaming():
 def turnEnd():
     endOfTurn()
     status['allypass'] = status['enemypass'] = False
+    if status["turncounter"] > status["maxturns"]:
+        endGame()
+        return 0
     startOfTurn(status)
     status['endofturncounterally'] = status['endofturncounterenemy'] = 0
 
@@ -317,24 +322,27 @@ def gameAlly():
     return render_template('allygame.html', status=status, locations=locationList.values())
 
 @app.route('/game/ally/playcard', methods=['POST'])
-def playCardAlly():
-    print(status["allyenergy"])
+def chooseLocationAlly():
+    inputUnit = int(request.form['index'])
+    return render_template('playCardAllies.html', status=status, locations=locationList.values(), card = status["allyhand"][inputUnit], cardnum = inputUnit)
+
+@app.route('/game/ally/playcard/<locationnum>', methods=['POST'])
+def playCardAlly(locationnum):
+    locationToAdd = int(locationnum)+1
+    inputUnit = int(request.form["card"])
+    was_added = False
     if not status['allypass']:
-        inputUnit = int(request.form['index'])
-        print(inputUnit)
         try:
-            was_added = False
             if status["allyenergy"] <status["allyhand"][inputUnit].cur_cost:
                 print("not enough energy")
             else:
-                print("hereeee")
-                was_added = addUnit(status["allyhand"][inputUnit], True, 1)
-                print(was_added)
+                was_added = addUnit(status["enemyhand"][inputUnit], True, locationToAdd)
             if was_added:
-                turnenergy-=status["allyhand"][inputUnit].cur_cost
+                status["allyenergy"]-=status["allyhand"][inputUnit].cur_cost
                 del status["allyhand"][inputUnit]
-        except:
+        except Exception as e:
             print("error")
+            print(e)
     return redirect(url_for('gameAlly'))
 
 @app.route('/game/enemy')
@@ -342,22 +350,27 @@ def gameEnemy():
     return render_template('enemygame.html', status=status, locations=locationList.values())
 
 @app.route('/game/enemy/playcard', methods=['POST'])
-def playCardEnemy():
-    print(status["enemyenergy"])
+def chooseLocationEnemy():
+    inputUnit = int(request.form['index'])
+    return render_template('playCardEnemies.html',status=status, locations=locationList.values(), card = status["enemyhand"][inputUnit], cardnum = inputUnit)
+
+@app.route('/game/enemy/playcard/<locationnum>', methods=['POST'])
+def playCardEnemy(locationnum):
+    locationToAdd = int(locationnum)+1
+    inputUnit = int(request.form["card"])
     was_added = False
     if not status['enemypass']:
-        inputUnit = int(request.form['index'])
-        print(inputUnit)
         try:
             if status["enemyenergy"] <status["enemyhand"][inputUnit].cur_cost:
                 print("not enough energy")
             else:
-                was_added = addUnit(status["enemyhand"][inputUnit], False, 1)
+                was_added = addUnit(status["enemyhand"][inputUnit], False, locationToAdd)
             if was_added:
                 status["enemyenergy"]-=status["enemyhand"][inputUnit].cur_cost
                 del status["enemyhand"][inputUnit]
-        except:
+        except Exception as e:
             print("error")
+            print(e)
     return redirect(url_for('gameEnemy'))
 
 @app.route('/game/ally/pass', methods=['POST'])
