@@ -1,14 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Mano del Giocatore</title>
+    <title>Player 2</title>
     <script>
 
         function checkTurnStatus() {
             fetch('/check_turn/enemy')
                 .then(response => response.json())
                 .then(data => {
-                    if (data.turnpassally && data.turnpassenemy) {
+                    if (data.winner != "None") {
+                        if (data.winner = "Enemies") {
+                            alert("You have won!");
+                        }
+                        else if (data.winner = "Allies") {
+                            alert("You have lost!");
+                        }
+                        else if (data.winner = "Tie") {
+                            alert("Tie!");
+                        }
+                    }
+                    else if (data.turnpassally && data.turnpassenemy) {
                         location.reload();
                     }
                 });
@@ -19,6 +30,7 @@
 </head>
 <body>
     <h1> Locations </h1>
+    <h1> Turn: {{status["turncounter"]}}</h1>
     <div class="locationlist">
         {% for location in locations %}
         <div class="location">
@@ -28,14 +40,15 @@
         <div class="enemies">
             <h3>Enemies</h3>
             {% for enemy_card in location.allies %}
-            <div class="card">
+            <div class="cardinlocation">
                 <img src="{{ enemy_card.render() }}" alt="{{ enemy_card.name }}" class="card img">
-                <p>{{ enemy_card.name }} - Power: {{ enemy_card.cur_power }}</p>
+                <p class= "cardtext">{{ enemy_card.name }} - Power: {{ enemy_card.cur_power }}</p>
+                <p class = "cardtext"> {{ enemy_card.description }}</p>
             </div>
             {% endfor %}
         </div>
-        <div> Enemies Power: {{ location.alliesPower }}
-                {{location.name}}: {{location.description}}
+        <div> Enemies Power: {{ location.alliesPower }} <br>
+                {{location.description}} <br>
                 Allies Power: {{ location.enemiesPower }}
         </div>
         <!-- Sezione Alleati -->
@@ -44,7 +57,8 @@
             {% for ally_card in location.enemies + location.preRevealEnemies %}
                 <div class="cardinlocation">
                     <img src="{{ ally_card.render() }}" alt="{{ ally_card.name }}" class = "card img">
-                    <p>{{ ally_card.name }} - Power: {{ ally_card.cur_power }}</p>
+                    <p class = "cardtext">{{ ally_card.name }} - Power: {{ ally_card.cur_power }}</p>
+                    <p class = "cardtext"> {{ ally_card.description }}</p>
                 </div>
             {% endfor %}
             </div>

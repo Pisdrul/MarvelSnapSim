@@ -12,9 +12,9 @@ class Captainamerica(Card):
     def applyOngoing(self,locationlist):
         if self.ally:
             for unit in self.location.allies:
-                if unit != self:
+                if unit != self and unit.has_ongoing:
                     unit.ongoing_to_apply.append(self)
         else:
             for unit in self.location.enemies:
-                if unit != self:
+                if unit != self and unit.has_ongoing:
                     unit.ongoing_to_apply.append(self)

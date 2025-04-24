@@ -1,13 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Mano del Giocatore</title>
+    <title>Player 1</title>
     <script>
         function checkTurnStatus() {
             fetch('/check_turn/ally')
                 .then(response => response.json())
                 .then(data => {
-                    if (data.turnpassally && data.turnpassenemy) {
+                    if (data.winner != "None") {
+                        if (data.winner = "Ally") {
+                            alert("You have won!");
+                        }
+                        else if (data.winner = "Enemy") {
+                            alert("You have lost!");
+                        }
+                        else if (data.winner = "Tie") {
+                            alert("Tie!");
+                        }
+                    }
+                    else if (data.turnpassally && data.turnpassenemy) {
                         location.reload();
                     }
                 });
@@ -19,6 +30,7 @@
 </head>
 <body>
     <h1> Locations </h1>
+    <h1> Turn: {{status["turncounter"]}}</h1>
     <div class="locationlist">
         {% for location in locations %}
         <div class="location">
@@ -31,11 +43,12 @@
             <div class="cardinlocation">
                 <img src="{{ enemy_card.render() }}" alt="{{ enemy_card.name }}" class="card img">
                 <p class="cardtext">{{ enemy_card.name }} - Power: {{ enemy_card.cur_power }}</p>
+                <p class = "cardtext"> {{ enemy_card.description }}</p>
             </div>
             {% endfor %}
         </div>
-        <div> Enemies Power: {{ location.enemiesPower }}
-                {{location.name}}: {{location.description}}
+        <div> Enemies Power: {{ location.enemiesPower }} <br>
+                {{location.description}} <br>
                 Allies Power: {{ location.alliesPower }}
         </div>
         <!-- Sezione Alleati -->
@@ -45,6 +58,7 @@
                 <div class="cardinlocation">
                     <img src="{{ ally_card.render() }}" alt="{{ ally_card.name }}" class = "card img">
                     <p>{{ ally_card.name }} - Power: {{ ally_card.cur_power }}</p>
+                    <p class = "cardtext"> {{ ally_card.description }}</p>
                 </div>
             {% endfor %}
             </div>
@@ -64,7 +78,7 @@
             </form>
         </div>
         {% endfor %}
-        <p>Energy: {{ status["enemyenergy"] }}</p>
+        <p>Energy: {{ status["allyenergy"] }}</p>
         <form action="/game/ally/pass" method="post">
             <button type="submit">
                 End Turn

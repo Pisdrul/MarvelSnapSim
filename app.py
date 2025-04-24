@@ -304,9 +304,6 @@ def gaming():
 def turnEnd():
     endOfTurn()
     status['allypass'] = status['enemypass'] = False
-    if status["turncounter"] > status["maxturns"]:
-        endGame()
-        return 0
     startOfTurn(status)
     status['endofturncounterally'] = status['endofturncounterenemy'] = 0
 
@@ -336,7 +333,7 @@ def playCardAlly(locationnum):
             if status["allyenergy"] <status["allyhand"][inputUnit].cur_cost:
                 print("not enough energy")
             else:
-                was_added = addUnit(status["enemyhand"][inputUnit], True, locationToAdd)
+                was_added = addUnit(status["allyhand"][inputUnit], True, locationToAdd)
             if was_added:
                 status["allyenergy"]-=status["allyhand"][inputUnit].cur_cost
                 del status["allyhand"][inputUnit]
@@ -388,7 +385,8 @@ def check_turn(allyorenemy):
     print(allyorenemy)
     passStatus = {
         'turnpassally': status['allypass'],  
-        'turnpassenemy': status['enemypass']  
+        'turnpassenemy': status['enemypass'],
+        'winner': "None"  
     }
     if status["allypass"] and status["enemypass"]:
         if allyorenemy == "ally":
@@ -399,6 +397,9 @@ def check_turn(allyorenemy):
         if status["endofturncounterally"] == 1 and status["endofturncounterenemy"] == 1:
             print("end turn!")    
             turnEnd()
+            if status["turncounter"] > status["maxturns"]:
+                endGame()
+                passStatus['winner'] = checkWinner()
     return jsonify(passStatus)
     
 if __name__ == "__main__":
