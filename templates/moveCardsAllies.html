@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Where to play the card?
+    </title>
+<link rel="stylesheet" href="{{ url_for('static', filename='gameStyle.css') }}">
+</head>
+<body>
+    <h1> Locations </h1>
+    <div class="locationlist">
+        {% for location in locations %}
+            <form action="/game/ally/playcard/{{loop.index0}}" method="post">
+                <input type="hidden" name="index" value="{{ loop.index0 }}">
+                <input type="hidden" name="card" value="{{ cardnum }}">
+                <button type="submit">
+                    <div class="location">
+                        <h2>{{ location.name }}</h2>
+                    
+                        <!-- Sezione Nemici -->
+                        <div class="enemies">
+                            <h3>Enemies</h3>
+                            {% for enemy_card in location.enemies %}
+                            <div class="card">
+                                <img src="{{ enemy_card.render() }}" alt="{{ enemy_card.name }}" class="card img">
+                                <p>{{ enemy_card.name }} - Power: {{ enemy_card.cur_power }}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <p> Enemies Power: {{ location.alliesPower }}
+                                {{location.name}}: {{location.description}}
+                                Allies Power: {{ location.enemiesPower }}
+                        </p>
+                        <!-- Sezione Alleati -->
+                            <div class="allies">
+                            <h3>Allies</h3>
+                            {% for ally_card in location.allies + location.preRevealAllies %}
+                                {% if ally_card == card %}
+                                    {% continue%}
+                                {% endif %}
+                                <div class="cardinlocation">
+                                    <img src="{{ ally_card.render() }}" alt="{{ ally_card.name }}" class = "card img">
+                                    <p>{{ ally_card.name }} - Power: {{ ally_card.cur_power }}</p>
+                                </div>
+                            {% endfor %}
+                            </div>
+                        </div>
+                </button>
+            </form>
+        {% endfor %}
+    </div>
+    <div class="hand-container">
+        <div class="card">
+            <img src="{{ card.render() }}" alt="{{ card.name }}">
+            <p>{{card.name}}: {{card.cur_cost}}, Power: {{card.cur_power}}, Description: {{card.description}}</p>
+        </div>
+    </div>
+</body>
+</html>

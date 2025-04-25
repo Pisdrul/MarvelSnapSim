@@ -331,6 +331,8 @@ class AltarOfDeath(Location):
                 self.status["tempenergyally"] += 2
             else:
                 self.status["tempenergyenemy"] += 2
+            if card.has_ongoing:
+                card.applyOngoing(self.locationlist)
             self.destroyCard(card)
 
 class AsteroidM(Location):

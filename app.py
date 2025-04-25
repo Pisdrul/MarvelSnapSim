@@ -11,6 +11,7 @@ turnAlly = False
 allymaxenergy, enemymaxenergy =1,1
 turncounter = 1
 maxturns = 6
+game_end = False
 locationList = {"location1": 0,"location2": 0, "location3": 0}
 status = {"maxturns": maxturns,"allymaxenergy":allymaxenergy,
            "enemymaxenergy": enemymaxenergy, "allyenergy": 1,
@@ -26,6 +27,11 @@ status = {"maxturns": maxturns,"allymaxenergy":allymaxenergy,
             "cardsplayed": [], "onnextcardbeingplayed": [],
             "allypass": False, "enemypass": False,
             "endofturncounterally":0, "endofturncounterenemy":0,}
+passStatus = {
+        'turnpassally': status['allypass'],  
+        'turnpassenemy': status['enemypass'],
+        'winner': "None"  
+    }
 locationList["location1"]=TemporaryLocation(1,status,locationList)
 locationList["location2"]= TemporaryLocation(2,status,locationList)
 locationList["location3"]= TemporaryLocation(3,status,locationList)
@@ -278,6 +284,7 @@ def endOfTurn():
 def endGame():
     boardStatus()
     winner = checkWinner()
+    game_end = True
     match winner:
         case "Ally":
             print("Allies have won ", status["cubes"]*2)
@@ -304,6 +311,11 @@ def gaming():
 def turnEnd():
     endOfTurn()
     status['allypass'] = status['enemypass'] = False
+    passStatus = {
+        'turnpassally': status['allypass'],  
+        'turnpassenemy': status['enemypass'],
+        'winner': "None"  
+    }
     startOfTurn(status)
     status['endofturncounterally'] = status['endofturncounterenemy'] = 0
 
@@ -373,21 +385,29 @@ def playCardEnemy(locationnum):
 @app.route('/game/ally/pass', methods=['POST'])
 def passTurnAlly():
     status["allypass"] = True
-    return redirect(url_for('gameAlly'))
-
-@app.route('/game/enemy/pass', methods=['POST'])
-def passTurnEnemy():
-    status["enemypass"] = True
-    return redirect(url_for('gameEnemy'))
-
-@app.route('/check_turn/<allyorenemy>')
-def check_turn(allyorenemy):
-    print(allyorenemy)
     passStatus = {
         'turnpassally': status['allypass'],  
         'turnpassenemy': status['enemypass'],
         'winner': "None"  
     }
+    return redirect(url_for('gameAlly'))
+
+@app.route('/game/enemy/pass', methods=['POST'])
+def passTurnEnemy():
+    status["enemypass"] = True
+    passStatus = {
+        'turnpassally': status['allypass'],  
+        'turnpassenemy': status['enemypass'],
+        'winner': "None"  
+    }
+    return redirect(url_for('gameEnemy'))
+@app.route('/game/ally/movecard', methods=['POST'])
+def moveCardAlly():
+    return redirect(url_for('gameAlly'))
+
+@app.route('/check_turn/<allyorenemy>')
+def check_turn(allyorenemy):
+    print(allyorenemy)
     if status["allypass"] and status["enemypass"]:
         if allyorenemy == "ally":
             status["endofturncounterally"] = 1

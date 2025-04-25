@@ -9,19 +9,17 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.winner != "None") {
-                        if (data.winner = "Enemies") {
-                            alert("You have won!");
+                        if (data.winner === "Enemy") {
+                            alert("You have won player 2!");
                         }
-                        else if (data.winner = "Allies") {
+                        else if (data.winner === "Ally") {
                             alert("You have lost!");
                         }
-                        else if (data.winner = "Tie") {
+                        else if (data.winner === "Tie") {
                             alert("Tie!");
                         }
                     }
-                    else if (data.turnpassally && data.turnpassenemy) {
-                        location.reload();
-                    }
+                    location.reload()
                 });
         }
         setInterval(checkTurnStatus, 2000);
@@ -55,11 +53,13 @@
             <div class="allies">
             <h3>Allies</h3>
             {% for ally_card in location.enemies + location.preRevealEnemies %}
+                {% if ally_card not in location.cards_to_move %}
                 <div class="cardinlocation">
                     <img src="{{ ally_card.render() }}" alt="{{ ally_card.name }}" class = "card img">
                     <p class = "cardtext">{{ ally_card.name }} - Power: {{ ally_card.cur_power }}</p>
                     <p class = "cardtext"> {{ ally_card.description }}</p>
                 </div>
+                {% endif %}
             {% endfor %}
             </div>
         </div>

@@ -8,19 +8,17 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.winner != "None") {
-                        if (data.winner = "Ally") {
-                            alert("You have won!");
+                        if (data.winner === "Ally") {
+                            alert("You have won player 1!");
                         }
-                        else if (data.winner = "Enemy") {
+                        else if (data.winner === "Enemy") {
                             alert("You have lost!");
                         }
-                        else if (data.winner = "Tie") {
+                        else if (data.winner === "Tie") {
                             alert("Tie!");
                         }
                     }
-                    else if (data.turnpassally && data.turnpassenemy) {
-                        location.reload();
-                    }
+                    location.reload()
                 });
             
         }
@@ -33,6 +31,7 @@
     <h1> Turn: {{status["turncounter"]}}</h1>
     <div class="locationlist">
         {% for location in locations %}
+        {% set location_num = loop.index0 + 1 %}
         <div class="location">
         <h2>{{ location.name }}</h2>
     
@@ -41,9 +40,9 @@
             <h3>Enemies</h3>
             {% for enemy_card in location.enemies %}
             <div class="cardinlocation">
-                <img src="{{ enemy_card.render() }}" alt="{{ enemy_card.name }}" class="card img">
-                <p class="cardtext">{{ enemy_card.name }} - Power: {{ enemy_card.cur_power }}</p>
-                <p class = "cardtext"> {{ enemy_card.description }}</p>
+                    <img src="{{ enemy_card.render() }}" alt="{{ enemy_card.name }}" class="card img">
+                    <p class="cardtext">{{ enemy_card.name }} - Power: {{ enemy_card.cur_power }}</p>
+                    <p class = "cardtext"> {{ enemy_card.description }}</p>
             </div>
             {% endfor %}
         </div>
@@ -55,11 +54,14 @@
             <div class="allies">
             <h3>Allies</h3>
             {% for ally_card in location.allies + location.preRevealAllies %}
-                <div class="cardinlocation">
-                    <img src="{{ ally_card.render() }}" alt="{{ ally_card.name }}" class = "card img">
-                    <p>{{ ally_card.name }} - Power: {{ ally_card.cur_power }}</p>
-                    <p class = "cardtext"> {{ ally_card.description }}</p>
-                </div>
+                    <form action="/game/ally/movecard" method="post">
+                        <input type="hidden" name="card" value="{{ loop.index0 }}">
+                        <div class="cardinlocation">
+                            <img src="{{ ally_card.render() }}" alt="{{ ally_card.name }}" class = "card img">
+                            <p>{{ ally_card.name }} - Power: {{ ally_card.cur_power }}</p>
+                            <p class = "cardtext"> {{ ally_card.description }}</p>
+                        </div>
+                    </form>
             {% endfor %}
             </div>
         </div>
