@@ -28,10 +28,13 @@
 </head>
 <body>
     <h1> Locations </h1>
-    <h1> Turn: {{status["turncounter"]}}</h1>
+    <h1>
+        Turn: 
+        {{ status["turncounter"] if status["turncounter"] <= status["maxturns"] else "Game Over" }}
+      </h1>
     <div class="locationlist">
         {% for location in locations %}
-        <div class="location">
+        <div class="location {{ 'winning' if location.winning == 'Enemy' else 'losing' if location.winning == 'Ally' else 'tie'}}">
         <h2>{{ location.name }}</h2>
     
         <!-- Sezione Nemici -->

@@ -12,31 +12,33 @@
             <form action="/game/ally/playcard/{{loop.index0}}" method="post">
                 <input type="hidden" name="index" value="{{ loop.index0 }}">
                 <input type="hidden" name="card" value="{{ cardnum }}">
-                <button type="submit">
-                    <div class="location">
+                <button type="submit" class="locationbutton">
+                <div class="location {{ 'winning' if location.winning == 'Ally' else 'losing' if location.winning == 'Enemy' else 'tie'}}">
                         <h2>{{ location.name }}</h2>
                     
-                        <!-- Sezione Nemici -->
+                        <!-- Enemies -->
                         <div class="enemies">
                             <h3>Enemies</h3>
                             {% for enemy_card in location.enemies %}
-                            <div class="card">
+                            <div class="cardinlocation">
                                 <img src="{{ enemy_card.render() }}" alt="{{ enemy_card.name }}" class="card img">
-                                <p>{{ enemy_card.name }} - Power: {{ enemy_card.cur_power }}</p>
-                            </div>
+                                <p class="cardtext">{{ enemy_card.name }} - Power: {{ enemy_card.cur_power }}</p>
+                                <p class = "cardtext"> {{ enemy_card.description }}</p>
+                        </div>
                             {% endfor %}
                         </div>
-                        <p> Enemies Power: {{ location.alliesPower }}
-                                {{location.name}}: {{location.description}}
-                                Allies Power: {{ location.enemiesPower }}
-                        </p>
-                        <!-- Sezione Alleati -->
+                        <div> Enemies Power: {{ location.enemiesPower }} <br>
+                            {{location.description}} <br>
+                            Allies Power: {{ location.alliesPower }}
+                    </div>
+                        <!-- Allies  -->
                             <div class="allies">
                             <h3>Allies</h3>
                             {% for ally_card in location.allies + location.preRevealAllies %}
                                 <div class="cardinlocation">
                                     <img src="{{ ally_card.render() }}" alt="{{ ally_card.name }}" class = "card img">
                                     <p>{{ ally_card.name }} - Power: {{ ally_card.cur_power }}</p>
+                                    <p class = "cardtext"> {{ ally_card.description }}</p>
                                 </div>
                             {% endfor %}
                             </div>
