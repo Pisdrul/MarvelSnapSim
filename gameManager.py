@@ -1,7 +1,7 @@
 import importlib
 import random
 import cards
-from Locations.AllLocations import *
+import Locations
 from Locations.Location import *
 class GameState():
     def __init__(self):
@@ -25,7 +25,8 @@ class GameState():
                     "allysnapped":False, "enemysnapped": False,
                     "cardsplayed": [], "onnextcardbeingplayed": [],
                     "allypass": False, "enemypass": False,
-                    "endofturncounterally":0, "endofturncounterenemy":0,}
+                    "endofturncounterally":0, "endofturncounterenemy":0,
+                    "allyretreat":False, "enemyretreat":False}
         self.passStatus = {
                 'turnpassally': self.status['allypass'],  
                 'turnpassenemy': self.status['enemypass'],
@@ -67,9 +68,9 @@ class GameState():
             self.locationList["location2"] = TemporaryLocation(2, self.status, self.locationList)
             self.locationList["location3"] = TemporaryLocation(3, self.status, self.locationList)
             self.gameStart()
-    def resolveTie(locationList):
-        allypower = locationList["location1"].alliesPower + locationList["location2"].alliesPower + locationList["location3"].alliesPower
-        enemypower = locationList["location1"].enemiesPower + locationList["location2"].enemiesPower + locationList["location3"].enemiesPower
+    def resolveTie(self):
+        allypower = self.locationList["location1"].alliesPower + self.locationList["location2"].alliesPower + self.locationList["location3"].alliesPower
+        enemypower = self.locationList["location1"].enemiesPower + self.locationList["location2"].enemiesPower + self.locationList["location3"].enemiesPower
         if allypower > enemypower:
             return "Ally"
         elif allypower < enemypower:
@@ -92,7 +93,7 @@ class GameState():
         elif allywin < enemywin:
             return "Enemy"
         else:
-            return self.resolveTie(self.locationList)
+            return self.resolveTie()
 
 
     def addUnit(self,unit,ally, locNum):
@@ -110,7 +111,6 @@ class GameState():
             return was_added
     
     def undoActions(self, turnAlly, hand):
-        
         loc1temp = self.locationList["location1"].undoActions(turnAlly)
         loc2temp = self.locationList["location2"].undoActions(turnAlly)
         loc3temp = self.locationList["location3"].undoActions(turnAlly)
@@ -143,7 +143,7 @@ class GameState():
         for i in range (1,5,1):
             curCard = cards.Swarm(True, self.status)
             self.status["allydeck"].append(curCard)
-            curCard = cards.Nightcrawler(False, self.status)
+            curCard = cards.Agent13(False, self.status)
             self.status["enemydeck"].append(curCard)
             curCard = cards.Blade(True, self.status)
             self.status["allydeck"].append(curCard)
@@ -259,8 +259,8 @@ class GameState():
     
 
 
-    def snap(self):
-        if (self.turnAlly and not self.status["allysnapped"]):
+    def snap(self, turnAlly):
+        if (turnAlly and not self.status["allysnapped"]):
             self.status["allysnapped"] = True
             if not self.status["enemysnapped"]: self.status["tempcubes"] = 2
             else: self.status["cubes"], self.status["tempcubes"] = 4,4
@@ -347,4 +347,6 @@ class GameState():
             'turnpassenemy': self.status['enemypass'],
             'winner': "None"  
         }
-        
+    
+    def retreat(allyOrEnemy):
+        pass

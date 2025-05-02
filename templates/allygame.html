@@ -3,26 +3,41 @@
 <head>
     <title>Player 1</title>
     <script>
+        let hasPassed = false;
+    
+        function endTurn() {
+            fetch('/game/ally/pass', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        hasPassed = true;
+                        checkTurnStatus();
+                    }
+                });
+        }
+    
         function checkTurnStatus() {
+            if (!hasPassed) return;
+    
             fetch('/check_turn/ally')
                 .then(response => response.json())
                 .then(data => {
-                    if (data.winner != "None") {
+                    if (data.winner !== "None") {
                         if (data.winner === "Ally") {
-                            alert("You have won player 1!");
-                        }
-                        else if (data.winner === "Enemy") {
-                            alert("You have lost!");
-                        }
-                        else if (data.winner === "Tie") {
+                            alert("You have won {{ status['cubes'] * 2 }} cubes!");
+                        } else if (data.winner === "Enemy") {
+                            alert("You have lost {{ status['cubes'] * 2 }} cubes!");
+                        } else if (data.winner === "Tie") {
                             alert("Tie!");
                         }
+                        location.reload();
+                    } else if (!data.turnready) {
+                        location.reload();
+                    } else {
+                        setTimeout(checkTurnStatus, 2000);
                     }
-                    location.reload()
                 });
-            
         }
-        setInterval(checkTurnStatus, 2000);
     </script>
 <link rel="stylesheet" href="{{ url_for('static', filename='gameStyle.css') }}">
 </head>
@@ -46,22 +61,31 @@
             </div>
             {% endfor %}
         </div>
-        <div> Enemies Power: {{ location.enemiesPower }} <br>
-                {{location.description}} <br>
-                Allies Power: {{ location.alliesPower }}
+        <div> 
+            <p class="totalpower"> Enemies Power: {{ location.enemiesPower }} <br> </p>
+            <p class = "locationdescription">{{location.description}} <br> </p>
+            <p class = "totalpower"> Allies Power: {{ location.alliesPower }}</p>
         </div>
         <!-- Sezione Alleati -->
             <div class="allies">
             <h3>Allies</h3>
-            {% for ally_card in location.allies + location.preRevealAllies %}
+            {% for ally_card in location.allies%}
                     <form action="/game/ally/movecard" method="post">
                         <input type="hidden" name="card" value="{{ loop.index0 }}">
+                        <input type="hidden" name="location" value="{{ location_num }}">
                         <div class="cardinlocation">
                             <img src="{{ ally_card.render() }}" alt="{{ ally_card.name }}" class = "card img">
                             <p>{{ ally_card.name }} - Power: {{ ally_card.cur_power }}</p>
                             <p class = "cardtext"> {{ ally_card.description }}</p>
                         </div>
                     </form>
+            {% endfor %}
+            {% for ally_card in location.preRevealAllies %}
+                <div class="cardinlocation temp">
+                    <img src="{{ ally_card.render() }}" alt="{{ ally_card.name }}" class = "card img">
+                    <p>{{ ally_card.name }} - Power: {{ ally_card.cur_power }}</p>
+                    <p class = "cardtext"> {{ ally_card.description }}</p>
+                </div>
             {% endfor %}
             </div>
         </div>
@@ -81,11 +105,18 @@
         </div>
         {% endfor %}
         <p>Energy: {{ status["allyenergy"] }}</p>
-        <form action="/game/ally/pass" method="post">
+        <button onclick="endTurn()">End Turn</button>
+        <form action="/game/ally/undoActions" method="post">
             <button type="submit">
-                End Turn
+                Undo Actions
             </button>
         </form>
+        <form action="/game/ally/snap" method="post">
+            <button type="submit">
+                SNAP!
+            </button>
+        </form>
+        <div>Current cubes: {{ status["cubes"] }}</div>
     </div>
 
 </body>

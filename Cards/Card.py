@@ -1,5 +1,5 @@
 from Locations.Location import Location
-from Locations.AllLocations import *
+import Locations
 from flask import url_for, current_app
 import os
 class Card:

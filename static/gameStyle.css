@@ -15,6 +15,20 @@
     margin: 4px;
     width: 120px;
 }
+.totalpower {
+    text-align: center;
+    margin-top: 6px;
+    font-size: 20px;
+}
+.locationdescription {
+    text-align: center;
+    margin-top: 6px;
+    font-size: 20px;
+    font-weight: bold;
+}
+.cardinlocation.temp {
+    background-color: aquamarine;
+}
 .card {
     flex: 0 0 auto;
     width: 100px;

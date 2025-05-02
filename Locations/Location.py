@@ -1,4 +1,6 @@
 import random, inspect, sys
+import os
+import importlib
 class Location:
     def __init__(self,number, status,locationlist):
         self.allies = []
@@ -321,10 +323,22 @@ class Location:
         return notFull
 
     def randomLocation(self):
-        import Locations.AllLocations
-        classes = [cls for name, cls in inspect.getmembers(Locations.AllLocations, inspect.isclass)
-               if cls.__module__ == Locations.AllLocations.__name__]
-        return random.choice(classes)(self.locationNum,self.status,self.locationlist)
+        location_folder = os.path.dirname(__file__)  # Percorso del file Location.py
+        files = [
+            f for f in os.listdir(location_folder)
+            if f.endswith(".py") and f != "Location.py" and not f.startswith("__")
+        ]
+
+        chosen_file = random.choice(files)
+        module_name = chosen_file[:-3]
+        full_module = f"{__package__}.{module_name}" if __package__ else module_name
+
+        module = importlib.import_module(full_module)
+        for name, obj in inspect.getmembers(module, inspect.isclass):
+            if issubclass(obj, Location) and obj is not Location:
+                location_class = obj
+                break
+        return location_class(self.locationNum, self.status, self.locationlist)
 
     def moveEffects(self, card):
         toProcess = self.locationlist["location1"].allies + self.locationlist["location2"].allies + self.locationlist["location3"].allies + self.locationlist["location1"].enemies + self.locationlist["location2"].enemies + self.locationlist["location3"].enemies
@@ -334,20 +348,6 @@ class Location:
         for object in toProcess:
             object.onCardBeingMoved(card)
         
-class TestLocationEffects(Location):
-    def __init__(self,number, status,locationlist):
-        super().__init__(number,status,locationlist)
-        self.counter = 0
-        self.name = "On play effect test"
-
-    
-    def onPlayEffect(self, card):
-        self.counter += 1
-        if self.counter == 3:
-            print("Destroyed ", card.name)
-            self.removeCard(card)
-            self.counter =0
-
 class TemporaryLocation(Location):
     def __init__(self, number, status, locationlist):
         super().__init__(number, status, locationlist)
@@ -359,7 +359,6 @@ class TemporaryLocation(Location):
     
     def startOfTurn(self):
         super().startOfTurn()
-        print(self.locationNum)
         self.counter -= 1
         if self.counter ==0: self.changeLocation(self.newLoc)
         self.name = "Revealing location in " + str(self.counter) + " turns"
