@@ -149,6 +149,8 @@ class Location:
     def updateLocation(self):
         self.resetVariablesPreOngoing()
         self.applyOngoing(self.locationlist)
+        if self.name == "Elysium":
+            print("Elysium!")
         for unit in self.ongoing_to_apply:
             unit.ongoing(self)
         self.ongoing_to_apply.clear()

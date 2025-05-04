@@ -1,8 +1,8 @@
 from cards import Card
 
-class Kazan(Card):
+class Kazar(Card):
     def __init__(self, ally, status):
-        super().__init__(4, 4, "Kazan", ally, status)
+        super().__init__(4, 4, "Kazar", ally, status)
         self.description = "Ongoing: Your 1-cost cards have +1 Power."
         self.has_ongoing = True
 

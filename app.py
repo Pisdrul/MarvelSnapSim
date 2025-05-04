@@ -15,6 +15,10 @@ def home():
 def gameAlly():
     print(game.status["allyhand"])
     return render_template('allygame.html', status=game.status, locations=game.locationList.values())
+@app.route('/check_game_end', methods=['GET'])
+def checkGameEnded():
+    winner = game.passStatus['winner']
+    return jsonify(winner)
 
 @app.route('/game/ally/playcard', methods=['POST'])
 def chooseLocationAlly():
@@ -67,7 +71,6 @@ def playCardEnemy(locationnum):
             print("error")
             print(e)
     return redirect(url_for('gameEnemy'))
-
 @app.route('/game/<allyorenemy>/moveUnit', methods=['POST'])
 def moveUnit(allyorenemy):
     cardnum = int(request.form["card"])
@@ -96,30 +99,57 @@ def moveCardAlly():
 @app.route('/check_turn/<allyorenemy>')
 def check_turn(allyorenemy):
     print(allyorenemy)
-    print(game.passStatus)
     if game.status["allypass"] and game.status["enemypass"]:
         if allyorenemy == "ally":
             game.status["endofturncounterally"] = 1
+            game.passStatus['turnpassally'] = True
+
         elif allyorenemy == "enemy":
             game.status["endofturncounterenemy"] = 1
-
-        print(game.status["endofturncounterally"], game.status["endofturncounterenemy"])
+            game.passStatus['turnpassenemy'] = True
 
         if game.status["endofturncounterally"] == 1 and game.status["endofturncounterenemy"] == 1:
-            print("end turn!")    
+            print("End turn triggered.")
             game.turnEnd()
-
-            if game.status["turncounter"] > game.status["maxturns"]:
+            if game.passStatus['retreatally'] and game.passStatus['retreatenemy']:
+                game.passStatus['winner'] = "Tie"
+                return game.passStatus
+            elif game.passStatus['retreatally']:
+                game.passStatus['winner'] = "Enemy"
+                game.status['cubes'] /= 2
+                return game.passStatus
+            elif game.passStatus['retreatenemy']:
+                game.passStatus['winner'] = "Ally"
+                game.status['cubes'] /= 2
+                return game.passStatus
+            elif game.status["turncounter"] > game.status["maxturns"]:
                 game.endGame()
                 game.passStatus['winner'] = game.checkWinner()
-            else:
-                game.startOfTurn()
-            game.status['endofturncounterally'] = 0
-            game.status['endofturncounterenemy'] = 0
-            game.status['allypass'] = False
-            game.status['enemypass'] = False
+            print(game.passStatus)
+    return game.passStatus
 
-    return jsonify(game.passStatus)
+@app.route('/game/<allyorenemy>/endgame', methods=['GET'])
+def endGame(allyorenemy):
+    if allyorenemy == "ally":
+        return render_template('endgameally.html', status=game.status, locations=game.locationList.values(), passStatus=game.passStatus)
+    elif allyorenemy == "enemy":
+        return render_template('endgameenemy.html', status=game.status, locations=game.locationList.values(), passStatus=game.passStatus)
+@app.route("/game/startofturn", methods=['GET'])
+def startOfTurn():
+    print( "start of turn")	
+    game.startOfTurn()
+    game.status['allypass'] = False
+    game.status['enemypass'] = False
+    game.status['endofturncounterally'] = 0
+    game.status['endofturncounterenemy'] = 0
+    game.passStatus = {
+            'turnpassally': game.status['allypass'],  
+            'turnpassenemy': game.status['enemypass'],
+            'winner': "None",
+            'retreatally': game.passStatus['retreatally'],
+            'retreatenemy': game.passStatus['retreatenemy']  
+        }
+    return "ok"
 
 @app.route("/game/reset", methods=['GET'])
 def resetGame():
@@ -145,7 +175,19 @@ def snap(allyorenemy):
     elif allyorenemy == "enemy":
         game.snap(False)
         return redirect(url_for('gameEnemy'))
-    
+
+@app.route("/game/<allyorenemy>/retreat", methods=['POST'])
+def retreat(allyorenemy):
+    if allyorenemy == "ally":
+        game.passStatus['retreatally'] = True
+        game.passStatus['turnpassally'] = True
+        return redirect(url_for('gameAlly'))
+    elif allyorenemy == "enemy":
+        game.passStatus['retreatenemy'] = True
+        game.passStatus['turnpassenemy'] = True
+        return redirect(url_for('gameEnemy'))
+        
+
 if __name__ == "__main__":
     app.run(debug=True)
 

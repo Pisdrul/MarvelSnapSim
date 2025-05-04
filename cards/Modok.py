@@ -6,11 +6,11 @@ class Modok(Card):
         self.description = "On Reveal: Discard all cards in your hand"
     
     def onReveal(self, locationlist):
-        if self.ally:
+        if self.ally and len(self.status["allyhand"]) > 0:
             toDiscard = copy.copy(self.status["allyhand"])
             for card in toDiscard:
                 card.discard()
-        else:
+        elif not self.ally and len(self.status["enemyhand"]) > 0:
             toDiscard = copy.copy(self.status["enemyhand"])
             for card in toDiscard:
                 card.discard()

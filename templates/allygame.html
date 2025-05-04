@@ -4,7 +4,36 @@
     <title>Player 1</title>
     <script>
         let hasPassed = false;
-    
+        let gameEnded = false;
+
+        function disableAllInteractions() {
+            document.querySelectorAll("button").forEach(btn => btn.disabled = true);
+            document.querySelectorAll("a").forEach(link => link.onclick = (e) => e.preventDefault());
+            document.querySelectorAll("form").forEach(form => form.onsubmit = (e) => e.preventDefault());
+        }
+
+        function checkGameEnded() {
+            if (gameEnded) return;
+        
+            fetch('/check_game_end')  
+            .then(response => response.json())
+            .then(data => {
+                if (data !== "None") {
+                    alert("Game ended!");
+                    gameEnded = true;
+                    disableAllInteractions();
+                    window.location.href = "/game/ally/endgame";  
+                } else {
+                    setTimeout(checkGameEnded, 2000);
+                }
+            });
+    }
+            
+
+        window.onload = function() {
+            checkGameEnded();
+        }
+
         function endTurn() {
             fetch('/game/ally/pass', { method: 'POST' })
                 .then(response => response.json())
@@ -22,28 +51,27 @@
             fetch('/check_turn/ally')
                 .then(response => response.json())
                 .then(data => {
-                    if (data.winner !== "None") {
-                        if (data.winner === "Ally") {
-                            alert("You have won {{ status['cubes'] * 2 }} cubes!");
-                        } else if (data.winner === "Enemy") {
-                            alert("You have lost {{ status['cubes'] * 2 }} cubes!");
-                        } else if (data.winner === "Tie") {
-                            alert("Tie!");
-                        }
-                        location.reload();
-                    } else if (!data.turnready) {
-                        location.reload();
+                    if (data.turnpassally && data.turnpassenemy) {
+                        fetch('/game/startofturn', { method: 'GET' });
+                        setTimeout(reloadPage, 2000);
+                    } else if (data.turnpassally) {
+                        console.log("turnpassally");
+                        setTimeout(reloadPage, 2000);
+                        hasPassed = false;
                     } else {
-                        setTimeout(checkTurnStatus, 2000);
+                        setTimeout(checkTurnStatus, 1000);
                     }
                 });
+        }
+        function reloadPage() {
+            location.reload();
         }
     </script>
 <link rel="stylesheet" href="{{ url_for('static', filename='gameStyle.css') }}">
 </head>
 <body>
     <h1> Locations </h1>
-    <h1> Turn:{{ status["turncounter"] if status["turncounter"] <= status["maxturns"] else "Game Over" }}   </h1>
+    <h1> Turn: {{ status["turncounter"] }}   </h1>
     <div class="locationlist">
         {% for location in locations %}
         {% set location_num = loop.index0 + 1 %}
@@ -52,7 +80,7 @@
     
         <!-- Sezione Nemici -->
         <div class="enemies">
-            <h3>Enemies</h3>
+            <h3 class = "dividertext">Enemies </h3>
             {% for enemy_card in location.enemies %}
             <div class="cardinlocation">
                     <img src="{{ enemy_card.render() }}" alt="{{ enemy_card.name }}" class="card img">
@@ -99,21 +127,28 @@
                 <input type="hidden" name="index" value="{{ loop.index0 }}">
                 <button type="submit">
                     <img src="{{ card.render() }}" alt="{{ card.name }}">
+                    <p class="cardtext">{{card.name}}: {{card.cur_cost}}</p>
+                    <p class="cardtext"> Power: {{card.cur_power}}, Description: {{card.description}}</p>
                 </button>
-                <p>{{card.name}}: {{card.cur_cost}}, Power: {{card.cur_power}}, Description: {{card.description}}</p>
+                
             </form>
         </div>
         {% endfor %}
-        <p>Energy: {{ status["allyenergy"] }}</p>
-        <button onclick="endTurn()">End Turn</button>
+        <p class="energy">Energy: {{ status["allyenergy"] }}</p>
+        <button onclick="endTurn()" class="buttonstyle">End Turn</button>
         <form action="/game/ally/undoActions" method="post">
-            <button type="submit">
+            <button type="submit" class="buttonstyle">
                 Undo Actions
             </button>
         </form>
         <form action="/game/ally/snap" method="post">
-            <button type="submit">
+            <button type="submit" class="buttonstyle">
                 SNAP!
+            </button>
+        </form>
+        <form action="/game/ally/retreat" method="post">
+            <button type="submit" class="buttonstyle">
+                Retreat
             </button>
         </form>
         <div>Current cubes: {{ status["cubes"] }}</div>

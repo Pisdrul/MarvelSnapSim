@@ -3,6 +3,7 @@ import random
 import cards
 import Locations
 from Locations.Location import *
+import cards.Swordmaster
 class GameState():
     def __init__(self):
         self.exit = False
@@ -25,12 +26,13 @@ class GameState():
                     "allysnapped":False, "enemysnapped": False,
                     "cardsplayed": [], "onnextcardbeingplayed": [],
                     "allypass": False, "enemypass": False,
-                    "endofturncounterally":0, "endofturncounterenemy":0,
-                    "allyretreat":False, "enemyretreat":False}
+                    "endofturncounterally":0, "endofturncounterenemy":0,}
         self.passStatus = {
                 'turnpassally': self.status['allypass'],  
                 'turnpassenemy': self.status['enemypass'],
-                'winner': "None"  
+                'winner': "None",
+                'retreatally': False,
+                'retreatenemy': False  
             }
         self.locationList["location1"]=TemporaryLocation(1,self.status,self.locationList)
         self.locationList["location2"]= TemporaryLocation(2,self.status,self.locationList)
@@ -137,7 +139,7 @@ class GameState():
                 i+=1
 
     def gameStart(self): #inserisci carte nel deck e pesca le carte
-        self.status["allydeck"], self.status["enemydeck"] = [cards.Colossus(True, self.status),cards.Heimdall(True,self.status)],[cards.Scorpion(False, self.status),cards.Onslaught(False, self.status)]
+        self.status["allydeck"], self.status["enemydeck"] = [cards.Swordmaster(True, self.status),cards.Heimdall(True,self.status)],[cards.Scorpion(False, self.status),cards.Onslaught(False, self.status)]
         self.status["allydeck"].append(cards.Apocalypse(True,self.status))
         self.status["enemydeck"].append(cards.Infinaut(False,self.status))
         for i in range (1,5,1):
@@ -341,12 +343,6 @@ class GameState():
     
     def turnEnd(self):
         self.endOfTurn()
-        self.status['allypass'] = self.status['enemypass'] = False
-        self.passStatus = {
-            'turnpassally': self.status['allypass'],  
-            'turnpassenemy': self.status['enemypass'],
-            'winner': "None"  
-        }
     
     def retreat(allyOrEnemy):
         pass
