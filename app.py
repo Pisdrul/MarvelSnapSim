@@ -186,26 +186,8 @@ def retreat(allyorenemy):
         game.passStatus['retreatenemy'] = True
         game.passStatus['turnpassenemy'] = True
         return redirect(url_for('gameEnemy'))
-@app.route("/game/<allyorenemy>/movecard", methods=['POST'])
-def chooseLocationForMoveCard(allyorenemy):
-    print("AAAAAAAAAAAAAAAAAAAAAAA")
-    locationNum = int(request.form["locationNum"])
-    location = game.locationList["location" + str(locationNum)]
-    cardNum = int(request.form["card"])
-    if allyorenemy == "ally":
-        card = location.allies[cardNum]
-        return render_template('moveCardsAllies.html', status=game.status, locations=game.locationList.values(), passStatus=game.passStatus, card = card)
-    elif allyorenemy == "enemy":
-        card = location.enemies[cardNum]
-        return render_template('moveCardsEnemies.html', status=game.status, locations=game.locationList.values(), passStatus=game.passStatus, card = card)
+        
 
-@app.route("/game/<allyorenemy>/movecard/<locationnum>", methods=['POST'])
-def confirmMove(allyorenemy, locationnum):
-    result = game.moveSelection(allyorenemy, locationnum)
-    if allyorenemy == "ally":
-        return redirect(url_for('gameAlly'))
-    elif allyorenemy == "enemy":
-        return redirect(url_for('gameEnemy'))
 if __name__ == "__main__":
     app.run(debug=True)
 

@@ -9,8 +9,7 @@
     <h1> Locations </h1>
     <div class="locationlist">
         {% for location in locations %}
-        {% if card.location != location %}
-            <form action="/game/ally/movecard/{{loop.index0}}" method="post">
+            <form action="/game/ally/playcard/{{loop.index0}}" method="post">
                 <input type="hidden" name="index" value="{{ loop.index0 }}">
                 <input type="hidden" name="card" value="{{ cardnum }}">
                 <button type="submit">
@@ -35,6 +34,9 @@
                             <div class="allies">
                             <h3>Allies</h3>
                             {% for ally_card in location.allies + location.preRevealAllies %}
+                                {% if ally_card == card %}
+                                    {% continue%}
+                                {% endif %}
                                 <div class="cardinlocation">
                                     <img src="{{ ally_card.render() }}" alt="{{ ally_card.name }}" class = "card img">
                                     <p>{{ ally_card.name }} - Power: {{ ally_card.cur_power }}</p>

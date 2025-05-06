@@ -98,19 +98,15 @@
             <div class="allies">
             <h3>Allies</h3>
             {% for ally_card in location.allies%}
-            {% if ally_card not in location.cards_to_move %}
-                <form action="/game/ally/movecard" method="post">
-                    <input type="hidden" name="locationNum" value="{{ location_num }}">
-                    <input type="hidden" name="card" value="{{ loop.index0 }}">
-                    <button type="submit">
+                    <form action="/game/ally/movecard" method="post">
+                        <input type="hidden" name="card" value="{{ loop.index0 }}">
+                        <input type="hidden" name="location" value="{{ location_num }}">
                         <div class="cardinlocation">
                             <img src="{{ ally_card.render() }}" alt="{{ ally_card.name }}" class = "card img">
-                            <p class = "cardtext">{{ ally_card.name }} - Power: {{ ally_card.cur_power }}</p>
+                            <p>{{ ally_card.name }} - Power: {{ ally_card.cur_power }}</p>
                             <p class = "cardtext"> {{ ally_card.description }}</p>
                         </div>
-                    </button>
-                </form>
-            {% endif %}
+                    </form>
             {% endfor %}
             {% for ally_card in location.preRevealAllies %}
                 <div class="cardinlocation temp">

@@ -215,22 +215,49 @@ class GameState():
                 case _:
                     print("Input error")
 
-    def moveSelection(self, card, location):
-        for moves in card.location.cards_to_move:
-            if moves[0] == card:
+    def moveSelection(self):
+        if self.turnally:
+            units = self.locationList["location1"].allies + self.locationList["location2"].allies + self.locationList["location3"].allies
+        else:
+            units = self.locationList["location1"].enemies + self.locationList["location2"].enemies + self.locationList["location3"].enemies
+        i=1
+        print("Which card would you like to move?")
+        for unit in units:
+            print(i, "-", unit.location.name, " :", unit.name, " Power:", unit.cur_power)
+            i+=1
+        try:
+            choice = int(input())
+            choice -= 1
+            cardToMove = units[choice]
+        except:
+            print("Input error")
+        for moves in cardToMove.location.cards_to_move:
+            if moves[0] == cardToMove:
                 print("You already moved that card")
-                return "error"
-        if location == card:
+                return 0
+        
+        print("Where would you like to move the card?")
+        i=1
+        for location in self.locationList.values():
+            if location != cardToMove.location:
+                print(i, "-", location.name)
+            i+=1
+        try:
+            choice = int(input())
+            choice -= 1
+            locationToMove = list(self.locationList.values())[choice]
+        except:
+            print("Input error")
+        if locationToMove == cardToMove.location:
             print("You can't move the card to the same location")
         else:
-            if card.moves_number > 0 or location.location_can_be_moved_to:
-                if not location.checkIfLocationFull(card.ally):
-                    card.location.cards_to_move.append([card, location])
-                    return "success"
+            if cardToMove.moves_number > 0 or locationToMove.location_can_be_moved_to:
+                if not locationToMove.checkIfLocationFull(cardToMove.ally):
+                    cardToMove.location.cards_to_move.append([cardToMove, locationToMove])
                 else:
-                    return "Location full"
+                    print("Location full")
             else:
-                return "You can't move that card!"
+                print("You can't move that card!")
     
 
 
