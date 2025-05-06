@@ -32,7 +32,8 @@ class GameState():
                 'turnpassenemy': self.status['enemypass'],
                 'winner': "None",
                 'retreatally': False,
-                'retreatenemy': False  
+                'retreatenemy': False,
+                'turnend': False 
             }
         self.locationList["location1"]=TemporaryLocation(1,self.status,self.locationList)
         self.locationList["location2"]= TemporaryLocation(2,self.status,self.locationList)
@@ -64,7 +65,10 @@ class GameState():
             self.passStatus = {
                     'turnpassally': self.status['allypass'],  
                     'turnpassenemy': self.status['enemypass'],
-                    'winner': "None"  
+                    'winner': "None",
+                    'retreatally': False,
+                    'retreatenemy': False,
+                    'turnend': False  
                 }
             self.locationList["location1"] = TemporaryLocation(1, self.status, self.locationList)
             self.locationList["location2"] = TemporaryLocation(2, self.status, self.locationList)
@@ -316,6 +320,7 @@ class GameState():
     
     def turnEnd(self):
         self.endOfTurn()
+        self.passStatus['turnend'] = True
     
     def retreat(allyOrEnemy):
         pass

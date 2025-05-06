@@ -18,6 +18,7 @@
             fetch('/check_game_end')  
             .then(response => response.json())
             .then(data => {
+                console.log(data)
                 if (data !== "None") {
                     alert("Game ended!");
                     gameEnded = true;
@@ -51,7 +52,7 @@
             fetch('/check_turn/ally')
                 .then(response => response.json())
                 .then(data => {
-                    if (data.turnpassally && data.turnpassenemy) {
+                    if (data.turnend) {
                         fetch('/game/startofturn', { method: 'GET' });
                         setTimeout(reloadPage, 2000);
                     } else if (data.turnpassally) {

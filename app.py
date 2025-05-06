@@ -18,6 +18,8 @@ def gameAlly():
 @app.route('/check_game_end', methods=['GET'])
 def checkGameEnded():
     winner = game.passStatus['winner']
+    print(game.passStatus)
+    print('winner is ',winner)
     return jsonify(winner)
 
 @app.route('/game/ally/playcard', methods=['POST'])
@@ -111,18 +113,17 @@ def check_turn(allyorenemy):
         if game.status["endofturncounterally"] == 1 and game.status["endofturncounterenemy"] == 1:
             print("End turn triggered.")
             game.turnEnd()
+            print(game.passStatus)
             if game.passStatus['retreatally'] and game.passStatus['retreatenemy']:
                 game.passStatus['winner'] = "Tie"
-                return game.passStatus
             elif game.passStatus['retreatally']:
                 game.passStatus['winner'] = "Enemy"
                 game.status['cubes'] /= 2
-                return game.passStatus
             elif game.passStatus['retreatenemy']:
                 game.passStatus['winner'] = "Ally"
                 game.status['cubes'] /= 2
-                return game.passStatus
             elif game.status["turncounter"] > game.status["maxturns"]:
+                print("444444444444444444")
                 game.endGame()
                 game.passStatus['winner'] = game.checkWinner()
             print(game.passStatus)
@@ -145,9 +146,10 @@ def startOfTurn():
     game.passStatus = {
             'turnpassally': game.status['allypass'],  
             'turnpassenemy': game.status['enemypass'],
-            'winner': "None",
+            'winner': game.passStatus['winner'],
             'retreatally': game.passStatus['retreatally'],
-            'retreatenemy': game.passStatus['retreatenemy']  
+            'retreatenemy': game.passStatus['retreatenemy'],
+            'turnend': False  
         }
     return "ok"
 
@@ -188,7 +190,6 @@ def retreat(allyorenemy):
         return redirect(url_for('gameEnemy'))
 @app.route("/game/<allyorenemy>/movecard", methods=['POST'])
 def chooseLocationForMoveCard(allyorenemy):
-    print("AAAAAAAAAAAAAAAAAAAAAAA")
     locationNum = int(request.form["locationNum"])
     location = game.locationList["location" + str(locationNum)]
     cardNum = int(request.form["card"])

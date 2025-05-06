@@ -50,7 +50,7 @@
             fetch('/check_turn/enemy')
                 .then(response => response.json())
                 .then(data => {
-                    if (data.turnpassally && data.turnpassenemy) {
+                    if (data.turnend) {
                         fetch('/game/startofturn', { method: 'GET' });
                         setTimeout(reloadPage, 2000);
                     } else if (data.turnpassenemy) {
