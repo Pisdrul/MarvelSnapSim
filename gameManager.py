@@ -3,7 +3,7 @@ import random
 import cards
 import Locations
 from Locations.Location import *
-import cards.Swordmaster
+
 class GameState():
     def __init__(self):
         self.exit = False

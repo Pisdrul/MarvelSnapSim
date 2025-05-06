@@ -24,7 +24,7 @@
                     disableAllInteractions();
                     window.location.href = "/game/ally/endgame";  
                 } else {
-                    setTimeout(checkGameEnded, 2000);
+                    setTimeout(checkGameEnded, 3000);
                 }
             });
     }
@@ -79,8 +79,8 @@
         <h2>{{ location.name }}</h2>
     
         <!-- Sezione Nemici -->
+        <h3 class = "dividertext">Enemies </h3>
         <div class="enemies">
-            <h3 class = "dividertext">Enemies </h3>
             {% for enemy_card in location.enemies %}
             <div class="cardinlocation">
                     <img src="{{ enemy_card.render() }}" alt="{{ enemy_card.name }}" class="card img">
@@ -95,8 +95,8 @@
             <p class = "totalpower"> Allies Power: {{ location.alliesPower }}</p>
         </div>
         <!-- Sezione Alleati -->
+            <h3 class = "dividertext">Allies</h3>
             <div class="allies">
-            <h3>Allies</h3>
             {% for ally_card in location.allies%}
                     <form action="/game/ally/movecard" method="post">
                         <input type="hidden" name="card" value="{{ loop.index0 }}">

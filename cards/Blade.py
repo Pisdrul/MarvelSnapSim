@@ -3,7 +3,7 @@ from cards import Card
 class Blade(Card):
     def __init__(self, ally, status):
         super().__init__(1, 3, "Blade", ally, status)
-        self.description = "On Reveal: Discard the leftmost card in your hand"
+        self.description = "On Reveal: Discard the rightmost card in your hand"
     
     def onReveal(self, locationlist):
         if self.ally and len(self.status["allyhand"]) > 0:
