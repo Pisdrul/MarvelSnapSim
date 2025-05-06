@@ -1,3 +1,4 @@
 /cards/__pycache__/
 /Locations/__pycache__/
 /__pycache__
+*.pyc
