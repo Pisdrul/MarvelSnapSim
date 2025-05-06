@@ -17,7 +17,7 @@ class Morph(Card):
                 morphInto.onReveal(locationlist)
         else:
             if len(self.status["allyhand"]) != 0:
-                self.location.PreRevealEnemies.remove(self)
+                self.location.preRevealEnemies.remove(self)
                 morphInto = copy.deepcopy(random.choice(self.status["allyhand"]))
                 self.location.enemies.append(morphInto)
                 morphInto.location = self.location
