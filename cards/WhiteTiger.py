@@ -15,7 +15,7 @@ class Whitetiger(Card):
         else:
             for loc in locationlist.values():
                 if loc != self.location and len(loc.enemies) <4:
-                        possible.append[loc]
+                        possible.append(loc)
         if len(possible) > 0:
             loc = random.choice(possible)
             loc.allies.append(Card(5, 8, "Tiger", self.ally, self.status))

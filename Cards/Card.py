@@ -39,6 +39,7 @@ class Card:
         print("Revealed ",self.name)
     
     def playCard(self,location):
+        print("Played ",self.name, " in ", location.name)
         self.location= location
     
     def startOfTurn(self):
