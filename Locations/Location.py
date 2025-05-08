@@ -101,6 +101,8 @@ class Location:
     def checkIfLocationFull(self,allyOrEnemy):
         full = False
         num = 0
+        print("/////////////")
+        print(self.cards_to_move)
         if allyOrEnemy:
             for moves in self.cards_to_move:
                 if moves.ally == allyOrEnemy:
@@ -202,6 +204,7 @@ class Location:
             if move[0].moves_number >0:
                 move[0].moves_number -= 1
             self.updateGameState()
+        self.cards_to_move = []
 
     def revealCards(self):
         if(self.status["allypriority"]):

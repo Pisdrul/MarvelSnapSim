@@ -241,11 +241,11 @@ class GameState():
     def snap(self, turnAlly):
         if (turnAlly and not self.status["allysnapped"]):
             self.status["allysnapped"] = True
-            if not self.status["enemysnapped"]: self.status["tempcubes"] = 2
+            if self.status["tempcubes"] == self.status["cubes"]: self.status["tempcubes"] = 2
             else: self.status["cubes"], self.status["tempcubes"] = 4,4
         else:
             self.status["enemysnapped"] = True
-            if not self.status["allysnapped"]: self.status["tempcubes"] = 2
+            if self.status["tempcubes"] == self.status["cubes"]: self.status["tempcubes"] = 2
             else: self.status["cubes"], self.status["tempcubes"] = 4,4
 
     def startOfTurn(self):
@@ -277,7 +277,7 @@ class GameState():
                 print("Revealing enemy cards")
 
     def endOfTurn(self):
-        self.status["cubes"] = self.status["tempcubes"]
+        if not(self.passStatus["retreatally"] or self.passStatus["retreatenemy"]): self.status["cubes"] = self.status["tempcubes"]
         self.announcer()
         self.locationList["location1"].startOfTurnMoves(), self.locationList["location2"].startOfTurnMoves(), self.locationList["location3"].startOfTurnMoves()
         self.locationList["location1"].revealCards(), self.locationList["location2"].revealCards(), self.locationList["location3"].revealCards()

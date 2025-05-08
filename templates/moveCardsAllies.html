@@ -12,6 +12,7 @@
         {% if card.location != location %}
             <form action="/game/ally/movecard/{{loop.index0}}" method="post">
                 <input type="hidden" name="index" value="{{ loop.index0 }}">
+                <input type="hidden" name="oglocation" value="{{ card.location.locationNum }}">
                 <input type="hidden" name="card" value="{{ cardnum }}">
                 <button type="submit">
                     <div class="location">
@@ -27,9 +28,9 @@
                             </div>
                             {% endfor %}
                         </div>
-                        <p> Enemies Power: {{ location.alliesPower }}
+                        <p> Enemies Power: {{ location.enemiesPower }}
                                 {{location.name}}: {{location.description}}
-                                Allies Power: {{ location.enemiesPower }}
+                                Allies Power: {{ location.alliesPower }}
                         </p>
                         <!-- Sezione Alleati -->
                             <div class="allies">
@@ -44,6 +45,7 @@
                         </div>
                 </button>
             </form>
+        {% endif %}
         {% endfor %}
     </div>
     <div class="hand-container">

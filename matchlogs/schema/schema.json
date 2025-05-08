@@ -1,0 +1,52 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "GameMove",
+    "type": "object",
+    "required": ["game_id", "player", "card_played", "turn", "location"],
+    "properties": {
+      "game_id": {
+        "type": "string",
+        "description": "Identificativo univoco della partita"
+      },
+      "player": {
+        "type": "string",
+        "enum": ["player1", "player2"],
+        "description": "Indica se è player 1 o player 2"
+      },
+      "turn": {
+        "type": "integer",
+        "minimum": 1,
+        "description": "Turno in cui è stata fatta la mossa"
+      },
+      "card_played": {
+        "type": "string",
+        "description": "Nome della carta giocata"
+      },
+      "location": {
+        "type": "object",
+        "required": ["name", "position"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Nome della location"
+          },
+          "position": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2,
+            "description": "Posizione della location (0, 1 o 2)"
+          },
+          "ally_cards": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Carte alleate presenti nella location"
+          },
+          "enemy_cards": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Carte nemiche presenti nella location"
+          }
+        }
+      }
+    }
+  }

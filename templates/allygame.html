@@ -80,13 +80,13 @@
         <h2>{{ location.name }}</h2>
     
         <!-- Sezione Nemici -->
-        <h3 class = "dividertext">Enemies </h3>
+        <h3 class = "dividertext"> Enemies </h3>
         <div class="enemies">
             {% for enemy_card in location.enemies %}
             <div class="cardinlocation">
-                    <img src="{{ enemy_card.render() }}" alt="{{ enemy_card.name }}" class="card img">
-                    <p class="cardtext">{{ enemy_card.name }} - Power: {{ enemy_card.cur_power }}</p>
-                    <p class = "cardtext"> {{ enemy_card.description }}</p>
+                <img src="{{ enemy_card.render() }}" alt="{{ enemy_card.name }}" class="card img">
+                <p class= "cardtext">{{ enemy_card.name }} - Power: {{ enemy_card.cur_power }}</p>
+                <p class = "cardtext"> {{ enemy_card.description }}</p>
             </div>
             {% endfor %}
         </div>
@@ -96,27 +96,27 @@
             <p class = "totalpower"> Allies Power: {{ location.alliesPower }}</p>
         </div>
         <!-- Sezione Alleati -->
-            <h3 class = "dividertext">Allies</h3>
+        <h3 class = "dividertext">Allies</h3>
             <div class="allies">
             {% for ally_card in location.allies%}
-            {% if ally_card not in location.cards_to_move %}
+                {% if ally_card not in location.cards_to_move %}
                 <form action="/game/ally/movecard" method="post">
-                    <input type="hidden" name="locationNum" value="{{ location_num }}">
-                    <input type="hidden" name="card" value="{{ loop.index0 }}">
-                    <button type="submit">
-                        <div class="cardinlocation">
-                            <img src="{{ ally_card.render() }}" alt="{{ ally_card.name }}" class = "card img">
-                            <p class = "cardtext">{{ ally_card.name }} - Power: {{ ally_card.cur_power }}</p>
-                            <p class = "cardtext"> {{ ally_card.description }}</p>
-                        </div>
-                    </button>
+                <input type="hidden" name="locationNum" value="{{ location_num }}">
+                <input type="hidden" name="card" value="{{ loop.index0 }}">
+                <button type="submit">
+                    <div class="cardinlocation">
+                        <img src="{{ ally_card.render() }}" alt="{{ ally_card.name }}" class = "card img">
+                        <p class = "cardtext">{{ ally_card.name }} - Power: {{ ally_card.cur_power }}</p>
+                        <p class = "cardtext"> {{ ally_card.description }}</p>
+                    </div>
+                </button>
                 </form>
-            {% endif %}
+                {% endif %}
             {% endfor %}
             {% for ally_card in location.preRevealAllies %}
                 <div class="cardinlocation temp">
                     <img src="{{ ally_card.render() }}" alt="{{ ally_card.name }}" class = "card img">
-                    <p>{{ ally_card.name }} - Power: {{ ally_card.cur_power }}</p>
+                    <p class = "cardtext">{{ ally_card.name }} - Power: {{ ally_card.cur_power }}</p>
                     <p class = "cardtext"> {{ ally_card.description }}</p>
                 </div>
             {% endfor %}

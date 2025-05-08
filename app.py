@@ -94,10 +94,6 @@ def passTurn(allyorenemy):
     
     return jsonify(success=True)
 
-@app.route('/game/ally/movecard', methods=['POST'])
-def moveCardAlly():
-    return redirect(url_for('gameAlly'))
-
 @app.route('/check_turn/<allyorenemy>')
 def check_turn(allyorenemy):
     print(allyorenemy)
@@ -195,14 +191,22 @@ def chooseLocationForMoveCard(allyorenemy):
     cardNum = int(request.form["card"])
     if allyorenemy == "ally":
         card = location.allies[cardNum]
-        return render_template('moveCardsAllies.html', status=game.status, locations=game.locationList.values(), passStatus=game.passStatus, card = card)
+        return render_template('moveCardsAllies.html', status=game.status, locations=game.locationList.values(), passStatus=game.passStatus, card = card, cardnum = cardNum)
     elif allyorenemy == "enemy":
         card = location.enemies[cardNum]
-        return render_template('moveCardsEnemies.html', status=game.status, locations=game.locationList.values(), passStatus=game.passStatus, card = card)
+        return render_template('moveCardsEnemies.html', status=game.status, locations=game.locationList.values(), passStatus=game.passStatus, card = card, cardnum = cardNum)
 
 @app.route("/game/<allyorenemy>/movecard/<locationnum>", methods=['POST'])
 def confirmMove(allyorenemy, locationnum):
-    result = game.moveSelection(allyorenemy, locationnum)
+    originalLocation = int(request.form["oglocation"])
+    locationnum = int(locationnum) +1
+    if allyorenemy == "ally":
+        card = game.locationList["location" + str(originalLocation)].allies[int(request.form["card"])]
+    elif allyorenemy == "enemy":
+        card = game.locationList["location" + str(originalLocation)].enemies[int(request.form["card"])]
+    newlocation = game.locationList["location" + str(locationnum)]
+    result = game.moveSelection(card, newlocation)
+    print(result)
     if allyorenemy == "ally":
         return redirect(url_for('gameAlly'))
     elif allyorenemy == "enemy":

@@ -12,6 +12,7 @@
         {% if card.location != location %}
             <form action="/game/enemy/movecard/{{loop.index0}}" method="post">
                 <input type="hidden" name="index" value="{{ loop.index0 }}">
+                <input type="hidden" name="oglocation" value="{{ card.location.locationNum }}">
                 <input type="hidden" name="card" value="{{ cardnum }}">
                 <button type="submit">
                     <div class="location">
