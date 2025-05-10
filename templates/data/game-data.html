@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Game list</title>
+  <style>
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    th, td {
+        border: 1px solid black;
+        padding: 8px 12px;
+        text-align: center;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+</style>
+</head>
+<body>
+  <h1>Recorded games</h1>
+  <table style="border: 1px solid black;">
+    <tr>
+      <th>Game ID</th>
+      <th>Winner</th>
+      <th>Start Time</th>
+      <th>End Time</th>
+    </tr>
+    {% for game in games %}
+    <tr>
+      <td><a href="games/{{ game['game_id']}}">{{ game['game_id'] }}</a></td>
+      <td>{{ game.get('winner', 'N/A') }}</td>
+      <td>{{ game.get('start_time', 'N/A') }}</td>
+      <td>{{ game.get('end_time', 'N/A') }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</body>
+</html>

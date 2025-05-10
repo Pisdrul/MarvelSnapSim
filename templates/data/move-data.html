@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Move list</title>
+        <style>
+            table {
+                border-collapse: collapse;
+                width: 100%;
+                margin-top: 20px;
+            }
+    
+            th, td {
+                border: 1px solid black;
+                padding: 8px 12px;
+                text-align: center;
+            }
+    
+            th {
+                background-color: #f2f2f2;
+            }
+    
+            tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Game: {{ game.game_id }}</h1>
+        <p>Winner: {{ game.winner }}</p>
+        <p>Started at: {{ game.start_time }}</p>
+        <p>Ended at: {{ game.end_time }}</p>
+        <table style="border: 1px solid black;">
+            <thead>
+                <tr>
+                    <th>Turn</th>
+                    <th>Player</th>
+                    <th>Card Played</th>
+                    <th>Location</th>
+                    <th>Position</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for move in moves %}
+                <tr>
+                    <td>{{ move.turn }}</td>
+                    <td>{{ move.player }}</td>
+                    <td>{{ move.card_played }}</td>
+                    <td>{{ move.location.name }}</td>
+                    <td>{{ move.location.position }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </body>
+</html>

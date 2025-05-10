@@ -3,9 +3,21 @@ import random
 import cards
 import Locations
 from Locations.Location import *
-
+import uuid
+import json
+import jsonschema
+import os
+import time
+from datetime import datetime
 class GameState():
     def __init__(self):
+        self.game = {
+            "game_id": "",
+            "winner": "None",
+            "start_time": "",
+            "end_time": "",
+        }
+        self.game_id = ''
         self.exit = False
         self.turnAlly = False
         self.allymaxenergy, self.enemymaxenergy =1,1
@@ -101,6 +113,30 @@ class GameState():
         else:
             return self.resolveTie()
 
+    def registerMove(self,move):
+        print(move)
+        with open("matchlogs/schema/schema-move.json", "r") as schema_file:
+            schema = json.load(schema_file)
+        try:
+            jsonschema.validate(move, schema)
+        except jsonschema.exceptions.ValidationError as e:
+            print(e)
+        directory = "matchlogs"
+        os.makedirs(directory, exist_ok=True)
+        filename = os.path.join(directory, "move-data.json")
+        if os.path.exists(filename):
+            with open(filename, "r") as f:
+                data = json.load(f)
+        else:
+            data = []
+        
+        if any(existing["move_id"] == move["move_id"] for existing in data):
+            print("ignored")
+            return
+        data.append(move)
+        print(data)
+        with open(filename, "w") as f:
+            json.dump(data, f, indent=2)
 
     def addUnit(self,unit,ally, locNum):
         selectedLoc = "location" + str(locNum)
@@ -108,12 +144,50 @@ class GameState():
             was_added = self.locationList[selectedLoc].addToAllies(unit)
             if was_added:
                 unit.playCard(self.locationList[selectedLoc])
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!")
+                move = {
+                    "move_id": str(uuid.uuid4()),
+                    "game_id": self.game_id,
+                    "player": "player1",
+                    "turn": self.status["turncounter"],
+                    "card_played": unit.name,
+                    "location": {
+                        "name": self.locationList[selectedLoc].name,
+                        "position": self.locationList[selectedLoc].locationNum,
+                        "ally_cards": [
+                            card.name for card in self.locationList[selectedLoc].allies
+                        ],
+                        "enemy_cards": [
+                            card.name for card in self.locationList[selectedLoc].enemies
+                        ],
+                    }
+                }
+                self.registerMove(move)
             return was_added
         else:
             was_added = self.locationList[selectedLoc].addToEnemies(unit)
             unit.playCard(self.locationList[selectedLoc])
             if was_added:
                 unit.playCard(self.locationList[selectedLoc])
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!")
+                move = {
+                    "move_id": str(uuid.uuid4()),
+                    "game_id": self.game_id,
+                    "player": "player2",
+                    "turn": self.status["turncounter"],
+                    "card_played": unit.name,
+                    "location": {
+                        "name": self.locationList[selectedLoc].name,
+                        "position": self.locationList[selectedLoc].locationNum,
+                        "ally_cards": [
+                            card.name for card in self.locationList[selectedLoc].enemies
+                            ],
+                        "enemy_cards":[
+                            card.name for card in self.locationList[selectedLoc].allies
+                        ],
+                    }
+                }
+                self.registerMove(move)
             return was_added
     
     def undoActions(self, turnAlly, hand):
@@ -143,6 +217,13 @@ class GameState():
                 i+=1
 
     def gameStart(self): #inserisci carte nel deck e pesca le carte
+        self.game_id = str(uuid.uuid4())
+        self.game = {
+            "game_id": self.game_id,
+            "winner": "None",
+            "start_time": datetime.utcfromtimestamp(time.time()).isoformat() + "Z",
+            "end_time": '',
+        }
         self.status["allydeck"], self.status["enemydeck"] = [cards.Swordmaster(True, self.status),cards.Heimdall(True,self.status)],[cards.Scorpion(False, self.status),cards.Onslaught(False, self.status)]
         self.status["allydeck"].append(cards.Apocalypse(True,self.status))
         self.status["enemydeck"].append(cards.Infinaut(False,self.status))
@@ -295,15 +376,55 @@ class GameState():
         self.boardStatus()
         winner = self.checkWinner()
         self.game_end = True
-        match winner:
-            case "Ally":
-                print("Allies have won ", self.status["cubes"]*2)
-                print("Enemies have lost ", self.status["cubes"]*2)
-            case "Enemy":
-                print("Allies have lost ", self.status["cubes"]*2)
-                print("Enemies have won ", self.status["cubes"]*2)
-            case "Tie":
-                print("Tie!")
+        if self.status['turncounter'] > self.status['maxturns']:
+            match winner:
+                case "Ally":
+                    print("Allies have won ", self.status["cubes"]*2)
+                    print("Enemies have lost ", self.status["cubes"]*2)
+                    self.game['winner'] = 'player1'
+                case "Enemy":
+                    print("Allies have lost ", self.status["cubes"]*2)
+                    print("Enemies have won ", self.status["cubes"]*2)
+                    self.game['winner'] = 'player2'
+                case "Tie":
+                    print("Tie!")
+                    self.game['winner'] = 'Tie'
+        else: 
+            match self.passStatus['winner']:
+                case "Ally":
+                    self.game['winner'] = 'player1'
+                case "Enemy":
+                    self.game['winner'] = 'player2'
+                case "Tie":
+                    self.game['winner'] = 'Tie'
+        self.game['end_time'] = datetime.utcfromtimestamp(time.time()).isoformat() + "Z"
+        self.registerGame(self.game)
+    
+    def registerGame(self,game):
+        print("////////////////////")
+        with open("matchlogs/schema/schema-game.json", "r") as schema_file:
+            schema = json.load(schema_file)
+        try:
+            jsonschema.validate(game, schema)
+        except jsonschema.exceptions.ValidationError as e:
+            print(e)
+        directory = "matchlogs"
+        os.makedirs(directory, exist_ok=True)
+        filename = os.path.join(directory, "game-data.json")
+        if os.path.exists(filename):
+            with open(filename, "r") as f:
+                data = json.load(f)
+        else:
+            data = []
+        
+        if any(existing["game_id"] == game["game_id"] for existing in data):
+            print("ignored")
+            return
+        data.append(game)
+
+        with open(filename, "w") as f:
+            json.dump(data, f, indent=2)
+
 
     def gaming(self):
         while self.status["turncounter"]<=self.status["maxturns"]:

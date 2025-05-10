@@ -33,7 +33,7 @@ class Card:
         self.cur_cost = self.cost
         self.cost_ongoing = 0
     def __repr__(self):
-        return f"{self.name}:{self.cur_power}"
+        return self.name
     
     def onReveal(self,locationlist):
         print("Revealed ",self.name)

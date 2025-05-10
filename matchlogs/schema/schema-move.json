@@ -4,23 +4,27 @@
     "type": "object",
     "required": ["game_id", "player", "card_played", "turn", "location"],
     "properties": {
+      "move_id": {
+        "type": "string",
+        "description": "Unique move identifier"
+      },
       "game_id": {
         "type": "string",
-        "description": "Identificativo univoco della partita"
+        "description": "Unique game identifier"
       },
       "player": {
         "type": "string",
         "enum": ["player1", "player2"],
-        "description": "Indica se è player 1 o player 2"
+        "description": "Which player made the move"
       },
       "turn": {
         "type": "integer",
         "minimum": 1,
-        "description": "Turno in cui è stata fatta la mossa"
+        "description": "Turn in which the move was made"
       },
       "card_played": {
         "type": "string",
-        "description": "Nome della carta giocata"
+        "description": "Name of the played card"
       },
       "location": {
         "type": "object",
@@ -28,23 +32,23 @@
         "properties": {
           "name": {
             "type": "string",
-            "description": "Nome della location"
+            "description": "Location name"
           },
           "position": {
             "type": "integer",
-            "minimum": 0,
-            "maximum": 2,
-            "description": "Posizione della location (0, 1 o 2)"
+            "minimum": 1,
+            "maximum": 3,
+            "description": "Position of the location (1,2,3)"
           },
           "ally_cards": {
             "type": "array",
             "items": { "type": "string" },
-            "description": "Carte alleate presenti nella location"
+            "description": "Other ally cards present in the location"
           },
           "enemy_cards": {
             "type": "array",
             "items": { "type": "string" },
-            "description": "Carte nemiche presenti nella location"
+            "description": "Enemy cards present in the location"
           }
         }
       }

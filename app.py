@@ -1,10 +1,17 @@
 from flask import *
 from gameManager import GameState
-
+import json, csv, os, io
 game = GameState()
 game.gameStart()
 
 app = Flask(__name__)
+MOVE_DATA_PATH = "matchlogs/move-data.json"
+GAME_DATA_PATH = "matchlogs/game-data.json"
+
+def load_json(filename):
+    with open(f"matchlogs/{filename}", "r") as file:
+        return json.load(file)
+
 def normalize_name(name):
     return name.replace(" ", "").capitalize()
 @app.route('/')
@@ -115,11 +122,12 @@ def check_turn(allyorenemy):
             elif game.passStatus['retreatally']:
                 game.passStatus['winner'] = "Enemy"
                 game.status['cubes'] /= 2
+                game.endGame()
             elif game.passStatus['retreatenemy']:
                 game.passStatus['winner'] = "Ally"
                 game.status['cubes'] /= 2
+                game.endGame()
             elif game.status["turncounter"] > game.status["maxturns"]:
-                print("444444444444444444")
                 game.endGame()
                 game.passStatus['winner'] = game.checkWinner()
             print(game.passStatus)
@@ -133,7 +141,7 @@ def endGame(allyorenemy):
         return render_template('endgameenemy.html', status=game.status, locations=game.locationList.values(), passStatus=game.passStatus)
 @app.route("/game/startofturn", methods=['GET'])
 def startOfTurn():
-    print( "start of turn")	
+    print("start of turn")	
     game.startOfTurn()
     game.status['allypass'] = False
     game.status['enemypass'] = False
@@ -211,6 +219,60 @@ def confirmMove(allyorenemy, locationnum):
         return redirect(url_for('gameAlly'))
     elif allyorenemy == "enemy":
         return redirect(url_for('gameEnemy'))
+
+@app.route("/data/games", methods=['GET'])
+def getGamesData():
+    try:
+        games = load_json("game-data.json")
+        return render_template("data/game-data.html", games=games)
+    except Exception as e:
+        print(e)
+        return render_template("data/game-data.html", games=[])
+
+@app.route("/data/games/<game_id>", methods=['GET'])
+def getGameById(game_id):
+    try:
+        # Carica le mosse
+        with open(MOVE_DATA_PATH, "r") as f:
+            moves = json.load(f)
+        game_moves = [m for m in moves if m["game_id"] == game_id]
+        with open(GAME_DATA_PATH, "r") as f:
+            games = json.load(f)
+        game = next((g for g in games if g["game_id"] == game_id), None)
+
+        if not game_moves:
+            abort(404)
+
+        return render_template("data/move-data.html", moves=game_moves, game=game)
+    except Exception as e:
+        print(f"Errore nel caricamento: {e}")
+        abort(500)
+
+@app.route("/data/games/export", methods=['GET'])
+def export_games_csv():
+    json_path = os.path.join("matchlogs", "game-data.json")
+    
+    try:
+        with open(json_path, "r") as f:
+            data = json.load(f)
+
+        if not data:
+            return "No data available", 404
+
+        output = io.StringIO()
+        writer = csv.DictWriter(output, fieldnames=data[0].keys())
+        writer.writeheader()
+        for row in data:
+            writer.writerow(row)
+
+        response = Response(output.getvalue(), mimetype='text/csv')
+        response.headers.set("Content-Disposition", "attachment", filename="game-data.csv")
+        return response
+
+    except FileNotFoundError:
+        return "File not found", 404
+    
+    
 if __name__ == "__main__":
     app.run(debug=True)
 

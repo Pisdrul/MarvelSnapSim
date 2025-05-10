@@ -1,0 +1,14 @@
+{
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    "name": "Marvel snap simulator game stats",
+    "description": "Dataset containing game stats",
+    "creator": {
+      "@type": "Person",
+      "name": "Francesco Trevisan"
+    },
+    "license": "https://creativecommons.org/licenses/by/4.0/",
+    "dateCreated": "2025-05-09",
+    "encodingFormat": "application/json",
+    "url": "https://snapsim.it/data/move-data.json"
+  }
