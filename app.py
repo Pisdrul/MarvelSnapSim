@@ -5,7 +5,7 @@ game = GameState()
 game.gameStart()
 
 app = Flask(__name__)
-MOVE_DATA_PATH = "matchlogs/move-data.json"
+MOVE_DATA_PATH = "matchlogs/moves-data.json"
 GAME_DATA_PATH = "matchlogs/game-data.json"
 
 def load_json(filename):
@@ -228,6 +228,15 @@ def getGamesData():
     except Exception as e:
         print(e)
         return render_template("data/game-data.html", games=[])
+    
+@app.route("/data/moves", methods=['GET'])
+def getMovesData():
+    try:
+        moves = load_json("moves-data.json")
+        return render_template("data/allmoves.html", moves=moves)
+    except Exception as e:
+        print(e)
+        return render_template("data/allmoves.html", moves=[])
 
 @app.route("/data/games/<game_id>", methods=['GET'])
 def getGameById(game_id):
@@ -271,7 +280,30 @@ def export_games_csv():
 
     except FileNotFoundError:
         return "File not found", 404
-    
+
+@app.route("/metadata/moves")
+def get_moves_metadata():
+    with open("matchlogs/moves-metadata.json", "r", encoding="utf-8") as f:
+        metadata = json.load(f)
+    return jsonify(metadata)
+
+@app.route("/metadata/view/moves")
+def view_moves_metadata():
+    with open("matchlogs/moves-metadata.json", "r", encoding="utf-8") as f:
+        metadata = json.load(f)
+    return render_template("data/metadata.html", 
+                           title=metadata["dc:title"], 
+                           description=metadata["dc:description"],
+                           creator=metadata["dc:creator"],
+                           rights=metadata["dc:rights"],
+                           identifier=metadata["dc:identifier"],
+                           raw_metadata=metadata)
+
+@app.route("/metadata/games")
+def get_games_metadata():
+    with open("matchlogs/game-metadata.json", "r", encoding="utf-8") as f:
+        metadata = json.load(f)
+    return jsonify(metadata)
     
 if __name__ == "__main__":
     app.run(debug=True)
