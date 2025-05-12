@@ -220,6 +220,29 @@ def confirmMove(allyorenemy, locationnum):
     elif allyorenemy == "enemy":
         return redirect(url_for('gameEnemy'))
 
+@app.route("/data/<cardname>", methods=['GET'])
+def getCardData(cardname):
+    try:
+        with open(MOVE_DATA_PATH, 'r') as file:
+            all_moves = json.load(file)
+        with open(GAME_DATA_PATH, 'r') as f_games:
+            all_games = json.load(f_games)
+    except Exception as e:
+        return jsonify({"error": f"Errore nel caricamento dati: {str(e)}"}), 500
+    
+    winners_by_game = {game["game_id"]: game.get("winner") for game in all_games}
+    filtered_moves = []
+    for move in all_moves:
+        print(move.get("card_played", "").strip().lower())
+        if move.get("card_played", "").strip().lower() == cardname.strip().lower():
+            game_id = move.get("game_id")
+            winner = winners_by_game.get(game_id)
+            move_with_winner = move.copy()
+            move_with_winner["winner"] = winner
+            filtered_moves.append(move_with_winner)
+    print(filtered_moves)
+    return render_template("data/card-data.html", moves=filtered_moves, cardname = cardname)
+
 @app.route("/data/games", methods=['GET'])
 def getGamesData():
     try:
@@ -247,7 +270,29 @@ def getGameById(game_id):
     except Exception as e:
         print(f"Errore nel caricamento: {e}")
         abort(500)
+@app.route("/data/moves/export", methods=['GET'])
+def export_moves_csv():
+    json_path = os.path.join("matchlogs", "move-data.json")
+    
+    try:
+        with open(json_path, "r") as f:
+            data = json.load(f)
 
+        if not data:
+            return "No data available", 404
+
+        output = io.StringIO()
+        writer = csv.DictWriter(output, fieldnames=data[0].keys())
+        writer.writeheader()
+        for row in data:
+            writer.writerow(row)
+
+        response = Response(output.getvalue(), mimetype='text/csv')
+        response.headers.set("Content-Disposition", "attachment", filename="move-data.csv")
+        return response
+
+    except FileNotFoundError:
+        return "File not found", 404
 @app.route("/data/games/export", methods=['GET'])
 def export_games_csv():
     json_path = os.path.join("matchlogs", "game-data.json")
@@ -271,7 +316,8 @@ def export_games_csv():
 
     except FileNotFoundError:
         return "File not found", 404
-    
+
+
     
 if __name__ == "__main__":
     app.run(debug=True)
