@@ -5,7 +5,7 @@ game = GameState()
 game.gameStart()
 
 app = Flask(__name__)
-MOVE_DATA_PATH = "matchlogs/moves-data.json"
+MOVE_DATA_PATH = "matchlogs/move-data.json"
 GAME_DATA_PATH = "matchlogs/game-data.json"
 
 def load_json(filename):
@@ -220,6 +220,29 @@ def confirmMove(allyorenemy, locationnum):
     elif allyorenemy == "enemy":
         return redirect(url_for('gameEnemy'))
 
+@app.route("/data/<cardname>", methods=['GET'])
+def getCardData(cardname):
+    try:
+        with open(MOVE_DATA_PATH, 'r') as file:
+            all_moves = json.load(file)
+        with open(GAME_DATA_PATH, 'r') as f_games:
+            all_games = json.load(f_games)
+    except Exception as e:
+        return jsonify({"error": f"Errore nel caricamento dati: {str(e)}"}), 500
+    
+    winners_by_game = {game["game_id"]: game.get("winner") for game in all_games}
+    filtered_moves = []
+    for move in all_moves:
+        print(move.get("card_played", "").strip().lower())
+        if move.get("card_played", "").strip().lower() == cardname.strip().lower():
+            game_id = move.get("game_id")
+            winner = winners_by_game.get(game_id)
+            move_with_winner = move.copy()
+            move_with_winner["winner"] = winner
+            filtered_moves.append(move_with_winner)
+    print(filtered_moves)
+    return render_template("data/card-data.html", moves=filtered_moves, cardname = cardname)
+
 @app.route("/data/games", methods=['GET'])
 def getGamesData():
     try:
@@ -228,15 +251,6 @@ def getGamesData():
     except Exception as e:
         print(e)
         return render_template("data/game-data.html", games=[])
-    
-@app.route("/data/moves", methods=['GET'])
-def getMovesData():
-    try:
-        moves = load_json("moves-data.json")
-        return render_template("data/allmoves.html", moves=moves)
-    except Exception as e:
-        print(e)
-        return render_template("data/allmoves.html", moves=[])
 
 @app.route("/data/games/<game_id>", methods=['GET'])
 def getGameById(game_id):
@@ -256,7 +270,29 @@ def getGameById(game_id):
     except Exception as e:
         print(f"Errore nel caricamento: {e}")
         abort(500)
+@app.route("/data/moves/export", methods=['GET'])
+def export_moves_csv():
+    json_path = os.path.join("matchlogs", "move-data.json")
+    
+    try:
+        with open(json_path, "r") as f:
+            data = json.load(f)
 
+        if not data:
+            return "No data available", 404
+
+        output = io.StringIO()
+        writer = csv.DictWriter(output, fieldnames=data[0].keys())
+        writer.writeheader()
+        for row in data:
+            writer.writerow(row)
+
+        response = Response(output.getvalue(), mimetype='text/csv')
+        response.headers.set("Content-Disposition", "attachment", filename="move-data.csv")
+        return response
+
+    except FileNotFoundError:
+        return "File not found", 404
 @app.route("/data/games/export", methods=['GET'])
 def export_games_csv():
     json_path = os.path.join("matchlogs", "game-data.json")
@@ -281,29 +317,7 @@ def export_games_csv():
     except FileNotFoundError:
         return "File not found", 404
 
-@app.route("/metadata/moves")
-def get_moves_metadata():
-    with open("matchlogs/moves-metadata.json", "r", encoding="utf-8") as f:
-        metadata = json.load(f)
-    return jsonify(metadata)
 
-@app.route("/metadata/view/moves")
-def view_moves_metadata():
-    with open("matchlogs/moves-metadata.json", "r", encoding="utf-8") as f:
-        metadata = json.load(f)
-    return render_template("data/metadata.html", 
-                           title=metadata["dc:title"], 
-                           description=metadata["dc:description"],
-                           creator=metadata["dc:creator"],
-                           rights=metadata["dc:rights"],
-                           identifier=metadata["dc:identifier"],
-                           raw_metadata=metadata)
-
-@app.route("/metadata/games")
-def get_games_metadata():
-    with open("matchlogs/game-metadata.json", "r", encoding="utf-8") as f:
-        metadata = json.load(f)
-    return jsonify(metadata)
     
 if __name__ == "__main__":
     app.run(debug=True)

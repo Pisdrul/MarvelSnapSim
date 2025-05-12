@@ -26,10 +26,7 @@
         </style>
     </head>
     <body>
-        <h1>Game: {{ game.game_id }}</h1>
-        <p>Winner: {{ game.winner }}</p>
-        <p>Started at: {{ game.start_time }}</p>
-        <p>Ended at: {{ game.end_time }}</p>
+        <h1>Moves made with {{ cardname }}</h1>
         <table style="border: 1px solid black;">
             <thead>
                 <tr>
@@ -38,6 +35,10 @@
                     <th>Card Played</th>
                     <th>Location</th>
                     <th>Position</th>
+                    <th>Ally Cards</th>
+                    <th>Enemy Cards</th>
+                    <th>Game</th>
+                    <th>Winner</th>
                 </tr>
             </thead>
             <tbody>
@@ -45,9 +46,13 @@
                 <tr>
                     <td>{{ move.turn }}</td>
                     <td>{{ move.player }}</td>
-                    <td> <a href="/data/{{ move.card_played }}">{{ move.card_played }}</a></td>
+                    <td>{{ move.card_played }}</td>
                     <td>{{ move.location.name }}</td>
                     <td>{{ move.location.position }}</td>
+                    <td>{{ move.location.ally_cards }}</td>
+                    <td>{{ move.location.enemy_cards }}</td>
+                    <td ><a href="games/{{ move.game_id}}">{{ move.game_id}}</a></td>
+                    <td> {{ move.winner}}</td>
                 </tr>
                 {% endfor %}
             </tbody>
