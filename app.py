@@ -1,6 +1,7 @@
 from flask import *
 from gameManager import GameState
 import json, csv, os, io
+import traceback
 game = GameState()
 game.gameStart()
 
@@ -251,6 +252,18 @@ def getGamesData():
     except Exception as e:
         print(e)
         return render_template("data/game-data.html", games=[])
+<<<<<<< Updated upstream
+=======
+    
+@app.route("/data/moves", methods=['GET'])
+def getMovesData():
+    try:
+        moves = load_json("move-data.json")
+        return render_template("data/allmoves.html", moves=moves)
+    except Exception as e:
+        print(e)
+        return render_template("data/allmoves.html", moves=[])
+>>>>>>> Stashed changes
 
 @app.route("/data/games/<game_id>", methods=['GET'])
 def getGameById(game_id):
@@ -262,13 +275,12 @@ def getGameById(game_id):
         with open(GAME_DATA_PATH, "r") as f:
             games = json.load(f)
         game = next((g for g in games if g["game_id"] == game_id), None)
-
         if not game_moves:
             abort(404)
-
-        return render_template("data/move-data.html", moves=game_moves, game=game)
+        return render_template("data/moves-by-game.html", moves=game_moves, game=game)
     except Exception as e:
         print(f"Errore nel caricamento: {e}")
+        traceback.print_exc()
         abort(500)
 @app.route("/data/moves/export", methods=['GET'])
 def export_moves_csv():

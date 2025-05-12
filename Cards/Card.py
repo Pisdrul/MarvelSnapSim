@@ -91,7 +91,10 @@ class Card:
         pass
 
     def discard(self):
-        self.status["allyhand"].remove(self)
+        if self.ally:
+            self.status["allyhand"].remove(self)
+        else:
+            self.status["enemyhand"].remove(self)
         print("Discarded ", self.name)
         if self.ally: self.status["alliesdiscarded"].append(self)
         else: self.status["enemiesdiscarded"].append(self)

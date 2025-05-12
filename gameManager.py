@@ -3,12 +3,34 @@ import random
 import cards
 import Locations
 from Locations.Location import *
+from nanoid import generate
 import uuid
 import json
 import jsonschema
 import os
 import time
 from datetime import datetime
+
+import cards.Americachavez
+import cards.Angela
+import cards.Antman
+import cards.Apocalypse
+import cards.Armor
+import cards.Bishop
+import cards.Blade
+import cards.Captainamerica
+import cards.Iceman
+import cards.Ladysif
+import cards.Mrfantastic
+import cards.Namor
+import cards.Nightcrawler
+import cards.Onslaught
+import cards.Punisher
+import cards.Spectrum
+import cards.Sunspot
+import cards.Swarm
+import cards.Swordmaster
+import cards.Wolverine
 class GameState():
     def __init__(self):
         self.game = {
@@ -217,25 +239,21 @@ class GameState():
                 i+=1
 
     def gameStart(self): #inserisci carte nel deck e pesca le carte
-        self.game_id = str(uuid.uuid4())
+        self.game_id = str(generate(size=10))
         self.game = {
             "game_id": self.game_id,
             "winner": "None",
             "start_time": datetime.utcfromtimestamp(time.time()).isoformat() + "Z",
             "end_time": '',
         }
-        self.status["allydeck"], self.status["enemydeck"] = [cards.Swordmaster(True, self.status),cards.Heimdall(True,self.status)],[cards.Scorpion(False, self.status),cards.Onslaught(False, self.status)]
-        self.status["allydeck"].append(cards.Apocalypse(True,self.status))
-        self.status["enemydeck"].append(cards.Infinaut(False,self.status))
-        for i in range (1,5,1):
-            curCard = cards.Swarm(True, self.status)
-            self.status["allydeck"].append(curCard)
-            curCard = cards.Agent13(False, self.status)
-            self.status["enemydeck"].append(curCard)
-            curCard = cards.Blade(True, self.status)
-            self.status["allydeck"].append(curCard)
-            curCard = cards.Captainamerica(False, self.status)
-            self.status["enemydeck"].append(curCard)
+        self.status["allydeck"] = [cards.Spectrum(True,self.status), cards.Antman(True, self.status), cards.Mrfantastic(True,self.status),
+                                   cards.Captainamerica(True, self.status), cards.Ironman(True, self.status), cards.Klaw(True, self.status),
+                                   cards.Armor(True, self.status), cards.Lizard(True, self.status), cards.Cosmo(True, self.status),
+                                   cards.Namor(True, self.status), cards.Punisher(True,self.status), cards.Onslaught(True, self.status)]
+        self.status["enemydeck"] = [cards.Sunspot(False,self.status), cards.Americachavez(False, self.status), cards.Iceman(False,self.status),
+                                   cards.Nightcrawler(False, self.status), cards.Blade(False, self.status), cards.Angela(False, self.status),
+                                   cards.Swarm(False, self.status), cards.Wolverine(False, self.status), cards.Bishop(False, self.status),
+                                   cards.Ladysif(False, self.status), cards.Swordmaster(False,self.status), cards.Apocalypse(False, self.status)]
         random.shuffle(self.status["allydeck"])
         random.shuffle(self.status["enemydeck"])
         self.draw(self.status["allyhand"],self.status["allydeck"],3)

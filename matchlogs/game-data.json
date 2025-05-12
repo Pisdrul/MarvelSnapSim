@@ -1,20 +1,14 @@
 [
   {
-    "game_id": "dde1a236-5939-46d5-97a5-1b5fe0006eb6",
+    "game_id": "qW4pFw17AG",
+    "winner": "player2",
+    "start_time": "2025-05-12T09:56:25.577893Z",
+    "end_time": "2025-05-12T09:58:50.197646Z"
+  },
+  {
+    "game_id": "WooO4odINz",
     "winner": "player1",
-    "start_time": "2025-05-09T14:23:38.417068Z",
-    "end_time": "2025-05-09T14:24:12.290713Z"
-  },
-  {
-    "game_id": "d7fd6952-9fd0-4938-a343-69722b6be33c",
-    "winner": "player2",
-    "start_time": "2025-05-09T16:33:17.684794Z",
-    "end_time": "2025-05-09T16:34:46.624907Z"
-  },
-  {
-    "game_id": "15b55d23-d1d0-44d8-8282-83022b703281",
-    "winner": "player2",
-    "start_time": "2025-05-09T18:20:19.407316Z",
-    "end_time": "2025-05-09T18:22:23.656380Z"
+    "start_time": "2025-05-12T10:25:29.939526Z",
+    "end_time": "2025-05-12T10:27:24.160269Z"
   }
 ]

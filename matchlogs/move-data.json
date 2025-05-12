@@ -1,0 +1,652 @@
+[
+  {
+    "move_id": "56937a87-a4ea-4589-a0e3-af49f3fe3f24",
+    "game_id": "qW4pFw17AG",
+    "player": "player1",
+    "turn": 1,
+    "card_played": "Blade",
+    "location": {
+      "name": "Revealing location in 1 turns",
+      "position": 2,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "fb78a469-e23c-4a43-bb09-bd9b0bce3a76",
+    "game_id": "qW4pFw17AG",
+    "player": "player2",
+    "turn": 1,
+    "card_played": "Agent 13",
+    "location": {
+      "name": "Revealing location in 1 turns",
+      "position": 2,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "bfd4ccd9-6ca2-4765-ae78-3b73046175e1",
+    "game_id": "qW4pFw17AG",
+    "player": "player2",
+    "turn": 2,
+    "card_played": "Agent 13",
+    "location": {
+      "name": "Fisk Tower",
+      "position": 2,
+      "ally_cards": [
+        "Agent 13"
+      ],
+      "enemy_cards": [
+        "Blade"
+      ]
+    }
+  },
+  {
+    "move_id": "fd6e35d6-152e-44cc-a000-b8ec92bec828",
+    "game_id": "qW4pFw17AG",
+    "player": "player1",
+    "turn": 2,
+    "card_played": "Blade",
+    "location": {
+      "name": "Revealing location in 1 turns",
+      "position": 3,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "cf53b276-ea4e-4e47-b667-4e43b6106086",
+    "game_id": "qW4pFw17AG",
+    "player": "player2",
+    "turn": 3,
+    "card_played": "Punisher",
+    "location": {
+      "name": "Limbo",
+      "position": 3,
+      "ally_cards": [],
+      "enemy_cards": [
+        "Blade"
+      ]
+    }
+  },
+  {
+    "move_id": "c35ba1fb-b28e-4a52-b1b9-e5077f40f6a2",
+    "game_id": "qW4pFw17AG",
+    "player": "player1",
+    "turn": 3,
+    "card_played": "Swarm",
+    "location": {
+      "name": "Limbo",
+      "position": 3,
+      "ally_cards": [
+        "Blade"
+      ],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "b63d6467-8a19-468e-aa1e-0b483be25980",
+    "game_id": "qW4pFw17AG",
+    "player": "player1",
+    "turn": 3,
+    "card_played": "Swarm",
+    "location": {
+      "name": "Limbo",
+      "position": 3,
+      "ally_cards": [
+        "Blade"
+      ],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "b4dc94df-3007-45fd-a8a9-375877622e6a",
+    "game_id": "qW4pFw17AG",
+    "player": "player2",
+    "turn": 4,
+    "card_played": "Captain America",
+    "location": {
+      "name": "Limbo",
+      "position": 3,
+      "ally_cards": [
+        "Punisher"
+      ],
+      "enemy_cards": [
+        "Blade",
+        "Swarm",
+        "Swarm"
+      ]
+    }
+  },
+  {
+    "move_id": "fa2d1488-33ec-4e6d-a649-a6f5f8d668e5",
+    "game_id": "qW4pFw17AG",
+    "player": "player2",
+    "turn": 4,
+    "card_played": "Agent 13",
+    "location": {
+      "name": "Fisk Tower",
+      "position": 2,
+      "ally_cards": [
+        "Agent 13",
+        "Agent 13"
+      ],
+      "enemy_cards": [
+        "Blade"
+      ]
+    }
+  },
+  {
+    "move_id": "b3346530-3355-429e-9a5f-d896c263caf7",
+    "game_id": "qW4pFw17AG",
+    "player": "player1",
+    "turn": 4,
+    "card_played": "Sword Master",
+    "location": {
+      "name": "Fisk Tower",
+      "position": 2,
+      "ally_cards": [
+        "Blade"
+      ],
+      "enemy_cards": [
+        "Agent 13",
+        "Agent 13"
+      ]
+    }
+  },
+  {
+    "move_id": "d7cfd11b-0ee5-413f-9fff-e505becb7256",
+    "game_id": "qW4pFw17AG",
+    "player": "player1",
+    "turn": 5,
+    "card_played": "Swarm",
+    "location": {
+      "name": "Fisk Tower",
+      "position": 2,
+      "ally_cards": [
+        "Blade",
+        "Sword Master"
+      ],
+      "enemy_cards": [
+        "Agent 13",
+        "Agent 13",
+        "Agent 13"
+      ]
+    }
+  },
+  {
+    "move_id": "346b0551-3858-481a-9dd0-0abb21c7449c",
+    "game_id": "qW4pFw17AG",
+    "player": "player1",
+    "turn": 6,
+    "card_played": "Apocalypse",
+    "location": {
+      "name": "Plunder Castle",
+      "position": 1,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "91c5a06f-44cc-48ba-b86c-6e32b2c19199",
+    "game_id": "qW4pFw17AG",
+    "player": "player2",
+    "turn": 6,
+    "card_played": "The Infinaut",
+    "location": {
+      "name": "Plunder Castle",
+      "position": 1,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "8452d274-e23f-41a2-8742-d8a5df004c54",
+    "game_id": "qW4pFw17AG",
+    "player": "player2",
+    "turn": 7,
+    "card_played": "Onslaught",
+    "location": {
+      "name": "Limbo",
+      "position": 3,
+      "ally_cards": [
+        "Punisher",
+        "Captain America"
+      ],
+      "enemy_cards": [
+        "Blade",
+        "Swarm",
+        "Swarm"
+      ]
+    }
+  },
+  {
+    "move_id": "decfde10-a0cd-423f-98a1-508e395883c8",
+    "game_id": "qW4pFw17AG",
+    "player": "player2",
+    "turn": 7,
+    "card_played": "Agent 13",
+    "location": {
+      "name": "Fisk Tower",
+      "position": 2,
+      "ally_cards": [
+        "Agent 13",
+        "Agent 13",
+        "Agent 13"
+      ],
+      "enemy_cards": [
+        "Blade",
+        "Sword Master",
+        "Swarm"
+      ]
+    }
+  },
+  {
+    "move_id": "2c0b2a6b-1442-47ed-b258-3ad36759b568",
+    "game_id": "qW4pFw17AG",
+    "player": "player1",
+    "turn": 7,
+    "card_played": "Blade",
+    "location": {
+      "name": "Limbo",
+      "position": 3,
+      "ally_cards": [
+        "Blade",
+        "Swarm",
+        "Swarm"
+      ],
+      "enemy_cards": [
+        "Punisher",
+        "Captain America"
+      ]
+    }
+  },
+  {
+    "move_id": "0b1a494b-0354-418c-a4a0-63083420263d",
+    "game_id": "qW4pFw17AG",
+    "player": "player1",
+    "turn": 7,
+    "card_played": "Swarm",
+    "location": {
+      "name": "Fisk Tower",
+      "position": 2,
+      "ally_cards": [
+        "Blade",
+        "Sword Master",
+        "Swarm"
+      ],
+      "enemy_cards": [
+        "Agent 13",
+        "Agent 13",
+        "Agent 13"
+      ]
+    }
+  },
+  {
+    "move_id": "5052e5ac-06d4-449c-951a-d52a3f7ecb28",
+    "game_id": "ST1n4B6FVh",
+    "player": "player1",
+    "turn": 1,
+    "card_played": "Antman",
+    "location": {
+      "name": "Revealing location in 1 turns",
+      "position": 2,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "11ca7fd1-d21c-4b0f-9ef0-08fab15bea00",
+    "game_id": "ST1n4B6FVh",
+    "player": "player2",
+    "turn": 1,
+    "card_played": "Nightcrawler",
+    "location": {
+      "name": "Revealing location in 1 turns",
+      "position": 2,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "2b1221dd-a803-4e17-a110-1e506eb06aed",
+    "game_id": "ST1n4B6FVh",
+    "player": "player2",
+    "turn": 2,
+    "card_played": "Angela",
+    "location": {
+      "name": "Revealing location in 1 turns",
+      "position": 3,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "17a7ab5a-1872-403b-8f13-56252e51fee8",
+    "game_id": "ST1n4B6FVh",
+    "player": "player1",
+    "turn": 2,
+    "card_played": "Lizard",
+    "location": {
+      "name": "Revealing location in 1 turns",
+      "position": 3,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "773bb249-1f0e-4019-8d85-229c1d45048a",
+    "game_id": "ST1n4B6FVh",
+    "player": "player1",
+    "turn": 3,
+    "card_played": "Captain America",
+    "location": {
+      "name": "Kamar-Taj",
+      "position": 2,
+      "ally_cards": [
+        "Antman"
+      ],
+      "enemy_cards": [
+        "Nightcrawler"
+      ]
+    }
+  },
+  {
+    "move_id": "c480f818-59df-4b97-a345-0a72d165072d",
+    "game_id": "ST1n4B6FVh",
+    "player": "player2",
+    "turn": 3,
+    "card_played": "Bishop",
+    "location": {
+      "name": "Elysium",
+      "position": 3,
+      "ally_cards": [
+        "Angela"
+      ],
+      "enemy_cards": [
+        "Lizard"
+      ]
+    }
+  },
+  {
+    "move_id": "a333c37e-18b6-4689-aa53-de49e31fa363",
+    "game_id": "ST1n4B6FVh",
+    "player": "player2",
+    "turn": 4,
+    "card_played": "America Chavez",
+    "location": {
+      "name": "Kamar-Taj",
+      "position": 2,
+      "ally_cards": [
+        "Nightcrawler"
+      ],
+      "enemy_cards": [
+        "Antman",
+        "Captain America"
+      ]
+    }
+  },
+  {
+    "move_id": "38d97f6b-db67-4fb6-891b-a6d21fd10f00",
+    "game_id": "ST1n4B6FVh",
+    "player": "player2",
+    "turn": 4,
+    "card_played": "Blade",
+    "location": {
+      "name": "Kamar-Taj",
+      "position": 2,
+      "ally_cards": [
+        "Nightcrawler"
+      ],
+      "enemy_cards": [
+        "Antman",
+        "Captain America"
+      ]
+    }
+  },
+  {
+    "move_id": "78211490-19bb-455b-b706-eb96972b60c2",
+    "game_id": "ST1n4B6FVh",
+    "player": "player1",
+    "turn": 4,
+    "card_played": "Mr Fantastic",
+    "location": {
+      "name": "Kamar-Taj",
+      "position": 2,
+      "ally_cards": [
+        "Antman",
+        "Captain America"
+      ],
+      "enemy_cards": [
+        "Nightcrawler"
+      ]
+    }
+  },
+  {
+    "move_id": "598f1bf2-96c6-44f8-931c-5070ab6026d5",
+    "game_id": "xdiqFJEH0o",
+    "player": "player2",
+    "turn": 1,
+    "card_played": "Blade",
+    "location": {
+      "name": "Revealing location in 1 turns",
+      "position": 2,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "54f65aba-875e-44a8-96d7-31a07e931c5c",
+    "game_id": "xdiqFJEH0o",
+    "player": "player1",
+    "turn": 1,
+    "card_played": "Klaw",
+    "location": {
+      "name": "Revealing location in 1 turns",
+      "position": 2,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "965f1ae9-db8d-4fea-ab0b-eda999389742",
+    "game_id": "WooO4odINz",
+    "player": "player1",
+    "turn": 1,
+    "card_played": "Antman",
+    "location": {
+      "name": "New York",
+      "position": 1,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "8e43ea96-b3ae-4ba8-be2a-0434e179d4f5",
+    "game_id": "WooO4odINz",
+    "player": "player2",
+    "turn": 1,
+    "card_played": "Iceman",
+    "location": {
+      "name": "New York",
+      "position": 1,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "80e40523-b493-465c-a016-6e7a6d7af96f",
+    "game_id": "WooO4odINz",
+    "player": "player1",
+    "turn": 2,
+    "card_played": "Armor",
+    "location": {
+      "name": "New York",
+      "position": 1,
+      "ally_cards": [
+        "Antman"
+      ],
+      "enemy_cards": [
+        "Iceman"
+      ]
+    }
+  },
+  {
+    "move_id": "a0caafb6-cd3d-419c-b3e6-343ea0ada842",
+    "game_id": "WooO4odINz",
+    "player": "player2",
+    "turn": 3,
+    "card_played": "Bishop",
+    "location": {
+      "name": "Hellfire Club",
+      "position": 2,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "7b97166b-b5ed-43a6-9943-fad7ce45f0b3",
+    "game_id": "WooO4odINz",
+    "player": "player1",
+    "turn": 3,
+    "card_played": "Punisher",
+    "location": {
+      "name": "Hellfire Club",
+      "position": 2,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "d5c88a26-bf72-459f-9df5-b701e53a82e6",
+    "game_id": "WooO4odINz",
+    "player": "player2",
+    "turn": 4,
+    "card_played": "Sword Master",
+    "location": {
+      "name": "Hellfire Club",
+      "position": 2,
+      "ally_cards": [
+        "Bishop"
+      ],
+      "enemy_cards": [
+        "Punisher"
+      ]
+    }
+  },
+  {
+    "move_id": "41560741-5098-47c4-9116-65589bce9050",
+    "game_id": "WooO4odINz",
+    "player": "player2",
+    "turn": 4,
+    "card_played": "Sunspot",
+    "location": {
+      "name": "New York",
+      "position": 1,
+      "ally_cards": [
+        "Iceman"
+      ],
+      "enemy_cards": [
+        "Antman",
+        "Armor"
+      ]
+    }
+  },
+  {
+    "move_id": "2441b41a-111c-4210-ae1f-7e61d57b6031",
+    "game_id": "WooO4odINz",
+    "player": "player1",
+    "turn": 4,
+    "card_played": "Lizard",
+    "location": {
+      "name": "New York",
+      "position": 1,
+      "ally_cards": [
+        "Antman",
+        "Armor"
+      ],
+      "enemy_cards": [
+        "Iceman"
+      ]
+    }
+  },
+  {
+    "move_id": "f5d662ca-75fc-4af2-ae0f-d60d63a705c4",
+    "game_id": "WooO4odINz",
+    "player": "player2",
+    "turn": 6,
+    "card_played": "Angela",
+    "location": {
+      "name": "New York",
+      "position": 1,
+      "ally_cards": [
+        "Iceman",
+        "Sunspot"
+      ],
+      "enemy_cards": [
+        "Antman",
+        "Armor",
+        "Lizard"
+      ]
+    }
+  },
+  {
+    "move_id": "9b14f453-12a2-4487-a827-73462f27628a",
+    "game_id": "WooO4odINz",
+    "player": "player2",
+    "turn": 6,
+    "card_played": "Blade",
+    "location": {
+      "name": "New York",
+      "position": 1,
+      "ally_cards": [
+        "Iceman",
+        "Sunspot"
+      ],
+      "enemy_cards": [
+        "Antman",
+        "Armor",
+        "Lizard"
+      ]
+    }
+  },
+  {
+    "move_id": "51c63886-6105-426e-8ea9-0392e7d0ea24",
+    "game_id": "WooO4odINz",
+    "player": "player2",
+    "turn": 6,
+    "card_played": "Swarm",
+    "location": {
+      "name": "Hellfire Club",
+      "position": 2,
+      "ally_cards": [
+        "Bishop",
+        "Sword Master"
+      ],
+      "enemy_cards": [
+        "Punisher"
+      ]
+    }
+  },
+  {
+    "move_id": "5af33ea4-304d-4c35-8112-0470f8613ea5",
+    "game_id": "WooO4odINz",
+    "player": "player1",
+    "turn": 6,
+    "card_played": "Spectrum",
+    "location": {
+      "name": "New York",
+      "position": 1,
+      "ally_cards": [
+        "Antman",
+        "Armor",
+        "Lizard"
+      ],
+      "enemy_cards": [
+        "Iceman",
+        "Sunspot"
+      ]
+    }
+  }
+]
