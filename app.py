@@ -252,8 +252,7 @@ def getGamesData():
     except Exception as e:
         print(e)
         return render_template("data/game-data.html", games=[])
-<<<<<<< Updated upstream
-=======
+
     
 @app.route("/data/moves", methods=['GET'])
 def getMovesData():
@@ -263,13 +262,12 @@ def getMovesData():
     except Exception as e:
         print(e)
         return render_template("data/allmoves.html", moves=[])
->>>>>>> Stashed changes
 
 @app.route("/data/games/<game_id>", methods=['GET'])
 def getGameById(game_id):
     try:
         # Carica le mosse
-        with open(MOVE_DATA_PATH, "r") as f:
+        with open(GAME_DATA_PATH, "r") as f:
             moves = json.load(f)
         game_moves = [m for m in moves if m["game_id"] == game_id]
         with open(GAME_DATA_PATH, "r") as f:
@@ -284,10 +282,8 @@ def getGameById(game_id):
         abort(500)
 @app.route("/data/moves/export", methods=['GET'])
 def export_moves_csv():
-    json_path = os.path.join("matchlogs", "move-data.json")
-    
     try:
-        with open(json_path, "r") as f:
+        with open(MOVE_DATA_PATH, "r") as f:
             data = json.load(f)
 
         if not data:
@@ -305,14 +301,13 @@ def export_moves_csv():
 
     except FileNotFoundError:
         return "File not found", 404
+
 @app.route("/data/games/export", methods=['GET'])
 def export_games_csv():
-    json_path = os.path.join("matchlogs", "game-data.json")
-    
     try:
-        with open(json_path, "r") as f:
+        with open(GAME_DATA_PATH, "r") as f:
             data = json.load(f)
-
+        print(data)
         if not data:
             return "No data available", 404
 
@@ -328,7 +323,6 @@ def export_games_csv():
 
     except FileNotFoundError:
         return "File not found", 404
-
 
     
 if __name__ == "__main__":
