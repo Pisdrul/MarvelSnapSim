@@ -22,7 +22,12 @@
   {
     "dcat:accessURL": "https://snapsim.it/data/moves/export",
     "dcat:mediaType": "text/csv"
+  },
+  {
+    "dcat:accessURL": "https://snapsim.it/data/moves",
+    "dcat:mediaType": "text/html"
   }
+  
 ],
   "prov:wasGeneratedBy": {
     "@type": "prov:Activity",

@@ -2,6 +2,10 @@ from flask import *
 from gameManager import GameState
 import json, csv, os, io
 import traceback
+import csv
+from io import StringIO
+from flask import Response
+
 game = GameState()
 game.gameStart()
 
@@ -221,9 +225,11 @@ def confirmMove(allyorenemy, locationnum):
     elif allyorenemy == "enemy":
         return redirect(url_for('gameEnemy'))
 
-@app.route("/data/<cardname>", methods=['GET'])
-def getCardData(cardname):
+@app.route("/data/<version>/<cardname>", methods=['GET'])
+def getCardData(version,cardname):
     try:
+        MOVE_DATA_PATH = f"matchlogs/moves/move-{version}-data.json"
+        GAME_DATA_PATH = f"matchlogs/games/game-{version}-data.json"
         with open(MOVE_DATA_PATH, 'r') as file:
             all_moves = json.load(file)
         with open(GAME_DATA_PATH, 'r') as f_games:
@@ -242,32 +248,91 @@ def getCardData(cardname):
             move_with_winner["winner"] = winner
             filtered_moves.append(move_with_winner)
     print(filtered_moves)
-    return render_template("data/card-data.html", moves=filtered_moves, cardname = cardname)
+    return render_template("data/card-data.html", moves=filtered_moves, cardname = cardname, version = version)
 
-@app.route("/data/games", methods=['GET'])
-def getGamesData():
+@app.route("/data/<version>/games", methods=['GET'])
+def getGamesData(version):
     try:
-        games = load_json("game-data.json")
-        return render_template("data/game-data.html", games=games)
+        GAME_DATA_PATH = f"games/game-{version}-data.json"
+        games = load_json(GAME_DATA_PATH)
+        return render_template("data/game-data.html", games=games, version = version)
     except Exception as e:
         print(e)
         return render_template("data/game-data.html", games=[])
 
     
-@app.route("/data/moves", methods=['GET'])
-def getMovesData():
+@app.route("/data/<version>/moves", methods=['GET'])
+def getMovesData(version):
     try:
-        moves = load_json("move-data.json")
-        return render_template("data/allmoves.html", moves=moves)
+        MOVE_DATA_PATH = f"moves/move-{version}-data.json"
+        moves = load_json(MOVE_DATA_PATH)
+        print(moves)
+        return render_template("data/allmoves.html", moves=moves, version = version)
     except Exception as e:
         print(e)
-        return render_template("data/allmoves.html", moves=[])
+        return render_template("data/allmoves.html", moves=[],version = version)
 
-@app.route("/data/games/<game_id>", methods=['GET'])
-def getGameById(game_id):
+@app.route("/data/games/<version>/<game_id>/export/csv", methods=['GET'])
+def export_game_moves_csv(version, game_id):
+    try:
+        MOVE_DATA_PATH = f"matchlogs/moves/move-{version}-data.json"
+        with open(MOVE_DATA_PATH, "r") as f:
+            moves = json.load(f)
+        game_moves = [m for m in moves if m["game_id"] == game_id]
+
+        if not game_moves:
+            abort(404)
+        csv_output = StringIO()
+        writer = csv.writer(csv_output)
+        
+        writer.writerow(["Turn", "Player", "Card Played", "Location Name", "Position"])
+
+        for move in game_moves:
+            writer.writerow([
+                move.get("turn", ""),
+                move.get("player", ""),
+                move.get("card_played", ""),
+                move.get("location", {}).get("name", ""),
+                move.get("location", {}).get("position", "")
+            ])
+
+        response = Response(csv_output.getvalue(), mimetype="text/csv")
+        response.headers["Content-Disposition"] = f"attachment; filename={version}_game_{game_id}_moves.csv"
+        return response
+
+    except Exception as e:
+        print(f"Errore nell'esportazione CSV: {e}")
+        traceback.print_exc()
+        abort(500)
+
+@app.route("/data/<version>/games/<game_id>/export/json", methods=["GET"])
+def export_game_moves_json(version,game_id):
+    try:
+        MOVE_DATA_PATH = f"matchlogs/moves/move-{version}-data.json"
+        with open(MOVE_DATA_PATH, "r") as f:
+            moves = json.load(f)
+        game_moves = [m for m in moves if m["game_id"] == game_id]
+
+        if not game_moves:
+            abort(404)
+
+        response = make_response(json.dumps(game_moves, indent=2))
+        response.headers["Content-Type"] = "application/json"
+        response.headers["Content-Disposition"] = f"attachment; filename=game_{version}_{game_id}_moves.json"
+        return response
+
+    except Exception as e:
+        print(f"Errore nell'esportazione JSON: {e}")
+        traceback.print_exc()
+        abort(500)
+
+@app.route("/data/<version>/games/<game_id>", methods=['GET'])
+def getGameById(version,game_id):
     try:
         # Carica le mosse
-        with open(GAME_DATA_PATH, "r") as f:
+        MOVE_DATA_PATH = f"matchlogs/moves/move-{version}-data.json"
+        GAME_DATA_PATH = f"matchlogs/games/game-{version}-data.json"
+        with open(MOVE_DATA_PATH, "r") as f:
             moves = json.load(f)
         game_moves = [m for m in moves if m["game_id"] == game_id]
         with open(GAME_DATA_PATH, "r") as f:
@@ -275,14 +340,16 @@ def getGameById(game_id):
         game = next((g for g in games if g["game_id"] == game_id), None)
         if not game_moves:
             abort(404)
-        return render_template("data/moves-by-game.html", moves=game_moves, game=game)
+        return render_template("data/moves-by-game.html", moves=game_moves, game=game, version = version)
     except Exception as e:
         print(f"Errore nel caricamento: {e}")
         traceback.print_exc()
         abort(500)
-@app.route("/data/moves/export", methods=['GET'])
-def export_moves_csv():
+
+@app.route("/data/<version>/moves/export", methods=['GET'])
+def export_moves_csv(version):
     try:
+        MOVE_DATA_PATH = f"matchlogs/moves/move-{version}-data.json"
         with open(MOVE_DATA_PATH, "r") as f:
             data = json.load(f)
 
@@ -296,15 +363,28 @@ def export_moves_csv():
             writer.writerow(row)
 
         response = Response(output.getvalue(), mimetype='text/csv')
-        response.headers.set("Content-Disposition", "attachment", filename="move-data.csv")
+        filename = f"move-{version}-data.csv"
+        response.headers.set("Content-Disposition", "attachment", filename=filename)
         return response
 
     except FileNotFoundError:
         return "File not found", 404
 
-@app.route("/data/games/export", methods=['GET'])
-def export_games_csv():
+@app.route("/data/<version>/moves.json")
+def send_moves_json(version):
+    filepath = f"matchlogs/moves/move-{version}-data.json"
+    return send_file(filepath, mimetype="application/json")
+
+@app.route("/data/<version>/games.json")
+def send_games_json(version):
+    filepath = f"matchlogs/games/game-{version}-data.json"
+    return send_file(filepath, mimetype="application/json")
+
+
+@app.route("/data/<version>/games/export", methods=['GET'])
+def export_games_csv(version):
     try:
+        GAME_DATA_PATH = f"matchlogs/games/game-{version}-data.json"
         with open(GAME_DATA_PATH, "r") as f:
             data = json.load(f)
         print(data)
@@ -318,7 +398,8 @@ def export_games_csv():
             writer.writerow(row)
 
         response = Response(output.getvalue(), mimetype='text/csv')
-        response.headers.set("Content-Disposition", "attachment", filename="game-data.csv")
+        filename = f"game-{version}-data.csv"
+        response.headers.set("Content-Disposition", "attachment", filename=filename)
         return response
 
     except FileNotFoundError:

@@ -11,26 +11,6 @@ import os
 import time
 from datetime import datetime
 
-import cards.Americachavez
-import cards.Angela
-import cards.Antman
-import cards.Apocalypse
-import cards.Armor
-import cards.Bishop
-import cards.Blade
-import cards.Captainamerica
-import cards.Iceman
-import cards.Ladysif
-import cards.Mrfantastic
-import cards.Namor
-import cards.Nightcrawler
-import cards.Onslaught
-import cards.Punisher
-import cards.Spectrum
-import cards.Sunspot
-import cards.Swarm
-import cards.Swordmaster
-import cards.Wolverine
 class GameState():
     def __init__(self):
         self.game = {

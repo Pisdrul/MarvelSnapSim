@@ -3,29 +3,10 @@
     <head>
         <meta charset="UTF-8">
         <title>Move list</title>
-        <style>
-            table {
-                border-collapse: collapse;
-                width: 100%;
-                margin-top: 20px;
-            }
-    
-            th, td {
-                border: 1px solid black;
-                padding: 8px 12px;
-                text-align: center;
-            }
-    
-            th {
-                background-color: #f2f2f2;
-            }
-    
-            tr:nth-child(even) {
-                background-color: #f9f9f9;
-            }
-        </style>
+        <link rel="stylesheet" href="{{ url_for('static', filename='dataStyle.css') }}">
     </head>
     <body>
+        <button onclick="history.back()">← Back</button>
         <h1>Moves made with {{ cardname }}</h1>
         <table style="border: 1px solid black;">
             <thead>
