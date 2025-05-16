@@ -120,7 +120,7 @@ def check_turn(allyorenemy):
 
         if game.status["endofturncounterally"] == 1 and game.status["endofturncounterenemy"] == 1:
             print("End turn triggered.")
-            game.turnEnd()
+            game.turnEnd(False)
             print(game.passStatus)
             if game.passStatus['retreatally'] and game.passStatus['retreatenemy']:
                 game.passStatus['winner'] = "Tie"

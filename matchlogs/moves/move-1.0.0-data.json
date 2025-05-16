@@ -648,5 +648,395 @@
         "Sunspot"
       ]
     }
+  },
+  {
+    "move_id": "c8d7b91c-2a84-4cfc-8d6c-2702d11c8f52",
+    "game_id": "BoJdes_sQb",
+    "player": "player1",
+    "turn": 1,
+    "card_played": "Klaw",
+    "location": {
+      "name": "Revealing location in 2 turns",
+      "position": 3,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "7bef7bde-5ef0-4f8e-879c-04e22ff6cc94",
+    "game_id": "BoJdes_sQb",
+    "player": "player2",
+    "turn": 1,
+    "card_played": "Nightcrawler",
+    "location": {
+      "name": "Revealing location in 1 turns",
+      "position": 2,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "fc602342-c7ef-46c2-8848-90ce8ec6d928",
+    "game_id": "BoJdes_sQb",
+    "player": "player2",
+    "turn": 2,
+    "card_played": "Nightcrawler",
+    "location": {
+      "name": "Necrosha",
+      "position": 1,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "0284790b-6724-4ff0-9be9-4a298c64b2f8",
+    "game_id": "BoJdes_sQb",
+    "player": "player1",
+    "turn": 2,
+    "card_played": "Armor",
+    "location": {
+      "name": "Necrosha",
+      "position": 1,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "85043f26-d782-42f5-aa7e-43f61377b537",
+    "game_id": "BoJdes_sQb",
+    "player": "player2",
+    "turn": 2,
+    "card_played": "Iceman",
+    "location": {
+      "name": "Lake Heldas",
+      "position": 2,
+      "ally_cards": [
+        "Nightcrawler"
+      ],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "44bf01dd-89a1-41be-b144-625bb2ea6937",
+    "game_id": "BoJdes_sQb",
+    "player": "player2",
+    "turn": 3,
+    "card_played": "Angela",
+    "location": {
+      "name": "Lake Heldas",
+      "position": 2,
+      "ally_cards": [
+        "Nightcrawler",
+        "Iceman"
+      ],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "f377eeef-31ab-47dc-9941-2eb14f69a218",
+    "game_id": "BoJdes_sQb",
+    "player": "player1",
+    "turn": 3,
+    "card_played": "Mr Fantastic",
+    "location": {
+      "name": "Necrosha",
+      "position": 1,
+      "ally_cards": [
+        "Armor"
+      ],
+      "enemy_cards": [
+        "Nightcrawler"
+      ]
+    }
+  },
+  {
+    "move_id": "aee69ab0-67f3-4ac5-a297-094bf904fd67",
+    "game_id": "BoJdes_sQb",
+    "player": "player2",
+    "turn": 3,
+    "card_played": "Iceman",
+    "location": {
+      "name": "Necrosha",
+      "position": 1,
+      "ally_cards": [
+        "Nightcrawler"
+      ],
+      "enemy_cards": [
+        "Armor"
+      ]
+    }
+  },
+  {
+    "move_id": "e603a1ed-d8b5-4728-b175-4ba546baf028",
+    "game_id": "BoJdes_sQb",
+    "player": "player1",
+    "turn": 4,
+    "card_played": "Armor",
+    "location": {
+      "name": "Lake Heldas",
+      "position": 2,
+      "ally_cards": [],
+      "enemy_cards": [
+        "Nightcrawler",
+        "Iceman",
+        "Angela"
+      ]
+    }
+  },
+  {
+    "move_id": "80801638-98eb-4dca-9803-5d2bc29b3291",
+    "game_id": "BoJdes_sQb",
+    "player": "player1",
+    "turn": 5,
+    "card_played": "Mr Fantastic",
+    "location": {
+      "name": "Lake Heldas",
+      "position": 2,
+      "ally_cards": [
+        "Armor"
+      ],
+      "enemy_cards": [
+        "Nightcrawler",
+        "Iceman",
+        "Angela"
+      ]
+    }
+  },
+  {
+    "move_id": "94907b41-e1a9-4ee4-a601-0897438e2214",
+    "game_id": "BoJdes_sQb",
+    "player": "player1",
+    "turn": 5,
+    "card_played": "Lizard",
+    "location": {
+      "name": "Necrosha",
+      "position": 1,
+      "ally_cards": [
+        "Armor",
+        "Mr Fantastic"
+      ],
+      "enemy_cards": [
+        "Nightcrawler",
+        "Iceman"
+      ]
+    }
+  },
+  {
+    "move_id": "444ffd47-0485-40a9-9f49-003e544d2b41",
+    "game_id": "BoJdes_sQb",
+    "player": "player2",
+    "turn": 5,
+    "card_played": "Angela",
+    "location": {
+      "name": "Necrosha",
+      "position": 1,
+      "ally_cards": [
+        "Nightcrawler",
+        "Iceman"
+      ],
+      "enemy_cards": [
+        "Armor",
+        "Mr Fantastic"
+      ]
+    }
+  },
+  {
+    "move_id": "53e6b5d5-08f9-4bcc-95e1-bc3eb19e5afa",
+    "game_id": "BoJdes_sQb",
+    "player": "player2",
+    "turn": 5,
+    "card_played": "Bishop",
+    "location": {
+      "name": "Necrosha",
+      "position": 1,
+      "ally_cards": [
+        "Nightcrawler",
+        "Iceman"
+      ],
+      "enemy_cards": [
+        "Armor",
+        "Mr Fantastic"
+      ]
+    }
+  },
+  {
+    "move_id": "4d77b449-a3ef-4d8d-a2ba-2172a1e58194",
+    "game_id": "MYfOB_i-2N",
+    "player": "player2",
+    "turn": 2,
+    "card_played": "Nightcrawler",
+    "location": {
+      "name": "Revealing location in 1 turns",
+      "position": 3,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "6c8e6f0b-15bb-4bbd-96a3-fa83035ee92e",
+    "game_id": "MYfOB_i-2N",
+    "player": "player2",
+    "turn": 2,
+    "card_played": "America Chavez",
+    "location": {
+      "name": "Revealing location in 1 turns",
+      "position": 3,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "50fe94ec-11b4-40d4-ad60-7cfbe6cb9f25",
+    "game_id": "MYfOB_i-2N",
+    "player": "player1",
+    "turn": 3,
+    "card_played": "Lizard",
+    "location": {
+      "name": "Sewer System",
+      "position": 3,
+      "ally_cards": [],
+      "enemy_cards": [
+        "Nightcrawler",
+        "America Chavez"
+      ]
+    }
+  },
+  {
+    "move_id": "3efe5870-74a6-431b-8530-3defdd463f46",
+    "game_id": "MYfOB_i-2N",
+    "player": "player2",
+    "turn": 3,
+    "card_played": "Blade",
+    "location": {
+      "name": "Sewer System",
+      "position": 3,
+      "ally_cards": [
+        "Nightcrawler",
+        "America Chavez"
+      ],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "c0aaf48b-2942-421e-a7e1-a29ad1037d90",
+    "game_id": "MYfOB_i-2N",
+    "player": "player2",
+    "turn": 3,
+    "card_played": "Nightcrawler",
+    "location": {
+      "name": "Nidavellir",
+      "position": 1,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "c34a389c-6c70-49be-884a-cb91971764b9",
+    "game_id": "MYfOB_i-2N",
+    "player": "player2",
+    "turn": 3,
+    "card_played": "Nightcrawler",
+    "location": {
+      "name": "Nidavellir",
+      "position": 1,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "5fb3d8d5-4f57-4aa4-aeaf-ee4f133c50ed",
+    "game_id": "MYfOB_i-2N",
+    "player": "player2",
+    "turn": 4,
+    "card_played": "Bishop",
+    "location": {
+      "name": "Sewer System",
+      "position": 3,
+      "ally_cards": [
+        "Nightcrawler",
+        "America Chavez",
+        "Blade"
+      ],
+      "enemy_cards": [
+        "Lizard"
+      ]
+    }
+  },
+  {
+    "move_id": "52c3df14-3e95-4e53-afbe-0a2ee4b7cb89",
+    "game_id": "MYfOB_i-2N",
+    "player": "player2",
+    "turn": 4,
+    "card_played": "America Chavez",
+    "location": {
+      "name": "Nidavellir",
+      "position": 1,
+      "ally_cards": [
+        "Nightcrawler",
+        "Nightcrawler"
+      ],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "59667638-71b3-4bd9-a6fb-79ac92b5f9af",
+    "game_id": "MYfOB_i-2N",
+    "player": "player1",
+    "turn": 4,
+    "card_played": "Mr Fantastic",
+    "location": {
+      "name": "Nidavellir",
+      "position": 1,
+      "ally_cards": [],
+      "enemy_cards": [
+        "Nightcrawler",
+        "Nightcrawler"
+      ]
+    }
+  },
+  {
+    "move_id": "71bc33c2-b350-4014-abb5-c878fbca1807",
+    "game_id": "MYfOB_i-2N",
+    "player": "player1",
+    "turn": 5,
+    "card_played": "Namor",
+    "location": {
+      "name": "Nidavellir",
+      "position": 1,
+      "ally_cards": [
+        "Mr Fantastic"
+      ],
+      "enemy_cards": [
+        "Nightcrawler",
+        "Nightcrawler",
+        "America Chavez"
+      ]
+    }
+  },
+  {
+    "move_id": "90842303-9e46-4c4f-b095-f969b26d0f3e",
+    "game_id": "MYfOB_i-2N",
+    "player": "player2",
+    "turn": 5,
+    "card_played": "Bishop",
+    "location": {
+      "name": "Milano",
+      "position": 2,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
+  },
+  {
+    "move_id": "d5063cb0-3fc7-410a-ba5b-3a5135fdda3d",
+    "game_id": "MYfOB_i-2N",
+    "player": "player2",
+    "turn": 5,
+    "card_played": "Nightcrawler",
+    "location": {
+      "name": "Milano",
+      "position": 2,
+      "ally_cards": [],
+      "enemy_cards": []
+    }
   }
 ]

@@ -116,7 +116,7 @@ class GameState():
             return self.resolveTie()
 
     def registerMove(self,move):
-        print(move)
+        print("Registering move")
         with open("matchlogs/schema/schema-move.json", "r") as schema_file:
             schema = json.load(schema_file)
         try:
@@ -125,7 +125,7 @@ class GameState():
             print(e)
         directory = "matchlogs"
         os.makedirs(directory, exist_ok=True)
-        filename = os.path.join(directory, "move-data.json")
+        filename = os.path.join(directory, "moves/move-1.0.0-data.json")
         if os.path.exists(filename):
             with open(filename, "r") as f:
                 data = json.load(f)
@@ -373,33 +373,40 @@ class GameState():
     def endGame(self):
         self.boardStatus()
         winner = self.checkWinner()
+        print(winner)
         self.game_end = True
-        if self.status['turncounter'] > self.status['maxturns']:
+        if self.status['turncounter'] == self.status['maxturns']:
             match winner:
                 case "Ally":
                     print("Allies have won ", self.status["cubes"]*2)
                     print("Enemies have lost ", self.status["cubes"]*2)
                     self.game['winner'] = 'player1'
+                    self.passStatus['winner'] = 'player1'
                 case "Enemy":
                     print("Allies have lost ", self.status["cubes"]*2)
                     print("Enemies have won ", self.status["cubes"]*2)
                     self.game['winner'] = 'player2'
+                    self.passStatus['winner'] = 'player2'
                 case "Tie":
                     print("Tie!")
                     self.game['winner'] = 'Tie'
+                    self.passStatus['winner'] = 'Tie'
         else: 
             match self.passStatus['winner']:
                 case "Ally":
                     self.game['winner'] = 'player1'
+                    self.passStatus['winner'] = 'player1'
                 case "Enemy":
                     self.game['winner'] = 'player2'
+                    self.passStatus['winner'] = 'player2'
                 case "Tie":
                     self.game['winner'] = 'Tie'
+                    self.passStatus['winner'] = 'Tie'
         self.game['end_time'] = datetime.utcfromtimestamp(time.time()).isoformat() + "Z"
         self.registerGame(self.game)
     
     def registerGame(self,game):
-        print("////////////////////")
+        print("registering!")
         with open("matchlogs/schema/schema-game.json", "r") as schema_file:
             schema = json.load(schema_file)
         try:
@@ -408,7 +415,7 @@ class GameState():
             print(e)
         directory = "matchlogs"
         os.makedirs(directory, exist_ok=True)
-        filename = os.path.join(directory, "game-data.json")
+        filename = os.path.join(directory, "games/game-1.0.0-data.json")
         if os.path.exists(filename):
             with open(filename, "r") as f:
                 data = json.load(f)
@@ -437,9 +444,17 @@ class GameState():
             self.endOfTurn()
         self.endGame()
     
-    def turnEnd(self):
+    def turnEnd(self, training):
         self.endOfTurn()
         self.passStatus['turnend'] = True
+        if training: self.startOfTurn()
+        if training and self.status["turncounter"] == self.status["maxturns"]: self.endGame()
     
     def retreat(allyOrEnemy):
         pass
+
+    def getHand(self, agent):
+        if agent == "player_1":
+            return self.status["allyhand"]
+        elif agent == "player_2":
+            return self.status["enemyhand"]

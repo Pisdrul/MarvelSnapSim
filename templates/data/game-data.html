@@ -17,7 +17,7 @@
     </tr>
     {% for game in games %}
     <tr>
-      <td><a href="games/{{version}}/{{ game['game_id']}}">{{ game['game_id'] }}</a></td>
+      <td><a href="games/{{ game['game_id']}}">{{ game['game_id'] }}</a></td>
       <td>{{ game.get('winner', 'N/A') }}</td>
       <td>{{ game.get('start_time', 'N/A') }}</td>
       <td>{{ game.get('end_time', 'N/A') }}</td>

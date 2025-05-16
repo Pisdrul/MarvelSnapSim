@@ -6,11 +6,11 @@ class Atlantis(Location):
         self.name = "Atlantis"
         self.description = "If you only have one card here, it has +5 Power"
 
-    def applyOngoing(self, location):
+    def applyOngoing(self, locationlist):
         if len(self.allies) == 1:
             self.allies[0].ongoing_to_apply.append(self)
         if len(self.enemies) == 1:
             self.enemies[0].ongoing_to_apply.append(self)
     
-    def ongoing(self, card):
-        card.ongoing_buff += 5
+    def ongoing(self, cardOrLocation):
+        cardOrLocation.ongoing_buff += 5
