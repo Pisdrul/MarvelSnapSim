@@ -6,7 +6,7 @@
   },
   "@type": "dcat:Dataset",
   "dc:title": "SnapSim games log",
-  "dc:description": "Dataset containing all the moves played on the Marvel Snap simulator SnapSim.",
+  "dc:description": "Dataset containing all the games played on the Marvel Snap simulator SnapSim.",
   "dc:creator": "Francesco Trevisan",
   "dc:publisher": "snapsim.it",
   "dc:date": "2025-05-05",
@@ -22,6 +22,10 @@
   {
     "dcat:accessURL": "https://snapsim.it/data/1.0.0/games/export",
     "dcat:mediaType": "text/csv"
+  },
+  {
+    "dcat:accessURL": "https://snapsim.it/data/1.0.0/games",
+    "dcat:mediaType": "text/html"
   }
 ],
   "prov:wasGeneratedBy": {

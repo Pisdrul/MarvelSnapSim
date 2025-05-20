@@ -219,7 +219,6 @@ def confirmMove(allyorenemy, locationnum):
         card = game.locationList["location" + str(originalLocation)].enemies[int(request.form["card"])]
     newlocation = game.locationList["location" + str(locationnum)]
     result = game.moveSelection(card, newlocation)
-    print(result)
     if allyorenemy == "ally":
         return redirect(url_for('gameAlly'))
     elif allyorenemy == "enemy":
@@ -240,14 +239,13 @@ def getCardData(version,cardname):
     winners_by_game = {game["game_id"]: game.get("winner") for game in all_games}
     filtered_moves = []
     for move in all_moves:
-        print(move.get("card_played", "").strip().lower())
         if move.get("card_played", "").strip().lower() == cardname.strip().lower():
             game_id = move.get("game_id")
             winner = winners_by_game.get(game_id)
             move_with_winner = move.copy()
             move_with_winner["winner"] = winner
             filtered_moves.append(move_with_winner)
-    print(filtered_moves)
+            print(move)
     return render_template("data/card-data.html", moves=filtered_moves, cardname = cardname, version = version)
 
 @app.route("/data/<version>/games", methods=['GET'])
@@ -266,7 +264,6 @@ def getMovesData(version):
     try:
         MOVE_DATA_PATH = f"moves/move-{version}-data.json"
         moves = load_json(MOVE_DATA_PATH)
-        print(moves)
         return render_template("data/allmoves.html", moves=moves, version = version)
     except Exception as e:
         print(e)
@@ -387,7 +384,6 @@ def export_games_csv(version):
         GAME_DATA_PATH = f"matchlogs/games/game-{version}-data.json"
         with open(GAME_DATA_PATH, "r") as f:
             data = json.load(f)
-        print(data)
         if not data:
             return "No data available", 404
 
@@ -405,7 +401,30 @@ def export_games_csv(version):
     except FileNotFoundError:
         return "File not found", 404
 
+@app.route("/metadata/<version>/moves")
+def view_moves_metadata(version):
+    with open(f"matchlogs/moves/move-{version}-metadata.json", "r", encoding="utf-8") as f:
+        metadata = json.load(f)
+    return render_template("data/metadata.html", 
+                           title=metadata["dc:title"], 
+                           description=metadata["dc:description"],
+                           creator=metadata["dc:creator"],
+                           rights=metadata["dc:rights"],
+                           identifier=metadata["dc:identifier"],
+                           raw_metadata=metadata)
+@app.route("/metadata/<version>/games")
+def view_games_metadata(version):
+    with open(f"matchlogs/games/game-{version}-metadata.json", "r", encoding="utf-8") as f:
+        metadata = json.load(f)
+    return render_template("data/metadata.html", 
+                           title=metadata["dc:title"], 
+                           description=metadata["dc:description"],
+                           creator=metadata["dc:creator"],
+                           rights=metadata["dc:rights"],
+                           identifier=metadata["dc:identifier"],
+                           raw_metadata=metadata)
     
+
 if __name__ == "__main__":
     app.run(debug=True)
 

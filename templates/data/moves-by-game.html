@@ -20,16 +20,21 @@
                     <th>Card Played</th>
                     <th>Location</th>
                     <th>Position</th>
+                    <th>Ally Cards</th>
+                    <th>Enemy Cards</th>
                 </tr>
             </thead>
             <tbody>
                 {% for move in moves %}
                 <tr>
+                    <td>{{ move.id }}</td>
                     <td>{{ move.turn }}</td>
                     <td>{{ move.player }}</td>
                     <td> <a href="/data/{{ version }}/{{ move.card_played }}">{{ move.card_played }}</a></td>
                     <td>{{ move.location.name }}</td>
                     <td>{{ move.location.position }}</td>
+                    <td>{{ move.location.ally_cards }}</td>
+                    <td>{{ move.location.enemy_cards }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

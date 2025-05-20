@@ -12,8 +12,11 @@ class Wolverine(Card):
         self.regenerate()
 
     def regenerate(self):
-        locationsNotFull = self.location.locationsThatArentfull(self.ally)
-        print(locationsNotFull)
+        print(self.status)
+        if self.location == 0:
+            locationsNotFull = self.status["locationlist"]["location1"].locationsThatArentfull(self.ally)
+        else:
+            locationsNotFull = self.location.locationsThatArentfull(self.ally)
         if len(locationsNotFull) > 0:
             location = random.choice(locationsNotFull)
             if self.ally:

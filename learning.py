@@ -1,16 +1,9 @@
-from env.snapEnv import SnapEnv
-import numpy as np
+from stable_baselines3 import PPO
+from env.SelfPlayWrapper import SinglePlayerAgent
 
-env = SnapEnv()
-observations = env.reset()
+env = SinglePlayerAgent(player="player_1", opponent_policy=None)
 
-done = {agent: False for agent in env.agents}
+model = PPO.load("first_model", env=env)
+model.learn(total_timesteps=60)
 
-while not all(done.values()):
-    actions = {}
-    for agent in env.agents:
-        action_space = env.action_space(agent)
-        actions[agent] = action_space.sample()
-        
-    observations, rewards, terminations, truncations, infos = env.step(actions)
-    done = terminations 
+model.save("first_model")

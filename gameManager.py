@@ -40,7 +40,8 @@ class GameState():
                     "allysnapped":False, "enemysnapped": False,
                     "cardsplayed": [], "onnextcardbeingplayed": [],
                     "allypass": False, "enemypass": False,
-                    "endofturncounterally":0, "endofturncounterenemy":0,}
+                    "endofturncounterally":0, "endofturncounterenemy":0,
+                    "locationlist": self.locationList}
         self.passStatus = {
                 'turnpassally': self.status['allypass'],  
                 'turnpassenemy': self.status['enemypass'],
@@ -75,7 +76,8 @@ class GameState():
                     "allysnapped":False, "enemysnapped": False,
                     "cardsplayed": [], "onnextcardbeingplayed": [],
                     "allypass": False, "enemypass": False,
-                    "endofturncounterally":0, "endofturncounterenemy":0,}
+                    "endofturncounterally":0, "endofturncounterenemy":0,
+                    "locationlist": self.locationList}
             self.passStatus = {
                     'turnpassally': self.status['allypass'],  
                     'turnpassenemy': self.status['enemypass'],
@@ -102,7 +104,6 @@ class GameState():
         self.locationList["location1"].locationWinner(), self.locationList["location2"].locationWinner(), self.locationList["location3"].locationWinner()
         results = [self.locationList["location1"].winning,self.locationList["location2"].winning,self.locationList["location3"].winning]
         allywin, enemywin = 0,0
-        print(results)
         for string in results:
             if string == "Ally":
                 allywin +=1
@@ -136,7 +137,6 @@ class GameState():
             print("ignored")
             return
         data.append(move)
-        print(data)
         with open(filename, "w") as f:
             json.dump(data, f, indent=2)
 
@@ -146,7 +146,6 @@ class GameState():
             was_added = self.locationList[selectedLoc].addToAllies(unit)
             if was_added:
                 unit.playCard(self.locationList[selectedLoc])
-                print("!!!!!!!!!!!!!!!!!!!!!!!!!")
                 move = {
                     "move_id": str(uuid.uuid4()),
                     "game_id": self.game_id,
@@ -171,7 +170,6 @@ class GameState():
             unit.playCard(self.locationList[selectedLoc])
             if was_added:
                 unit.playCard(self.locationList[selectedLoc])
-                print("!!!!!!!!!!!!!!!!!!!!!!!!!")
                 move = {
                     "move_id": str(uuid.uuid4()),
                     "game_id": self.game_id,
@@ -373,7 +371,6 @@ class GameState():
     def endGame(self):
         self.boardStatus()
         winner = self.checkWinner()
-        print(winner)
         self.game_end = True
         if self.status['turncounter'] == self.status['maxturns']:
             match winner:

@@ -2,7 +2,7 @@ from cards import Card
 
 class Klaw(Card):
     def __init__(self, ally, status):
-        super().__init__(1, 4, "Klaw", ally, status)
+        super().__init__(5, 4, "Klaw", ally, status)
         self.description = "Ongoing: The location to the right has +7 Power."
         self.has_ongoing = True
 

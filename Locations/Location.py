@@ -101,8 +101,6 @@ class Location:
     def checkIfLocationFull(self,allyOrEnemy):
         full = False
         num = 0
-        print("/////////////")
-        print(self.cards_to_move)
         if allyOrEnemy:
             for moves in self.cards_to_move:
                 if moves.ally == allyOrEnemy:
@@ -272,9 +270,11 @@ class Location:
     
     def removeCard(self, card):
         if card.ally:
-            self.allies.remove(card)
+            if card in self.allies:
+                self.allies.remove(card)
         else:
-            self.enemies.remove(card)
+            if card in self.enemies:
+                self.enemies.remove(card)
     
     def onPlayEffect(self,card):
         print("Activated on play effect of location!")

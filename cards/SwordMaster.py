@@ -10,11 +10,11 @@ class Swordmaster(Card):
         toChoose = []
         if self.ally:
             for card in self.status["allyhand"]:
-                if card.cur_cost % 2 == 1:
+                if card.cur_cost % 2 == 1 and card != self:
                     toChoose.append(card)
         else:
             for card in self.status["enemyhand"]:
-                if card.cur_cost % 2 == 1:
+                if card.cur_cost % 2 == 1 and card != self:
                     toChoose.append(card)
         if len(toChoose) > 0:
             random.choice(toChoose).discard()

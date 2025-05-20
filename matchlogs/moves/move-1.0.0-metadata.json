@@ -13,18 +13,18 @@
   "dc:language": "en",
   "dc:rights": "CC-BY 4.0",
   "dc:format": "application/json",
-  "dc:identifier": "https://snapsim.it/data/move-data.json",
+  "dc:identifier": "https://snapsim.it/data/1.0.0/move-data.json",
   "dcat:distribution": [
   {
-    "dcat:accessURL": "https://snapsim.it/data/moves.json",
+    "dcat:accessURL": "https://snapsim.it/data/1.0.0/moves.json",
     "dcat:mediaType": "application/json"
   },
   {
-    "dcat:accessURL": "https://snapsim.it/data/moves/export",
+    "dcat:accessURL": "https://snapsim.it/data/1.0.0/moves/export",
     "dcat:mediaType": "text/csv"
   },
   {
-    "dcat:accessURL": "https://snapsim.it/data/moves",
+    "dcat:accessURL": "https://snapsim.it/data/1.0.0/moves",
     "dcat:mediaType": "text/html"
   }
   

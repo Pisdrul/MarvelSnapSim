@@ -15,7 +15,7 @@
   <p><strong>Description:</strong> {{ description }}</p>
   <p><strong>Creator:</strong> {{ creator }}</p>
   <p><strong>License:</strong> {{ rights }}</p>
-  <p><strong>Acessible at:</strong> <a href="http://127.0.0.1:5000/data/moves">{{ identifier }}</a></p>
+  <p><strong>Acessible at:</strong> <a href="{{ identifier }}">{{ identifier }}</a></p>
   <h2>Raw JSON-LD</h2>
   <pre>{{ raw_metadata | tojson(indent=2) }}</pre>
 </body>

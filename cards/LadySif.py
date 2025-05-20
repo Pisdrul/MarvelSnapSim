@@ -21,4 +21,4 @@ class Ladysif(Card):
                 highestCost = card.cur_cost
                 highestCostCard = [card]
         
-        random.choice(highestCostCard).discard()
+        if len(highestCostCard) > 0: random.choice(highestCostCard).discard()
