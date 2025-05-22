@@ -148,6 +148,9 @@ class SnapEnv(ParallelEnv):
         max_hand_size = 7
         num_location = 3
         max_turns = 7
+        self.games = 0
+        self.games_won = 0
+        self.winrate = 0
         self.passing = {"player_1": False, "player_2": False}
         
         card_space = spaces.Dict({
@@ -185,14 +188,14 @@ class SnapEnv(ParallelEnv):
 
         action_size = max_hand_size * num_location + 1
         self.pass_action = 21
-        self.action_spaces = {agent: spaces.Sequence(spaces.Discrete(action_size)) for agent in self.possible_agents}
+        self.action_spaces = {agent: spaces.Discrete(action_size) for agent in self.possible_agents}
 
     def flatten_obs(self, obs, agent="player_1"):
+        print(obs)
         hand = self.flatten_hand(obs['hand'], max_size = 7)
         energy = np.array([obs["energy"]])
         turn = np.array([obs["turn"]])
         locations = []
-        print(obs["locations"])
         for location in obs["locations"].values():
             flat_loc = np.array(self.flatten_location(location))
             locations.append(flat_loc)
@@ -223,6 +226,8 @@ class SnapEnv(ParallelEnv):
     
     def reset(self, seed=None, options=None):
         self.gm.reset()
+        self.games += 1
+        self.winrate = self.games_won / self.games
         self.agents = ["player_1", "player_2"]
         if seed is not None:
             random.seed(seed)
@@ -253,19 +258,20 @@ class SnapEnv(ParallelEnv):
         reward = {"player_1": player1count, "player_2": player2count}
         return reward
     def step(self, actions):
+        print(actions)
         rewards = {agent: 0 for agent in self.agents}
         terminations = {agent: False for agent in self.agents}
         truncations = {agent: False for agent in self.agents}
         infos = {agent: {} for agent in self.agents}
-        print(actions)
         for agent, agent_actions in actions.items():
-            
             if isinstance(agent_actions, np.int64):
                 agent_actions = [agent_actions]
             for action in agent_actions:
                 if action == self.pass_action:
+                        print(self.passing)
                         self.passing[agent] = True
                         if self.passing["player_1"] and self.passing["player_2"]:
+                            print("Both players passed")
                             self.gm.turnEnd(True)
                             if self.gm.game_end:
                                 terminations = {agent: True for agent in self.agents}
@@ -276,6 +282,7 @@ class SnapEnv(ParallelEnv):
                 if cardidx > len(current_hand) - 1:
                     rewards[agent] -= 0.3
                     infos[agent]["invalid_action"] = True
+                    print("invalid action")
                     continue
                 card = current_hand[cardidx]
                 if agent == "player_1":
@@ -291,7 +298,9 @@ class SnapEnv(ParallelEnv):
                                 rewards[agent] += 0.5
                                 infos[agent]["0_energy_bonus"] = True
                         else:
-                            rewards[agent] -= 1
+                            rewards[agent] -= 0.5
+                            infos[agent]["illegal_move"] = True
+                            print("illegal move")
                 elif agent == "player_2":
                     ally = False
                     if card.cost <= self.gm.status["enemyenergy"]:
@@ -304,14 +313,23 @@ class SnapEnv(ParallelEnv):
                         else:
                             rewards[agent] -= 0.5
                             infos[agent]["illegal_move"] = True
+                            print("illegal move")
                 if self.gm.game_end:
                     terminations = {agent: True for agent in self.agents}
                     if self.gm.checkWinner() == "Ally":
                         rewards["player_1"] += 3
+                        self.games_won += 1
                         infos["player_1"]["win"] = True
                     elif self.gm.checkWinner() == "Enemy":
+                        rewards["player_1"] -= 3
                         rewards["player_2"] += 3
+                        infos["player_1"]["loss"] = True
                         infos["player_2"]["win"] = True
+                    else:
+                        rewards["player_1"] -=0.5
+                        rewards["player_2"] -=0.5
+                        infos["player_1"]["draw"] = True
+                        infos["player_2"]["draw"] = True
                     break
         if (self.gm.locationList["location1"].alliesPower + self.gm.locationList["location2"].alliesPower + self.gm.locationList["location3"].alliesPower)/3 >= 8 and self.gm.checkWinner()== "Ally":
             rewards["player_1"] += 2

@@ -24,7 +24,6 @@ class SinglePlayerAgent(gym.Env):
         return flat_obs, info
 
     def step(self, action):
-        print("here!")
         opponent_obs = self.raw_env.observe(self.opponent)
         opponent_action = self.opponent_policy(opponent_obs)
 
