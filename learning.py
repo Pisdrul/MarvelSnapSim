@@ -20,7 +20,6 @@ model.set_parameters("first_model")
 env.opponent_model = model
 model.set_env(env)
 
-# Callback personalizzato
 callback = CustomTensorboardCallback()
 
 model.learn(total_timesteps=100000, tb_log_name="run_1", callback=callback)
