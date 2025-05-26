@@ -27,4 +27,5 @@ class Doctorstrange(Card):
         random.shuffle(toMove)
         for card in toMove:
             if not self.location.checkIfLocationFull(card.ally):
+                print(card.name, " moved to ", self.location.name)
                 card.move(self.location)

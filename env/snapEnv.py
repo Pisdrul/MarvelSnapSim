@@ -192,7 +192,6 @@ class SnapEnv(ParallelEnv):
         self.action_spaces = {agent: spaces.Discrete(action_size) for agent in self.possible_agents}
 
     def flatten_obs(self, obs, agent="player_1"):
-        print(obs)
         hand = self.flatten_hand(obs['hand'], max_size = 7)
         energy = np.array([obs["energy"]])
         turn = np.array([obs["turn"]])
@@ -259,92 +258,90 @@ class SnapEnv(ParallelEnv):
         reward = {"player_1": player1count, "player_2": player2count}
         return reward
     def step(self, actions):
-        print(actions)
         rewards = {agent: 0 for agent in self.agents}
         terminations = {agent: False for agent in self.agents}
         truncations = {agent: False for agent in self.agents}
         infos = {agent: {} for agent in self.agents}
-        for agent, agent_actions in actions.items():
-            print(self.counter)
-            if isinstance(agent_actions, np.int64) or isinstance(agent_actions, int):
-                agent_actions = [agent_actions]
-            for action in agent_actions:
-                if action == self.pass_action or self.counter >= 7:
-                        if self.counter >= 7:
-                            for agentpass in self.agents:
-                                if self.passing[agentpass] == False:
-                                    rewards[agentpass] -= 0.8
-                                    infos[agentpass]["nopass"] = True
-                        print(self.passing)
-                        self.passing[agent] = True
-                        if (self.passing["player_1"] and self.passing["player_2"]) or self.counter >= 7:
-                            self.counter =0
-                            print("Both players passed")
-                            for card in self.gm.status["allyhand"]: #reward negative per ogni carta in mano rimasta che non hanno giocato nonostante avessero l'energia
-                                if card.cost < self.gm.status["allyenergy"]:
-                                    rewards["player_1"] -= card.cost * 0.1
-                            for card in self.gm.status["enemyhand"]:
-                                if card.cost < self.gm.status["enemyenergy"]:
-                                    rewards["player_2"] -= card.cost * 0.1
-                            self.gm.turnEnd(True)
-                            if self.gm.game_end:
-                                terminations = {agent: True for agent in self.agents}
-                                break
-                            break 
-                cardidx, locationidx = self.decode_action(action) #in base al valore in input, ricava la carta e le location in cui viene giocata
-                current_hand = self.gm.getHand(agent=agent)
-                if cardidx > len(current_hand) - 1:
-                    rewards[agent] -= 0.3
-                    infos[agent]["invalid_action"] = True
-                    print("invalid action")
-                    continue
-                card = current_hand[cardidx]
-                if agent == "player_1":
-                    ally = True
-                    if card.cost <= self.gm.status["allyenergy"]:
-                        result = self.gm.addUnit(card, ally, self.gm.locationList[f"location{locationidx+1}"].locationNum)
-                        if result:
-                            self.gm.status["allyenergy"] -= card.cost
-                            self.gm.status["allyhand"].remove(card)
-                            rewards[agent] += 0.5
-                            infos[agent]["card_played"] = True
-                            if self.gm.status["allyenergy"] == 0:
-                                rewards[agent] += 0.5
-                                infos[agent]["0_energy_bonus"] = True
-                        else:
-                            rewards[agent] -= 0.5
-                            infos[agent]["illegal_move"] = True
-                            print("illegal move")
-                elif agent == "player_2":
-                    ally = False
-                    if card.cost <= self.gm.status["enemyenergy"]:
-                        result = self.gm.addUnit(card, ally, self.gm.locationList[f"location{locationidx+1}"].locationNum)
-                        if result:
-                            self.gm.status["enemyenergy"] -= card.cost
-                            self.gm.status["enemyhand"].remove(card)
-                            rewards[agent] += 0.5
-                            infos[agent]["card_played"] = True
-                        else:
-                            rewards[agent] -= 0.5
-                            infos[agent]["illegal_move"] = True
-                            print("illegal move")
-                if self.gm.game_end:
-                    terminations = {agent: True for agent in self.agents}
-                    if self.gm.checkWinner() == "Ally":
-                        rewards["player_1"] += 3
-                        self.games_won += 1
-                        infos["player_1"]["win"] = True
-                    elif self.gm.checkWinner() == "Enemy":
-                        rewards["player_1"] -= 3
-                        rewards["player_2"] += 3
-                        infos["player_1"]["loss"] = True
-                        infos["player_2"]["win"] = True
+        if self.gm.game_end == False:
+            for agent, agent_actions in actions.items():
+                if isinstance(agent_actions, np.int64):
+                    agent_actions = [agent_actions.item()]
+                else:
+                    agent_actions = [agent_actions]
+                for action in agent_actions:
+                    if action == self.pass_action or self.counter >= 7:
+                            if self.counter >= 7:
+                                for agentpass in self.agents:
+                                    if self.passing[agentpass] == False:
+                                        rewards[agentpass] -= 0.4
+                                        infos[agentpass]["nopass"] = True
+                            self.passing[agent] = True
+                            if (self.passing["player_1"] and self.passing["player_2"]) or self.counter >= 7:
+                                self.counter =0
+                                print("Both players passed")
+                                for card in self.gm.status["allyhand"]: #reward negative per ogni carta in mano rimasta che non hanno giocato nonostante avessero l'energia
+                                    if card.cost < self.gm.status["allyenergy"]:
+                                        rewards["player_1"] -= card.cost * 0.1
+                                for card in self.gm.status["enemyhand"]:
+                                    if card.cost < self.gm.status["enemyenergy"]:
+                                        rewards["player_2"] -= card.cost * 0.1
+                                self.gm.turnEnd(True)
+                                if self.gm.game_end:
+                                    break 
+                    cardidx, locationidx = self.decode_action(action) #in base al valore in input, ricava la carta e le location in cui viene giocata
+                    current_hand = self.gm.getHand(agent=agent)
+                    if cardidx > len(current_hand) - 1:
+                        rewards[agent] -= 0.3
+                        infos[agent]["invalid_action"] = True
+                        print("invalid action")
+                        continue
                     else:
-                        rewards["player_1"] -=0.5
-                        rewards["player_2"] -=0.5
-                        infos["player_1"]["draw"] = True
-                        infos["player_2"]["draw"] = True
-                    break
+                        card = current_hand[cardidx]
+                        if agent == "player_1":
+                            ally = True
+                            if card.cost <= self.gm.status["allyenergy"]:
+                                result = self.gm.addUnit(card, ally, self.gm.locationList[f"location{locationidx+1}"].locationNum)
+                                if result:
+                                    self.gm.status["allyenergy"] -= card.cost
+                                    self.gm.status["allyhand"].remove(card)
+                                    rewards[agent] += 0.5
+                                    infos[agent]["card_played"] = True
+                                    if self.gm.status["allyenergy"] == 0:
+                                        rewards[agent] += 0.5
+                                        infos[agent]["0_energy_bonus"] = True
+                                else:
+                                    rewards[agent] -= 0.5
+                                    infos[agent]["illegal_move"] = True
+                                    print("illegal move")
+                        elif agent == "player_2":
+                            ally = False
+                            if card.cost <= self.gm.status["enemyenergy"]:
+                                result = self.gm.addUnit(card, ally, self.gm.locationList[f"location{locationidx+1}"].locationNum)
+                                if result:
+                                    self.gm.status["enemyenergy"] -= card.cost
+                                    self.gm.status["enemyhand"].remove(card)
+                                    rewards[agent] += 0.5
+                                    infos[agent]["card_played"] = True
+                                else:
+                                    rewards[agent] -= 0.5
+                                    infos[agent]["illegal_move"] = True
+                                    print("illegal move")
+        if self.gm.game_end or self.gm.status["turncounter"] > 7:
+            terminations = {agent: True for agent in self.agents}
+            if self.gm.checkWinner() == "Ally":
+                rewards["player_1"] += 3
+                self.games_won += 1
+                infos["player_1"]["win"] = True
+            elif self.gm.checkWinner() == "Enemy":
+                rewards["player_1"] -= 3
+                rewards["player_2"] += 3
+                infos["player_1"]["loss"] = True
+                infos["player_2"]["win"] = True
+            else:
+                rewards["player_1"] -=0.5
+                rewards["player_2"] -=0.5
+                infos["player_1"]["draw"] = True
+                infos["player_2"]["draw"] = True
         if (self.gm.locationList["location1"].alliesPower + self.gm.locationList["location2"].alliesPower + self.gm.locationList["location3"].alliesPower)/3 >= 8 and self.gm.checkWinner()== "Ally":
             rewards["player_1"] += 2
             infos["player_1"]["bonus_power"] = True

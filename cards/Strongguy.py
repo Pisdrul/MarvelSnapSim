@@ -15,4 +15,4 @@ class Strongguy(Card):
                 self.ongoing_to_apply.append(self)
         else:
             if len(self.status["enemyhand"]) <= 1:
-                self.ongoing_to_apply += 6
+                self.ongoing_to_apply.append(self)

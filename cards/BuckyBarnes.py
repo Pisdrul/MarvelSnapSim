@@ -12,6 +12,10 @@ class Buckybarnes(Card):
     
     def whenDestroyed(self, locationlist):
         if self.ally:
-            locationlist["location1"].allies.append(self.WinterSoldier(self.ally, self.status))
+            newcard = self.WinterSoldier(self.ally, self.status)
+            newcard.location = self.location
+            locationlist["location1"].allies.append(newcard)
         else:
-            locationlist["location1"].enemies.append(self.WinterSoldier(self.ally, self.status))
+            newcard = self.WinterSoldier(self.ally, self.status)
+            newcard.location = self.location
+            locationlist["location1"].enemies.append(newcard)

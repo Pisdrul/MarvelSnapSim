@@ -9,18 +9,22 @@ class Angel(Card):
     def activateOnDestroy(self, card, location):
         if self.ally and card.ally:
             print("Adding angel!")
-            try:
-                self.status["allyhand"].remove(self)
-            except: pass
-            try:
-                self.status["allydeck"].remove(self)
-            except: pass
-            if len(location.allies)<4: location.allies.append(self)
+            if len(location.allies)<4:
+                try:
+                    self.status["allyhand"].remove(self)
+                except: pass
+                try:
+                    self.status["allydeck"].remove(self)
+                except: pass 
+                location.allies.append(self)
+                self.location = location
         elif not self.ally and not card.ally:
-            try:
-                self.status["enemyhand"].remove(self)
-            except: pass
-            try:
-                self.status["enemydeck"].remove(self)
-            except: pass
-            if len(location.enemies)<4: location.enemies.append(self)
+            if len(location.enemies)<4: 
+                try:
+                    self.status["enemyhand"].remove(self)
+                except: pass
+                try:
+                    self.status["enemydeck"].remove(self)
+                except: pass
+                location.enemies.append(self)
+                self.location = location

@@ -21,4 +21,5 @@ class Coleenwing(Card):
                 lowestCost = card.cur_cost
                 lowestCostCard = [card]
         
-        random.choice(lowestCostCard).discard()
+        if len(lowestCostCard) > 0: 
+            random.choice(lowestCostCard).discard()

@@ -69,6 +69,7 @@ class Location:
             return False
     def addToAllies(self,unit):
         print("Adding allies!")
+        print("Adding ", unit.name)
         if not self.checkIfLocationFull(True) and self.can_play_cards_allies:
                 if self.canCardBePlayed(unit):
                     self.preRevealAllies.append(unit)
@@ -83,6 +84,7 @@ class Location:
         
     def addToEnemies(self,unit):
         print("Adding enemies!")
+        print("Adding ", unit.name)
         if not self.checkIfLocationFull(unit.ally) and self.can_play_cards_enemies:
             if self.canCardBePlayed(unit):
                 self.preRevealEnemies.append(unit)
@@ -173,7 +175,7 @@ class Location:
     
     def handleReveals(self,unitList):
         for unit in unitList:
-            if(unit.ally):
+            if unit.ally:
                 self.allies.append(unit)
             else:
                 self.enemies.append(unit)
@@ -301,11 +303,13 @@ class Location:
         if card.can_be_destroyed and self.can_destroy:
             temp = card.location
             if card.ally:
-                self.allies.remove(card)
+                if card in self.allies: self.allies.remove(card)
+                elif card in self.preRevealAllies: self.preRevealAllies.remove(card)
                 result = card.whenDestroyed(self.locationlist)
                 if result: self.status["alliesdestroyed"].append(card)
-            else:
-                self.enemies.remove(card)
+            elif not card.ally and card in self.enemies:
+                if card in self.enemies: self.enemies.remove(card)
+                elif card in self.preRevealEnemies: self.preRevealEnemies.remove(card)
                 result = card.whenDestroyed(self.locationlist)
                 if result: self.status["enemiesdestroyed"].append(card)
             

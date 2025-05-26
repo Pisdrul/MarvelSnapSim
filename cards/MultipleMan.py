@@ -18,4 +18,4 @@ class Multipleman(Card):
             cur.append(copy.deepcopy(self))
             next.append(self)
             for unit in self.location.allies + self.location.enemies:
-                unit.onCardBeingMovedHere()
+                unit.onCardBeingMoved(self)

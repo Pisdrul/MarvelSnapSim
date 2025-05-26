@@ -3,7 +3,7 @@ from cards import Card
 class Professorx(Card):
     def __init__(self, ally, status):
         super().__init__(5, 3, "Professor X", ally, status)
-        self.description = "You can't play this after turn 3. Ongoing: You can't play cards here"
+        self.description = "Ongoing: Moving is the only way to add or remove a card from here."
         self.has_ongoing = True
     
     def ongoing(self, location):

@@ -1,10 +1,11 @@
 from cards import Card
 import random
 
-class Hulkbuster(Card):
+class Hulkbuster(Card): #carta al momento molto buggata, come per morph. potrebbe avere delle interazioni non volute 
     def __init__(self, ally, status):
         super().__init__(2, 3, "Hulk Buster", ally, status)
         self.description = "On Reveal: Merge with one of your cards here."
+        self.wasmerged = False 
     
     def onReveal(self, locationlist):
         toMergeWith = []
@@ -24,7 +25,14 @@ class Hulkbuster(Card):
     
     def merge(self, card):
         card.onreveal_buff += self.cur_power
-        if self.ally:
-            self.location.allies.remove(self)
-        else:
-            self.location.enemies.remove(self)
+        if self.ally and self.wasmerged == False:
+            print(self.location.preRevealAllies)
+            print("up is pre reveal, down is allies")
+            print(self.location.allies)
+            if self in self.location.preRevealAllies: self.location.preRevealAllies.remove(self)
+            self.wasmerged = True
+        elif not self.ally and self.wasmerged == False:
+            print(self.location.preRevealEnemies)
+            print("up is pre reveal, down is enemies")
+            print(self.location.enemies)
+            if self in self.location.preRevealEnemies: self.location.preRevealEnemies.remove(self)

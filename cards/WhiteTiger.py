@@ -18,6 +18,13 @@ class Whitetiger(Card):
                         possible.append(loc)
         if len(possible) > 0:
             loc = random.choice(possible)
-            loc.allies.append(Card(5, 8, "Tiger", self.ally, self.status))
+            if self.ally:
+                tiger = Card(5, 8, "Tiger", self.ally, self.status)
+                tiger.location = loc
+                loc.allies.append(tiger)
+            else:
+                 tiger = Card(5, 8, "Tiger", self.ally, self.status)
+                 tiger.location = loc
+                 loc.enemies.append(tiger)
         else:
             print("No possible locations")

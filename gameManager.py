@@ -143,9 +143,11 @@ class GameState():
 
     def addUnit(self,unit,ally, locNum):
         selectedLoc = "location" + str(locNum)
-        if(ally):
+        if ally:
             was_added = self.locationList[selectedLoc].addToAllies(unit)
+            print(self.locationList[selectedLoc].preRevealAllies)
             if was_added:
+                print(unit, " was added to ", self.locationList[selectedLoc].name)
                 unit.playCard(self.locationList[selectedLoc])
                 move = {
                     "move_id": str(uuid.uuid4()),
@@ -168,8 +170,8 @@ class GameState():
             return was_added
         else:
             was_added = self.locationList[selectedLoc].addToEnemies(unit)
-            unit.playCard(self.locationList[selectedLoc])
             if was_added:
+                print(unit, " was added to ", self.locationList[selectedLoc].name)
                 unit.playCard(self.locationList[selectedLoc])
                 move = {
                     "move_id": str(uuid.uuid4()),
@@ -189,6 +191,7 @@ class GameState():
                     }
                 }
                 #self.registerMove(move)
+            print(unit, " was added?", was_added)
             return was_added
     
     def undoActions(self, turnAlly, hand):
@@ -218,6 +221,12 @@ class GameState():
                 i+=1
 
     def gameStart(self): #inserisci carte nel deck e pesca le carte
+        ALL_CARDS = [
+            cls for name, cls in inspect.getmembers(cards, inspect.isclass)
+            if cls.__module__.startswith("cards") and cls is not cards.Card
+        ]
+        player_deck_classes = random.sample(ALL_CARDS, 12)
+        enemy_deck_classes = random.sample(ALL_CARDS, 12)
         self.game_id = str(generate(size=10))
         self.game = {
             "game_id": self.game_id,
@@ -225,14 +234,8 @@ class GameState():
             "start_time": datetime.utcfromtimestamp(time.time()).isoformat() + "Z",
             "end_time": '',
         }
-        self.status["allydeck"] = [cards.Spectrum(True,self.status), cards.Antman(True, self.status), cards.Mrfantastic(True,self.status),
-                                   cards.Captainamerica(True, self.status), cards.Ironman(True, self.status), cards.Klaw(True, self.status),
-                                   cards.Armor(True, self.status), cards.Lizard(True, self.status), cards.Cosmo(True, self.status),
-                                   cards.Namor(True, self.status), cards.Punisher(True,self.status), cards.Onslaught(True, self.status)]
-        self.status["enemydeck"] = [cards.Sunspot(False,self.status), cards.Americachavez(False, self.status), cards.Iceman(False,self.status),
-                                   cards.Nightcrawler(False, self.status), cards.Blade(False, self.status), cards.Angela(False, self.status),
-                                   cards.Swarm(False, self.status), cards.Wolverine(False, self.status), cards.Bishop(False, self.status),
-                                   cards.Ladysif(False, self.status), cards.Swordmaster(False,self.status), cards.Apocalypse(False, self.status)]
+        self.status["allydeck"] = [cls(True, self.status) for cls in player_deck_classes]
+        self.status["enemydeck"] = [cls(False, self.status) for cls in enemy_deck_classes]
         random.shuffle(self.status["allydeck"])
         random.shuffle(self.status["enemydeck"])
         self.draw(self.status["allyhand"],self.status["allydeck"],3)
@@ -362,7 +365,7 @@ class GameState():
         self.status["allypriority"] = not self.status["allypriority"]
         self.announcer()
         self.locationList["location1"].revealCards(), self.locationList["location2"].revealCards(), self.locationList["location3"].revealCards()
-        print("End of turn!")
+        print("End of turn ", self.status["turncounter"])
         self.locationList["location1"].endOfTurn(), self.locationList["location2"].endOfTurn(), self.locationList["location3"].endOfTurn()
         self.status["turncounter"] +=1
         self.status["allymaxenergy"]+=1
@@ -445,8 +448,8 @@ class GameState():
     def turnEnd(self, training):
         self.endOfTurn()
         self.passStatus['turnend'] = True
-        if training: self.startOfTurn()
         if training and self.status["turncounter"] == self.status["maxturns"]: self.endGame()
+        elif training: self.startOfTurn()
     
     def retreat(allyOrEnemy):
         pass
@@ -456,3 +459,7 @@ class GameState():
             return self.status["allyhand"]
         elif agent == "player_2":
             return self.status["enemyhand"]
+
+game = GameState()
+
+game.gameStart()

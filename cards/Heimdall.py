@@ -10,12 +10,14 @@ class Heimdall(Card):
         if self.ally:
             for unit in locationlist["location1"].allies + locationlist["location2"].allies + locationlist["location3"].allies:
                 if unit != self:
+                    print(unit.name)
                     newloc= unit.location.returnRightOrLeftLocation(-1)
                     if newloc != None:
                         unit.move(unit.location.returnRightOrLeftLocation(-1))
         else:
             for unit in locationlist["location1"].enemies + locationlist["location2"].enemies + locationlist["location3"].enemies:
                 if unit != self:
+                    print(unit.name)
                     newloc= unit.location.returnRightOrLeftLocation(-1)
                     if newloc != None:
                         unit.move(unit.location.returnRightOrLeftLocation(-1))

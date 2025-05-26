@@ -9,6 +9,7 @@ class Jessicajones(Card):
     
     def onReveal(self, locationlist):
         self.onRevealNum += 1
+        self.locationNumToCheck = self.location.locationNum
         self.turnToCheck = self.status["turncounter"] + 1
     
     def endOfTurn(self):

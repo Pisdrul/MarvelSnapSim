@@ -11,7 +11,8 @@ class Uatu(Card):
     def updateCard(self, locationlist):
         super().updateCard(locationlist)
         """Reveal the unrevealed locations."""
-        print("Uatu is telling you that:")
-        for location in locationlist.values():
-            if location.temporary:
-                print(f"Location {location.locationNum} will turn into: {location.newLoc.name}")
+        if self.status["turncounter"] <= 3:
+            print("Uatu is telling you that:")
+            for location in locationlist.values():
+                if location.temporary:
+                    print(f"Location {location.locationNum} will turn into: {location.newLoc.name}")

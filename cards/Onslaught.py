@@ -11,7 +11,7 @@ class Onslaught(Card):
         if self.ally:
             for unit in self.location.allies:
                 if unit != self and not unit.onslaught:
-                    unit.applyOngoing(self.locationlist)
+                    unit.applyOngoing(locationlist)
         else:
             for unit in self.location.enemies:
                 if unit != self and not unit.onslaught:

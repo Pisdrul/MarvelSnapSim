@@ -4,6 +4,7 @@ class Cloak(Card):
     def __init__(self, ally, status):
         super().__init__(2, 4, "Cloak", ally, status)
         self.description = "On Reveal: Next turn, both players can move cards to this location."
+        self.turnToCheck = 0
     
     def onReveal(self, locationlist):
         self.turnToCheck = self.status["turncounter"] + 1
