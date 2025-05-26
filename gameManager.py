@@ -164,7 +164,7 @@ class GameState():
                         ],
                     }
                 }
-                self.registerMove(move)
+                #self.registerMove(move)
             return was_added
         else:
             was_added = self.locationList[selectedLoc].addToEnemies(unit)
@@ -188,7 +188,7 @@ class GameState():
                         ],
                     }
                 }
-                self.registerMove(move)
+                #self.registerMove(move)
             return was_added
     
     def undoActions(self, turnAlly, hand):
@@ -401,7 +401,7 @@ class GameState():
                     self.game['winner'] = 'Tie'
                     self.passStatus['winner'] = 'Tie'
         self.game['end_time'] = datetime.utcfromtimestamp(time.time()).isoformat() + "Z"
-        self.registerGame(self.game)
+        #self.registerGame(self.game)
     
     def registerGame(self,game):
         print("registering!")
