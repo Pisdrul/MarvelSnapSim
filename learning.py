@@ -7,6 +7,8 @@ def linear_schedule(initial_value):
         return initial_value * progress_remaining
     return schedule
 
+#DA FARE: creare due modelli diversi, uno che impara giocando il random e uno che impara giocando contro se stesso
+#veere poi come entrambi sono contro il bot random
 callback = CustomTensorboardCallback()
 
 env = SinglePlayerAgent(player="player_1", opponent_model= None)
