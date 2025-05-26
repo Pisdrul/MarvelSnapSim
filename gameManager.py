@@ -19,6 +19,7 @@ class GameState():
             "start_time": "",
             "end_time": "",
         }
+        self.version = '1.1.0'
         self.game_id = ''
         self.exit = False
         self.turnAlly = False
@@ -126,7 +127,7 @@ class GameState():
             print(e)
         directory = "matchlogs"
         os.makedirs(directory, exist_ok=True)
-        filename = os.path.join(directory, "moves/move-1.0.0-data.json")
+        filename = os.path.join(directory, f"moves/move-{self.version}-data.json")
         if os.path.exists(filename):
             with open(filename, "r") as f:
                 data = json.load(f)
@@ -412,7 +413,7 @@ class GameState():
             print(e)
         directory = "matchlogs"
         os.makedirs(directory, exist_ok=True)
-        filename = os.path.join(directory, "games/game-1.0.0-data.json")
+        filename = os.path.join(directory, f"games/game-{self.version}-data.json")
         if os.path.exists(filename):
             with open(filename, "r") as f:
                 data = json.load(f)

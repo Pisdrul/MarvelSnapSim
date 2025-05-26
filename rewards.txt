@@ -1,0 +1,21 @@
+---------------------------------------
+| rollout/                |           |
+|    ep_len_mean          | 35        |
+|    ep_rew_mean          | 5.3       |
+| time/                   |           |
+|    fps                  | 14        |
+|    iterations           | 5         |
+|    time_elapsed         | 683       |
+|    total_timesteps      | 10240     |
+| train/                  |           |
+|    approx_kl            | 0.0079795 |
+|    clip_fraction        | 0.0609    |
+|    clip_range           | 0.2       |
+|    entropy_loss         | -2.09     |
+|    explained_variance   | 0.145     |
+|    learning_rate        | 0.0003    |
+|    loss                 | 6.45      |
+|    n_updates            | 350       |
+|    policy_gradient_loss | -0.0264   |
+|    value_loss           | 11.6      |
+---------------------------------------

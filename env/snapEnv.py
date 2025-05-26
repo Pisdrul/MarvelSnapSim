@@ -152,6 +152,7 @@ class SnapEnv(ParallelEnv):
         self.games_won = 0
         self.winrate = 0
         self.passing = {"player_1": False, "player_2": False}
+        self.counter = 0
         
         card_space = spaces.Dict({
             "id": spaces.Discrete(max_cards),
@@ -264,20 +265,33 @@ class SnapEnv(ParallelEnv):
         truncations = {agent: False for agent in self.agents}
         infos = {agent: {} for agent in self.agents}
         for agent, agent_actions in actions.items():
-            if isinstance(agent_actions, np.int64):
+            print(self.counter)
+            if isinstance(agent_actions, np.int64) or isinstance(agent_actions, int):
                 agent_actions = [agent_actions]
             for action in agent_actions:
-                if action == self.pass_action:
+                if action == self.pass_action or self.counter >= 7:
+                        if self.counter >= 7:
+                            for agentpass in self.agents:
+                                if self.passing[agentpass] == False:
+                                    rewards[agentpass] -= 0.8
+                                    infos[agentpass]["nopass"] = True
                         print(self.passing)
                         self.passing[agent] = True
-                        if self.passing["player_1"] and self.passing["player_2"]:
+                        if (self.passing["player_1"] and self.passing["player_2"]) or self.counter >= 7:
+                            self.counter =0
                             print("Both players passed")
+                            for card in self.gm.status["allyhand"]: #reward negative per ogni carta in mano rimasta che non hanno giocato nonostante avessero l'energia
+                                if card.cost < self.gm.status["allyenergy"]:
+                                    rewards["player_1"] -= card.cost * 0.1
+                            for card in self.gm.status["enemyhand"]:
+                                if card.cost < self.gm.status["enemyenergy"]:
+                                    rewards["player_2"] -= card.cost * 0.1
                             self.gm.turnEnd(True)
                             if self.gm.game_end:
                                 terminations = {agent: True for agent in self.agents}
                                 break
-                            break
-                cardidx, locationidx = self.decode_action(action)
+                            break 
+                cardidx, locationidx = self.decode_action(action) #in base al valore in input, ricava la carta e le location in cui viene giocata
                 current_hand = self.gm.getHand(agent=agent)
                 if cardidx > len(current_hand) - 1:
                     rewards[agent] -= 0.3
@@ -334,6 +348,7 @@ class SnapEnv(ParallelEnv):
         if (self.gm.locationList["location1"].alliesPower + self.gm.locationList["location2"].alliesPower + self.gm.locationList["location3"].alliesPower)/3 >= 8 and self.gm.checkWinner()== "Ally":
             rewards["player_1"] += 2
             infos["player_1"]["bonus_power"] = True
+        self.counter +=1
         observations = {agent: self.observe(agent) for agent in self.agents}
         self.agents = [] if all(terminations.values()) else self.agents
         self.render()
