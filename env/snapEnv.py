@@ -14,6 +14,7 @@ class SnapEnv(ParallelEnv):
         self.agents = self.possible_agents[:]
         self.gm = GameState()
         self.gm.reset()
+        self.tracked_player = None
         self.card_names = [
 
         "Agent 13",
@@ -322,6 +323,9 @@ class SnapEnv(ParallelEnv):
                                     self.gm.status["enemyhand"].remove(card)
                                     rewards[agent] += 0.5
                                     infos[agent]["card_played"] = True
+                                    if self.gm.status["enemyenergy"] == 0:
+                                        rewards[agent] += 0.5
+                                        infos[agent]["0_energy_bonus"] = True
                                 else:
                                     rewards[agent] -= 0.5
                                     infos[agent]["illegal_move"] = True
@@ -330,11 +334,16 @@ class SnapEnv(ParallelEnv):
             terminations = {agent: True for agent in self.agents}
             if self.gm.checkWinner() == "Ally":
                 rewards["player_1"] += 3
-                self.games_won += 1
+                rewards["player_2"] -= 3
+                if self.tracked_player == "player_1":
+                    self.games_won += 1
                 infos["player_1"]["win"] = True
+                infos["player_2"]["loss"] = True
             elif self.gm.checkWinner() == "Enemy":
                 rewards["player_1"] -= 3
                 rewards["player_2"] += 3
+                if self.tracked_player == "player_2":
+                    self.games_won += 1
                 infos["player_1"]["loss"] = True
                 infos["player_2"]["win"] = True
             else:
