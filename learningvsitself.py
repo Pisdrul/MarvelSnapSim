@@ -14,7 +14,7 @@ def linear_schedule(initial_value):
 env = SinglePlayerAgent(opponent_model=None)
 callback = CallbackList([
     CustomTensorboardCallback(csv_path="./checkpoints data/learning_vs_itself.csv"),
-    OpponentUpdateCallback(env, update_freq=100)
+    OpponentUpdateCallback(env, update_freq=10000)
     ])
 
 model = PPO.load("model vs self", env=env)
