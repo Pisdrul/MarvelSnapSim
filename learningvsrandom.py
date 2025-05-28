@@ -13,7 +13,7 @@ callback = CustomTensorboardCallback(csv_path="./checkpoints data/learning_vs_ra
 
 env = SinglePlayerAgent(opponent_model= None)
 model = PPO.load("model vs random", env=env)
-
-model.set_env(env)
-model.learn(total_timesteps=1000000, tb_log_name="run_random_1", callback=callback)
+for i in range(10):
+    model.set_env(env)
+    model.learn(total_timesteps=1000000, tb_log_name="run_random_1", callback=callback)
 model.save("model vs random")

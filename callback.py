@@ -9,6 +9,7 @@ class CustomTensorboardCallback(BaseCallback):
         self.csv_path = csv_path
         self.save_freq = save_freq
         self.last_save_step = 0
+        self.data_to_write = []  # Lista per accumulare le righe da scrivere
          # Se il file non esiste, crea header
         if not os.path.exists(self.csv_path):
             with open(self.csv_path, mode='w', newline='') as f:
@@ -31,47 +32,36 @@ class CustomTensorboardCallback(BaseCallback):
 
     def _on_step(self) -> bool:
         # Scarta tutti i wrapper
-        env = self.training_env.envs[0].unwrapped
-        reward = self.locals["rewards"]
-        if isinstance(reward, (list, np.ndarray)):
-            reward = reward[0]  # o l'indice corretto
-        self.current_rewards += reward
-        done = self.locals["dones"]  # idem, può essere array
-        if isinstance(done, (list, np.ndarray)):
-            done = done[0]
-        if done:
-            self.episode_rewards.append(self.current_rewards)
-            self.current_rewards = 0.0
-        if len(self.episode_rewards) > 0:
-            ep_rew_mean = np.mean(self.episode_rewards)
-        else:
-            ep_rew_mean = 0.0
-        # Accedi a raw_env se esiste
-        raw_env = getattr(env, "raw_env", None)
+        if self.num_timesteps - self.last_save_step >= self.save_freq:
+            self.last_save_step = self.num_timesteps
 
-        if raw_env is not None:
-            winrate = getattr(raw_env, "winrate", None)
-            games = getattr(raw_env, "games", None)
-            games_won = getattr(raw_env, "games_won", None)
-            ep_rew_mean = self.logger.record("custom/ep_rew_mean", ep_rew_mean)
+            env = self.training_env.envs[0].unwrapped
+            raw_env = getattr(env, "raw_env", None)
 
-            if winrate is not None:
-                self.logger.record("custom/winrate", winrate)
-            if games is not None:
-                self.logger.record("custom/games", games)
-            if games_won is not None:
-                self.logger.record("custom/games_won", games_won)
-            if ep_rew_mean is not None:
-                self.logger.record("custom/ep_rew_mean", ep_rew_mean)
-            # Scrittura su CSV
-            if self.num_timesteps - self.last_save_step >= self.save_freq:
-                self._save_metrics(winrate,games,games_won, ep_rew_mean)
-                self.last_save_step = self.num_timesteps
+            if raw_env:
+                winrate = getattr(raw_env, "winrate", None)
+                games = getattr(raw_env, "games", None)
+                games_won = getattr(raw_env, "games_won", None)
+            else:
+                winrate = games = games_won = None
+
+            ep_rew_mean = self.locals.get("ep_rew_mean", None)
+
+            # Salva la riga nella lista temporanea
+            self.data_to_write.append([
+                self.iteration,
+                self.num_timesteps,
+                winrate if winrate is not None else "NA",
+                games if games is not None else "NA",
+                games_won if games_won is not None else "NA",
+                ep_rew_mean if ep_rew_mean is not None else "NA"
+            ])
 
         return True
     
-    def _save_metrics(self,winrate,games,games_won, ep_rew_mean):
-        if winrate is not None and games is not None and games_won is not None:
-                with open(self.csv_path, mode='a', newline='') as f:
-                    writer = csv.writer(f)
-                    writer.writerow([self.iteration, self.num_timesteps, winrate, games, games_won, ep_rew_mean])
+    def _on_training_end(self) -> None:
+        # Scrivi tutte le righe accumulate
+        if self.data_to_write:
+            with open(self.csv_path, mode='a', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerows(self.data_to_write)

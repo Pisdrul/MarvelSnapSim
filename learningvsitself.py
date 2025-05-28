@@ -24,6 +24,6 @@ env.opponent_model = PPO.load("temp_model", env=env)
 env.opponent_random = False
 model.set_env(env)
 
-model.learn(total_timesteps=1000000, tb_log_name="run_vs_self_1", callback=callback)
+model.learn(total_timesteps=100000, tb_log_name="run_vs_self_1", callback=callback)
 model.save("model vs self")
 
