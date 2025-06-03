@@ -92,13 +92,16 @@ class Card:
 
     def discard(self):
         print("Discarding ", self.name)
-        if self.ally and self in self.status["allyhand"]:
-            self.status["allyhand"].remove(self)
-        elif not self.ally and self in self.status["enemyhand"]:
-            self.status["enemyhand"].remove(self)
-        if self.ally: self.status["alliesdiscarded"].append(self)
-        else: self.status["enemiesdiscarded"].append(self)
-        self.whenDiscarded()
+        try:
+            if self.ally and self in self.status["allyhand"]:
+                self.status["allyhand"].remove(self)
+            elif not self.ally and self in self.status["enemyhand"]:
+                self.status["enemyhand"].remove(self)
+            if self.ally: self.status["alliesdiscarded"].append(self)
+            else: self.status["enemiesdiscarded"].append(self)
+            self.whenDiscarded()
+        except:
+            print("Card not in hand")
     
     def whenDiscarded(self):
         pass

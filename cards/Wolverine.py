@@ -8,11 +8,11 @@ class Wolverine(Card):
     
     def whenDestroyed(self, locationlist):
         self.regenerate()
+
     def whenDiscarded(self):
         self.regenerate()
 
     def regenerate(self):
-        print(self.status)
         if self.location == 0:
             locationsNotFull = self.status["locationlist"]["location1"].locationsThatArentfull(self.ally)
         else:

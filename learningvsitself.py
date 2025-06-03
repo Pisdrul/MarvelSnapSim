@@ -3,6 +3,8 @@ from env.SelfPlayWrapper import SinglePlayerAgent
 from callback import CustomTensorboardCallback
 from stable_baselines3.common.callbacks import CallbackList
 from modelCallback import OpponentUpdateCallback
+from stable_baselines3.common.logger import configure
+
 def linear_schedule(initial_value):
     def schedule(progress_remaining):
         return initial_value * progress_remaining
@@ -13,17 +15,18 @@ def linear_schedule(initial_value):
 
 env = SinglePlayerAgent(opponent_model=None)
 callback = CallbackList([
-    CustomTensorboardCallback(csv_path="./checkpoints data/learning_vs_itself.csv"),
+    CustomTensorboardCallback(csv_path="./checkpoints data/learning_vs_itself.csv", log_tensorboard=True),
     OpponentUpdateCallback(env, update_freq=10000)
     ])
 
 model = PPO.load("model vs self", env=env)
-
+dummy_logger = configure(folder=None, format_strings=[])
+model.set_logger(dummy_logger)
 PPO.save(model, "temp_model")
 env.opponent_model = PPO.load("temp_model", env=env)
 env.opponent_random = False
 model.set_env(env)
 
-model.learn(total_timesteps=100000, tb_log_name="run_vs_self_1", callback=callback)
+model.learn(total_timesteps=1000000, tb_log_name="run_vs_self_1", callback=callback)
 model.save("model vs self")
 

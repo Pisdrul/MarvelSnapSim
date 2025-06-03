@@ -2,13 +2,17 @@ from stable_baselines3.common.callbacks import BaseCallback
 import numpy as np
 import os, csv
 class CustomTensorboardCallback(BaseCallback):
-    def __init__(self, csv_path, save_freq = 10000, verbose=0, iteration = None):
+    def __init__(self, csv_path, log_tensorboard, save_freq = 10000, verbose=0, iteration = None):
         super().__init__(verbose)
         self.episode_rewards = []
         self.current_rewards = 0.0
         self.csv_path = csv_path
         self.save_freq = save_freq
+        self.episode_rewards = []
+        self.current_rewards = []
         self.last_save_step = 0
+        self.log_buffer = []
+        self.log_tensorboard = log_tensorboard
         self.data_to_write = []  # Lista per accumulare le righe da scrivere
          # Se il file non esiste, crea header
         if not os.path.exists(self.csv_path):
@@ -32,6 +36,16 @@ class CustomTensorboardCallback(BaseCallback):
 
     def _on_step(self) -> bool:
         # Scarta tutti i wrapper
+        reward = self.locals["rewards"][0]
+        done = self.locals["dones"][0]
+
+        self.current_rewards.append(reward)
+
+        if done:
+            ep_reward = sum(self.current_rewards)
+            self.episode_rewards.append(ep_reward)
+            self.current_rewards = []
+
         if self.num_timesteps - self.last_save_step >= self.save_freq:
             self.last_save_step = self.num_timesteps
 
@@ -45,8 +59,9 @@ class CustomTensorboardCallback(BaseCallback):
             else:
                 winrate = games = games_won = None
 
-            ep_rew_mean = self.locals.get("ep_rew_mean", None)
-
+            ep_rew_mean = np.mean(self.episode_rewards)
+            self.log_buffer.append([self.iteration,self.num_timesteps, winrate, games, games_won, ep_rew_mean])
+            
             # Salva la riga nella lista temporanea
             self.data_to_write.append([
                 self.iteration,

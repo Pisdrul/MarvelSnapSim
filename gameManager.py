@@ -97,7 +97,7 @@ class GameState():
         if allypower > enemypower:
             return "Ally"
         elif allypower < enemypower:
-            return "Enemy"
+            return "Enemy"  
         else:
             return "Tie"
 
@@ -238,8 +238,8 @@ class GameState():
         self.status["enemydeck"] = [cls(False, self.status) for cls in enemy_deck_classes]
         random.shuffle(self.status["allydeck"])
         random.shuffle(self.status["enemydeck"])
-        self.draw(self.status["allyhand"],self.status["allydeck"],3)
-        self.draw(self.status["enemyhand"],self.status["enemydeck"],3)
+        self.draw(self.status["allyhand"],self.status["allydeck"],4)
+        self.draw(self.status["enemyhand"],self.status["enemydeck"],4)
         for location in self.locationList.values():
             location.startOfTurn()
 
