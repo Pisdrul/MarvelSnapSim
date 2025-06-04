@@ -15,6 +15,7 @@
         <table style="border: 1px solid black;">
             <thead>
                 <tr>
+                    <th>Move ID</th>
                     <th>Turn</th>
                     <th>Player</th>
                     <th>Card Played</th>
@@ -27,7 +28,7 @@
             <tbody>
                 {% for move in moves %}
                 <tr>
-                    <td>{{ move.id }}</td>
+                    <td>{{ move.move_id }}</td>
                     <td>{{ move.turn }}</td>
                     <td>{{ move.player }}</td>
                     <td> <a href="/data/{{ version }}/{{ move.card_played }}">{{ move.card_played }}</a></td>

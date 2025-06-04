@@ -56,6 +56,9 @@ class CustomTensorboardCallback(BaseCallback):
                 winrate = getattr(raw_env, "winrate", None)
                 games = getattr(raw_env, "games", None)
                 games_won = getattr(raw_env, "games_won", None)
+                self.logger.record("custom/winrate", winrate)
+                self.logger.record("custom/games", games)
+                self.logger.record("custom/games_won", games_won)
             else:
                 winrate = games = games_won = None
 

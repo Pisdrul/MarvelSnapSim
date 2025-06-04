@@ -19,7 +19,6 @@
                     <th>Ally Cards</th>
                     <th>Enemy Cards</th>
                     <th>Game</th>
-                    <th>Winner</th>
                     <th>Move ID</th>
                 </tr>
             </thead>
@@ -34,7 +33,6 @@
                     <td>{{ move.location.ally_cards }}</td>
                     <td>{{ move.location.enemy_cards }}</td>
                     <td ><a href="games/{{ move.game_id}}">{{ move.game_id}}</a></td>
-                    <td> {{ move.winner}}</td>
                     <td>{{ move.move_id }}</td>
                 </tr>
                 {% endfor %}
